@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NUI LABS Speedometer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Saira:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Racing+Sans+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="app" style="display: none;">
+        <div class="cluster-container">
+            <div class="pod pod-left">
+                <canvas id="canvas-rpm" width="300" height="300"></canvas>
+                <div class="overlay"><div class="label-rpm">x1000r/min</div></div>
+            </div>
+            <div class="pod pod-center">
+                <canvas id="canvas-speed" width="400" height="400"></canvas>
+                <div class="overlay speed-overlay">
+                    <div class="digital-speed">0</div>
+                    <div class="unit">KM/H</div>
+                    <div class="gear-box">N</div>
+                </div>
+            </div>
+            <div class="pod pod-right">
+                <canvas id="canvas-info" width="300" height="300"></canvas>
+                <div class="overlay icons-overlay">
+                    <i id="icon-highbeam" class="fa-solid fa-lightbulb icon-blue"></i> 
+                    <i id="icon-lowbeam" class="fa-solid fa-lightbulb icon-green"></i> 
+                    <i id="icon-seatbelt" class="fa-solid fa-user-slash icon-red"></i>
+                    <i id="icon-engine" class="fa-solid fa-car-battery icon-yellow"></i>
+                    <i id="icon-fuel" class="fa-solid fa-gas-pump icon-orange"></i> 
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="settings-menu" style="display: none;">
+        <div class="menu-card">
+            <div class="menu-header">
+                <h2>DASHBOARD CONFIG</h2>
+                <div id="close-btn"><i class="fa-solid fa-xmark"></i></div>
+            </div>
+            <div class="theme-grid" id="theme-list">
+                </div>
+        </div>
+    </div>
+
+    <div id="notify-container"></div>
+
+    <script src="jquery.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

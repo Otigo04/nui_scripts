@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NUI LABS - Police Dispatch</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app-container" style="display: none;">
+        <main class="dispatch-wrapper">
+            
+            <aside class="sidebar">
+                <div class="brand">NUI <span class="accent">LABS</span></div>
+                
+                <nav class="menu-sections custom-scrollbar">
+                    <div class="nav-group">
+                        <div class="category">Leitstelle</div>
+                        <ul>
+                            <li class="nav-item active" data-page="map-page"><i class="fas fa-map-marked-alt"></i> Karte</li>
+                            <li class="nav-item" data-page="units-page"><i class="fas fa-users"></i> Streifen</li>
+                            <li class="nav-item" data-page="person-notes-page"><i class="fas fa-sticky-note"></i> Personen-Notizen</li>
+                        </ul>
+                    </div>
+
+                    <div class="nav-group">
+                        <div class="category">Verzeichnisse</div>
+                        <ul>
+                            <li class="nav-item" data-page="vehicle-page"><i class="fas fa-car"></i> KFZ-Register</li>
+                            <li class="nav-item" data-page="jail-page"><i class="fas fa-clock"></i> Haftzeiten</li>
+                            <li class="nav-item" data-page="warrants-page"><i class="fas fa-file-invoice"></i> Haftbefehle</li>
+                        </ul>
+                    </div>
+
+                    <div class="nav-group">
+                        <div class="category">Archiv</div>
+                        <ul>
+                            <li class="nav-item" data-page="incidents-page"><i class="fas fa-folder-open"></i> Fallakten</li>
+                        </ul>
+                    </div>
+
+                    <div class="nav-group">
+                        <div class="category">Verordnungen</div>
+                        <ul>
+                            <li class="nav-item" data-page="penal-page"><i class="fas fa-gavel"></i> Straftatenkatalog</li>
+                            <li class="nav-item" data-page="orders-page"><i class="fas fa-file-contract"></i> Dienstanweisung</li>
+                        </ul>
+                    </div>
+
+                    <div class="nav-group">
+                        <div class="category">Verwaltung</div>
+                        <ul>
+                            <li class="nav-item" data-page="officers-page"><i class="fas fa-user-shield"></i> Beamte</li>
+                            <li class="nav-item" data-page="training-page"><i class="fas fa-graduation-cap"></i> Ausbildungen</li>
+                        </ul>
+                    </div>
+
+                    <div class="nav-group bottom">
+                        <ul>
+                            <li class="nav-item" data-page="settings-page"><i class="fas fa-cog"></i> Einstellungen</li>
+                        </ul>
+                    </div>
+                </nav>
+            </aside>
+
+            <section class="main-content">
+                <div id="map-page" class="page-content active">
+                    <div id="map"></div>
+                    <div class="map-overlay-top">E-Karte</div>
+                </div>
+
+                <div id="units-page" class="page-content">
+                    <div class="page-header">Streifenverwaltung</div>
+                </div>
+
+                <div id="vehicle-page" class="page-content">
+                    <div class="page-header">KFZ-Register</div>
+                </div>
+
+                <div id="jail-page" class="page-content">
+                    <div class="page-header">Haftzeiten</div>
+                </div>
+
+                <div id="warrants-page" class="page-content">
+                    <div class="page-header">Offene Haftbefehle</div>
+                </div>
+
+                <div id="incidents-page" class="page-content">
+                    <div class="page-header">Fallakten & Berichte</div>
+                </div>
+                
+                </section>
+
+            <aside class="info-panel">
+                <div class="panel-segment">
+                    <h3>Aktuelle Leitstellen <button class="btn-small">Austragen</button></h3>
+                    <div id="active-dispatchers" class="list-container"></div>
+                </div>
+                
+                <div class="panel-segment">
+                    <h3>Dispatches <span class="badge">Alle Infos</span></h3>
+                    <div id="dispatch-list" class="list-container"></div>
+                </div>
+
+                <div class="panel-segment">
+                    <h3>Streifen</h3>
+                    <div id="unit-list" class="list-container"></div>
+                </div>
+            </aside>
+
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

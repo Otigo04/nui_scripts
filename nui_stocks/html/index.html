@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NUI TRADER</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <div id="notification-area"></div>
+
+        <div class="sidebar">
+            <div class="logo">NUI<span class="highlight">TRADER</span></div>
+            
+            <ul class="nav">
+                <li class="active"><i class="fas fa-chart-line"></i> Market</li>
+                <li><i class="fas fa-chart-pie"></i> Portfolio</li> 
+                <li><i class="fas fa-building"></i> My Company</li>
+                <li><i class="fas fa-wallet"></i> Wallet</li>
+                <li><i class="fas fa-users"></i> Shareholders</li> 
+            </ul>
+
+            <div class="user-profile">
+                <div class="balance-label">Buying Power</div>
+                <div class="balance-value">$ <span id="sidebar-broker-balance">0.00</span></div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            
+            <div id="view-market" class="view-section">
+                <div class="stock-header">
+                    <div class="stock-info">
+                        <h1 id="selected-stock-symbol">--</h1>
+                        <span id="selected-stock-name">Select a Stock</span>
+                    </div>
+                    <div class="stock-price-box">
+                        <div class="current-price" id="current-price">$0.00</div>
+                        <div class="price-change" id="price-change">0.00%</div>
+                    </div>
+                </div>
+
+                <div class="chart-header-row" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <span class="text-muted">Price Performance</span>
+                    <div class="chart-controls">
+                        <button class="time-btn active" onclick="setChartTimeframe('LIVE')">LIVE</button>
+                        <button class="time-btn" onclick="setChartTimeframe('1D')">1D</button>
+                        <button class="time-btn" onclick="setChartTimeframe('MAX')">MAX</button>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="mainChart"></canvas>
+                </div>
+
+                <div class="market-list-container">
+                    <h3>Market Overview</h3>
+                    <div class="market-header-row">
+                        <span class="col-name" style="color:#787b86;">Company / Ticker</span> 
+                        <span class="col-shares" style="color:#787b86;">Availability</span> 
+                        <span class="col-price" style="color:#787b86;">Price</span>
+                        <span class="col-change" style="color:#787b86;">24h %</span>
+                        <span class="col-trend"></span>
+                    </div>
+                    <div class="market-list" id="market-list"></div>
+                </div>
+            </div>
+
+            <div id="view-portfolio" class="view-section hidden">
+                <h2>My Portfolio</h2>
+                
+                <div class="portfolio-stats-container">
+                    <div class="portfolio-donut">
+                        <canvas id="portfolioChart"></canvas>
+                    </div>
+                    <div class="portfolio-summary">
+                        <div class="p-label">Total Portfolio Value</div>
+                        <div class="p-value" id="portfolio-total">$0.00</div>
+                        
+                        <div class="p-label" style="margin-top: 15px;">Total Profit / Loss</div>
+                        <div class="p-value" id="portfolio-pnl">$0.00</div>
+                    </div>
+                </div>
+
+                <h3>Your Assets</h3>
+                <div class="portfolio-list" id="portfolio-list"></div>
+            </div>
+
+            <div id="view-my-company" class="view-section hidden">
+                
+                <div id="company-ipo-screen" class="hidden">
+                    <div class="ipo-container">
+                        <i class="fas fa-rocket ipo-icon"></i>
+                        <h2>Launch Initial Public Offering</h2>
+                        
+                        <div class="ipo-form">
+                            <div class="input-group">
+                                <label>Company Name</label>
+                                <input type="text" id="ipo-name" placeholder="e.g. Los Santos Imports">
+                            </div>
+                            <div class="form-row">
+                                <div class="input-group">
+                                    <label>Ticker (3-4 Chars)</label>
+                                    <input type="text" id="ipo-ticker" placeholder="LSI" maxlength="4" style="text-transform: uppercase;">
+                                </div>
+                                <div class="input-group">
+                                    <label>Category</label>
+                                    <select id="ipo-category" class="custom-select"></select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="input-group">
+                                    <label>Listing Price ($)</label>
+                                    <input type="number" id="ipo-price" value="50" min="10" max="100">
+                                </div>
+                                <div class="input-group">
+                                    <label>Total Shares</label>
+                                    <input type="number" id="ipo-shares" value="1000" min="100" max="10000">
+                                </div>
+                            </div>
+
+                            <div class="ipo-requirements">
+                                <span id="req-money" class="req-tag"><i class="fas fa-dollar-sign"></i> $100k Fee</span>
+                                <span id="req-job" class="req-tag"><i class="fas fa-briefcase"></i> Boss</span>
+                            </div>
+
+                            <button id="btn-start-ipo" class="execute-btn buy-btn" style="margin-top: 20px;">PAY & LAUNCH IPO</button>
+                        </div>
+                    </div>
+
+                    <div class="owned-companies-section">
+                        <h3><i class="fas fa-building"></i> Your Companies</h3>
+                        <div id="my-companies-list" class="portfolio-list"></div>
+                    </div>
+                </div>
+
+                <div id="company-dashboard" class="hidden">
+                    <div class="stock-header">
+                        <div class="stock-info">
+                            <h1 id="ceo-comp-name">My Company</h1>
+                            <span id="ceo-comp-ticker">TICKER</span>
+                        </div>
+                        <div class="stock-price-box">
+                            <div class="balance-label">Company Balance</div>
+                            <div class="current-price" id="ceo-comp-balance">$0.00</div>
+                        </div>
+                    </div>
+
+                    <div class="ceo-grid">
+                        <div class="ceo-card">
+                            <h3><i class="fas fa-university"></i> Banking</h3>
+                            <div class="input-group">
+                                <label>Amount</label>
+                                <input type="number" id="ceo-bank-amount" placeholder="0">
+                            </div>
+                            <div class="ceo-actions">
+                                <button class="btn-small green" onclick="handleCeoAction('deposit')">Deposit</button>
+                                <button class="btn-small red" onclick="handleCeoAction('withdraw')">Withdraw</button>
+                            </div>
+                        </div>
+
+                        <div class="ceo-card">
+                            <h3><i class="fas fa-hand-holding-dollar"></i> Dividends</h3>
+                            <div class="input-group">
+                                <label>Amount per Share</label>
+                                <input type="number" id="ceo-div-amount" placeholder="e.g. 5">
+                            </div>
+                            <div class="ceo-actions">
+                                <button class="btn-small blue" onclick="handleCeoAction('dividend')">Distribute</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="shareholder-section" style="margin-top: 30px; border-top: 1px solid var(--border-color); padding-top: 20px;">
+                        <h3><i class="fas fa-users"></i> Shareholders</h3>
+                        <div id="shareholder-list" class="portfolio-list" style="max-height: 250px; overflow-y: auto; margin-top:10px;"></div>
+                    </div>
+                    
+                    <button class="btn-small outline" onclick="closeCeoDashboard()" style="margin-top:20px;">Back to Overview</button>
+                </div>
+            </div>
+
+            <div id="view-wallet" class="view-section hidden">
+                <div class="wallet-wrapper"> 
+                    <div class="wallet-card-header">
+                        <div class="icon-circle"><i class="fas fa-shield-alt"></i></div>
+                        <h2>Broker Account</h2>
+                        <p>Manage your trading capital securely</p>
+                    </div>
+
+                    <div class="wallet-balance-display">
+                        <span class="currency">$</span>
+                        <span id="broker-balance-display">0.00</span>
+                    </div>
+
+                    <div class="wallet-input-area">
+                        <div class="input-group large">
+                            <span class="prefix"><i class="fas fa-dollar-sign"></i></span>
+                            <input type="number" id="wallet-amount" placeholder="Enter Amount...">
+                        </div>
+                    </div>
+
+                    <div class="wallet-actions-grid">
+                        <button class="action-btn deposit" onclick="handleWallet('deposit')">
+                            <div class="btn-icon"><i class="fas fa-arrow-down"></i></div>
+                            <div class="btn-text"><span>Deposit</span><small>Bank to Broker</small></div>
+                        </button>
+                        <button class="action-btn withdraw" onclick="handleWallet('withdraw')">
+                            <div class="btn-icon"><i class="fas fa-arrow-up"></i></div>
+                            <div class="btn-text"><span>Withdraw</span><small>Broker to Bank</small></div>
+                        </button>
+                    </div>
+
+                    <div class="wallet-footer">
+                        <i class="fas fa-info-circle"></i> Withdrawals are transferred to your Bank Account.
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-shareholders" class="view-section hidden">
+                <div class="shareholder-panel-unique">
+                    <div class="sh-header">
+                        <i class="fas fa-users"></i>
+                        <h2>Public Ledger</h2>
+                        <span>View shareholders of listed companies</span>
+                    </div>
+                    <div class="sh-controls" style="margin-bottom: 25px; display: flex; justify-content: center;">
+                        
+                        <div class="custom-dropdown-wrapper" style="position: relative; width: 100%; max-width: 500px; z-index: 100;">
+                            
+                            <div id="sh-dropdown-trigger" class="dropdown-trigger" onclick="toggleShareholderDropdown()">
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <i class="fas fa-search" style="color:#666;"></i>
+                                    <span id="sh-selected-label">Select Company...</span>
+                                </div>
+                                <i class="fas fa-chevron-down" id="sh-dropdown-arrow"></i>
+                            </div>
+
+                            <div id="sh-dropdown-list" class="dropdown-list hidden">
+                                </div>
+
+                            <input type="hidden" id="sh-company-select-value" value="">
+                        </div>
+
+                    </div>
+
+                    <div class="sh-list-header">
+                        <span style="width: 50%;">Investor Name</span>
+                        <span style="width: 25%; text-align: right;">Shares</span>
+                        <span style="width: 25%; text-align: right;">Ownership</span>
+                    </div>
+
+                    <div id="sh-list-content" class="sh-list-body">
+                        <div class="sh-empty-state">Select a company to load data.</div>
+                    </div>
+                </div>
+            </div>
+
+        </div> <div class="trading-panel">
+            <h2>Trade</h2>
+            
+            <div class="trade-tabs">
+                <button class="trade-tab active" onclick="setTradeMode('buy')">Buy</button>
+                <button class="trade-tab" onclick="setTradeMode('sell')">Sell</button>
+            </div>
+
+            <div class="order-form">
+                <div class="input-group">
+                    <label>Amount</label>
+                    <input type="number" id="trade-amount" placeholder="0" oninput="calculateTotal()">
+                </div>
+                
+                <div class="input-group">
+                    <label>Price / Share</label>
+                    <input type="text" id="trade-price" value="$0.00" readonly>
+                </div>
+
+                <div class="summary">
+                    <span>Total:</span>
+                    <span id="trade-total" class="total-price">$0.00</span>
+                </div>
+
+                <button class="execute-btn buy-btn" id="btn-execute">PLACE BUY ORDER</button>
+            </div>
+
+            <div class="my-position">
+                <h3>Your Position</h3>
+                <div class="position-row">
+                    <span>Shares Owned</span>
+                    <span class="mono">0</span>
+                </div>
+                <div class="position-row">
+                    <span>Avg. Price</span>
+                    <span class="mono">$0.00</span>
+                </div>
+                <div class="position-row">
+                    <span>Unrealized P/L</span>
+                    <span class="mono text-gray">--</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

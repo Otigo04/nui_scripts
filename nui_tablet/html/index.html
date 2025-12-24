@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NUI LABS Tablet</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div id="tablet-container">
+        <div id="tablet-frame">
+            <div class="camera-notch"></div>
+            <div id="status-bar">
+                <div class="time" id="clock">12:00</div>
+                <div class="logo">NUI TABLET</div>
+                <div class="icons">
+                    <i id="status-plane" class="fas fa-plane" style="display: none;"></i>
+                    <i id="status-wifi" class="fas fa-wifi"></i>
+                    <i id="status-battery" class="fas fa-battery-full"></i>
+                </div>
+            </div>
+
+            <div id="app-screen">
+                
+                <div id="app-grid" class="fade-in">
+                    </div>
+
+                <div id="app-window" class="fade-out">
+                    <div id="app-content">
+                        <iframe id="app-frame" src="" frameborder="0"></iframe>
+                        
+                        <div id="internal-app-container"></div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div id="home-bar-container">
+                <div id="home-bar"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

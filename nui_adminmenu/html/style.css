@@ -1,0 +1,1510 @@
+:root {
+    /* DEFAULT THEME (NUI LABS RED) */
+    --primary: #ff0055;
+    --secondary: #222;
+    --bg-sidebar: #0f0f0f;
+    --bg-content: rgba(20, 20, 20, 0.95);
+    --text: #ffffff;
+    --text-dim: #777;
+    --glass: rgba(255, 255, 255, 0.03);
+    --ui-scale: 1.0;
+
+    body.scale-80  { --ui-scale: 0.8; --panel-top: 540px; } /* Angepasste Höhe */
+    body.scale-100 { --ui-scale: 1.0; --panel-top: 655px; } /* Standard */
+    body.scale-110 { --ui-scale: 1.1; --panel-top: 710px; } /* Tiefer */
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Russo One', sans-serif;
+    background-color: transparent;
+    overflow: hidden;
+    user-select: none; 
+}
+
+body.theme-blue { --primary: #00E5FF; --bg-sidebar: #050a10; }
+body.theme-green { --primary: #39ff14; --bg-sidebar: #051005; }
+body.theme-purple { --primary: #9d00ff; --bg-sidebar: #0a0510; }
+body.theme-orange { --primary: #ff8800; --bg-sidebar: #100a05; }
+body.theme-matrix { --primary: #00ff00; --bg-sidebar: #000000; font-family: 'Courier New', monospace; }
+
+/* [[ FIX: SCALING VIA VARIABLE ]] */
+/* Wir ändern nur die Variable, nicht das Transform direkt! */
+body.scale-80  { --ui-scale: 0.8; }
+body.scale-100 { --ui-scale: 1.0; }
+body.scale-110 { --ui-scale: 1.1; }
+
+.menu-wrapper {
+    position: absolute;
+    top: 50px;
+    left: 50px;
+    width: 990px; 
+    height: 600px;
+    background: var(--bg-content);
+    border: 2px solid var(--secondary);
+    
+    display: flex; 
+    flex-direction: column;
+    
+    box-shadow: 10px 10px 30px rgba(0,0,0,0.8);
+    
+    /* [[ NUI LABS: SLEEP PREVENTION FIX ]] */
+    /* Wir nutzen NICHT visibility: hidden, da dies den Sleep-Mode fördert */
+    opacity: 0; 
+    pointer-events: none; /* Klicks gehen durch, wenn unsichtbar */
+    z-index: -1; /* Sicherstellen, dass es nicht im Weg ist */
+    
+    /* Performance Hint */
+    will-change: opacity, transform; 
+    
+    transform: skewX(-2deg) scale(var(--ui-scale));
+    transform-origin: top left;
+
+    transition: opacity 0.2s ease;
+}
+
+.menu-wrapper.open {
+    /* Aktiv Zustand */
+    opacity: 1;
+    pointer-events: auto; /* Interaktion wieder aktivieren */
+    z-index: 1000;
+    
+    /* Entry Animation */
+    animation: cyberOpen 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+.header {
+    flex: 0 0 auto; /* Don't grow, don't shrink */
+    background: var(--primary);
+    color: var(--bg-sidebar);
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.brand { font-size: 1.8rem; letter-spacing: 2px; }
+.version { font-size: 0.8rem; opacity: 0.8; }
+
+.body-row {
+    flex: 1 1 auto; /* Grow to fill space between header and footer */
+    display: flex; /* Sidebar | Content */
+    overflow: hidden; /* Verhindert, dass es aus dem Rahmen bricht */
+    height: 100%; /* Force height fill */
+}
+
+.sidebar {
+    display: flex;
+    flex-direction: column; /* Stapelt Elemente vertikal */
+    height: 100%; /* Wichtig! */
+    overflow: hidden; /* Verhindert, dass die Sidebar selbst scrollt */
+}
+
+.sidebar-title {
+    flex-shrink: 0;
+    padding: 0 20px 10px 20px;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    border-bottom: 1px solid #333;
+    margin-bottom: 10px;
+}
+
+/* [[ NUI LABS FIX: SIDEBAR SCROLLING ]] */
+#category-list {
+    flex: 1;            /* Füllt den restlichen Platz */
+    overflow-y: auto;   /* Aktiviert Scrollen */
+    overflow-x: hidden; 
+    width: 100%;        
+    min-height: 0;      /* Wichtig für Flexbox Scroll-Bugs */
+    padding-bottom: 20px; /* Kleiner Puffer unten */
+}
+
+/* Scrollbar unsichtbar machen (Funktion bleibt) */
+#category-list::-webkit-scrollbar {
+    display: none;
+}
+
+.cat-item {
+    padding: 15px 30px;
+    color: var(--text-dim);
+    transition: 0.1s;
+}
+
+/* Wenn die Kategorie ausgewählt ist (aktiv im Sidebar Fokus) */
+.cat-item.active {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    border-left: 4px solid var(--primary);
+    padding-left: 35px;
+}
+
+/* Wenn wir eigentlich rechts sind, aber die Kategorie links noch "markiert" bleiben soll */
+.cat-item.dimmed-active {
+    background: rgba(255, 255, 255, 0.02);
+    color: #ccc;
+    border-left: 4px solid #555;
+}
+
+/* Content Area */
+.content-area {
+    flex: 1; /* Nimm den Rest der Breite */
+    padding: 20px 40px;
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Füllt die Höhe von Body-Row aus */
+    box-sizing: border-box; /* Padding zählt zur Höhe/Breite */
+}
+
+.content-header {
+    flex: 0 0 auto; /* Header wächst nicht */
+    font-size: 2rem;
+    color: #fff;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    /* [FIX] Theme Variable statt Rot */
+    text-shadow: 0 0 15px var(--primary);
+    border-bottom: 2px solid var(--primary);
+    padding-bottom: 10px;
+}
+
+/* NUI LABS FIX: Hide Scrollbar but keep functionality */
+.item-list::-webkit-scrollbar {
+    display: none;
+}
+
+/* Item List: Das hier soll scrollen, wenn es zu voll ist */
+.item-list {
+    flex: 1 1 auto; /* Nimm den restlichen Platz IN der Content Area */
+    overflow-y: auto;
+    /* Damit es schön aussieht, auch wenn leer */
+    padding-bottom: 10px;
+}
+
+/* Function Items */
+.menu-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 20px;
+    margin-bottom: 5px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid transparent;
+    color: #aaa;
+}
+
+.menu-item.selected {
+    background: var(--primary);
+    color: #000;
+    transform: scale(1.01);
+    box-shadow: 0 0 15px var(--primary);
+    font-weight: bold;
+}
+
+.status { font-size: 0.9rem; }
+
+/* Footer: Immer ganz unten */
+.footer {
+    flex: 0 0 auto; /* Fixe Höhe, wächst nicht */
+    background: #000;
+    color: var(--text-dim);
+    text-align: center;
+    font-size: 0.7rem;
+    padding: 10px;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    border-top: 1px solid #222;
+    margin-top: auto; /* Sicherheitsnetz: Drück dich nach unten */
+}
+
+/* --- NUI LABS PRECISION ANIMATIONS --- */
+
+/* [[ FIX: ANIMATION NUTZT JETZT DIE VARIABLE ]] */
+@keyframes cyberOpen {
+    0% {
+        opacity: 0;
+        /* Wir nutzen var(--ui-scale) hier drin! */
+        transform: translateX(-100px) skewX(-10deg) scale(var(--ui-scale));
+    }
+    60% {
+        opacity: 1;
+        transform: translateX(10px) skewX(-2deg) scale(var(--ui-scale));
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0) skewX(-2deg) scale(var(--ui-scale));
+    }
+}
+
+@keyframes cyberClose {
+    0% {
+        opacity: 1;
+        transform: translateX(0) skewX(-2deg) scale(var(--ui-scale));
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(-50px) skewX(-10deg) scale(var(--ui-scale));
+    }
+}
+
+/* Base State (Hidden) */
+.menu-wrapper {
+    /* ... deine existierenden styles hier oben lassen ... */
+    /* Ensure opacity is 0 by default so we don't see it before animation */
+    opacity: 0;
+    visibility: hidden;
+}
+
+.menu-wrapper.open {
+    visibility: visible;
+    opacity: 1;
+    /* Entry Animation */
+    animation: cyberOpen 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.menu-wrapper.closing {
+    visibility: visible;
+    animation: cyberClose 0.25s ease-in forwards;
+}
+
+.menu-wrapper.closing {
+    /* visibility: visible; <-- Löschen oder so lassen */
+    animation: cyberClose 0.25s ease-in forwards;
+}
+
+/* 3. Item Selection Slam (Sharper, no blur) */
+@keyframes itemSnap {
+    0% { transform: translateX(0); }
+    50% { transform: translateX(5px); }
+    100% { transform: translateX(0); }
+}
+
+.menu-item.selected {
+    /* Hard contrast change instead of slow transition */
+    background: var(--primary) !important;
+    color: #000 !important;
+    font-weight: 900;
+    box-shadow: -4px 0 0 #fff; /* White accent on the left */
+    animation: itemSnap 0.1s ease-out;
+}
+
+/* 4. The Status Flip (Clean text swap) */
+.status {
+    transition: transform 0.1s;
+    display: inline-block;
+}
+.status.flipping {
+    transform: rotateX(90deg); /* 3D flip instead of scale */
+}
+
+.notification-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+    z-index: 20000;
+}
+
+.notify-item {
+    background: rgba(10, 10, 10, 0.95);
+    border-left: 4px solid var(--primary);
+    color: #fff;
+    padding: 15px;
+    font-family: 'Russo One', sans-serif;
+    text-transform: uppercase;
+    clip-path: polygon(0 0, 100% 0, 100% 85%, 95% 100%, 0 100%); /* Cyber Edge */
+    box-shadow: -5px 5px 15px rgba(0,0,0,0.5);
+    
+    /* Animation Entry */
+    opacity: 0;
+    transform: translateX(50px) skewX(-10deg);
+    animation: notifyEntry 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.notify-item.success {
+    border-color: #39ff14; /* Neon Green */
+    box-shadow: -5px 0 15px rgba(57, 255, 20, 0.2);
+}
+
+.notify-item.error {
+    border-color: #ff0055; /* Neon Red */
+    box-shadow: -5px 0 15px rgba(255, 0, 85, 0.2);
+}
+
+@keyframes notifyEntry {
+    100% { opacity: 1; transform: translateX(0) skewX(-2deg); }
+}
+
+@keyframes notifyExit {
+    0% { opacity: 1; transform: translateX(0) skewX(-2deg); }
+    100% { opacity: 0; transform: translateX(50px) skewX(-10deg); }
+}
+
+/* [[ NUI LABS: ERROR ANIMATIONS ]] */
+
+/* The animation keyframes for shaking */
+@keyframes shakeError {
+    0% { transform: translateX(0); box-shadow: 0 0 0 transparent; }
+    25% { transform: translateX(-5px); box-shadow: 0 0 10px rgba(255, 0, 0, 0.8); }
+    50% { transform: translateX(5px); box-shadow: 0 0 15px rgba(255, 0, 0, 1); }
+    75% { transform: translateX(-5px); box-shadow: 0 0 10px rgba(255, 0, 0, 0.8); }
+    100% { transform: translateX(0); box-shadow: 0 0 0 transparent; }
+}
+
+/* The class we add via Javascript */
+.input-error {
+    animation: shakeError 0.4s ease-in-out;
+    border-color: red !important; /* Force red border during error */
+}
+
+/* [[ NUI LABS: PLAYER COUNTER BADGE ]] */
+.player-count-badge {
+    float: right;
+    font-size: 0.9rem;
+    font-family: 'Russo One', sans-serif;
+    font-weight: 700;
+    color: #555;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 2px 6px;
+    border-radius: 4px;
+    letter-spacing: 0px;
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: all 0.2s ease;
+}
+
+/* Active State styling (when Players category is selected) */
+/* Active State styling (when Players category is selected) */
+.cat-item.active .player-count-badge {
+    color: #fff;
+    border-color: var(--primary);
+    /* [FIX] Statt festem Rot nutzen wir einen inneren Schatten in der Theme-Farbe */
+    background: transparent; 
+    box-shadow: 0 0 5px var(--primary), inset 0 0 10px var(--primary);
+}
+
+/* [[ NUI LABS: CYBER SEARCH ]] */
+.search-wrapper {
+    width: 100%;
+    height: 0; /* Standardmäßig versteckt */
+    opacity: 0;
+    overflow: hidden;
+    margin-bottom: 0;
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1); /* Smoothe Animation */
+    border-bottom: 1px solid transparent;
+}
+
+.search-wrapper.active {
+    height: 50px;
+    min-height: 50px; /* Force minimum height to prevent crushing */
+    opacity: 1;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--primary);
+    background: rgba(0, 0, 0, 0.3);
+    pointer-events: auto;
+    
+    /* [[ NUI LABS FIX: FLEXBOX ALIGNMENT ]] */
+    display: flex;
+    align-items: center; /* Vertically centers the text input */
+    box-sizing: border-box;
+}
+
+#player-search-input {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-family: 'Russo One', sans-serif;
+    font-size: 1.2rem;
+    padding: 0 50px 0 20px; /* Platz für Icon rechts */
+    outline: none;
+    text-transform: uppercase;
+}
+
+#player-search-input::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 1rem;
+}
+
+.search-icon {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+    color: var(--primary);
+    text-shadow: 0 0 10px var(--primary);
+    animation: searchPulse 2s infinite;
+}
+
+@keyframes searchPulse {
+    0% { opacity: 0.5; }
+    50% { opacity: 1; text-shadow: 0 0 20px var(--primary); }
+    100% { opacity: 0.5; }
+}
+
+/* [[ NUI LABS: PLAYER INFO PANEL ]] */
+/* [[ NUI LABS FIX: PANEL ALIGNMENT ]] */
+/* [[ NUI LABS: PLAYER INFO PANEL ]] */
+.info-panel {
+    position: absolute;
+    
+    /* FIX: Exakte Berechnung (50px Top + 600px Höhe + 10px Gap) */
+    top: 660px; 
+    left: 50px; 
+    
+    width: 990px; /* Breite an das Hauptmenü angepasst (war vorher 900px) */
+    
+    height: fit-content; 
+    min-height: 150px;  
+    max-height: 400px;  
+    
+    /* Design & Shape */
+    background: rgba(15, 15, 15, 0.98);
+    border-top: 4px solid var(--primary);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    
+    /* Layout Inner */
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 30px;
+    gap: 20px;
+    z-index: 1000;
+
+    /* Hidden State */
+    opacity: 0;
+    visibility: hidden;
+    
+    /* WICHTIG: Skalierung muss hier mit rein! */
+    /* Wir nutzen denselben Scale wie das Menü und denselben Origin */
+    transform: skewX(-2deg) scale(var(--ui-scale));
+    transform-origin: top left; 
+    
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.info-panel.visible {
+    opacity: 1;
+    visibility: visible;
+    /* Animation Endzustand: Dockt sauber an */
+    transform: skewX(-2deg) translateY(0) scale(var(--ui-scale));
+}
+
+.info-panel.visible {
+    opacity: 1;
+    visibility: visible;
+    bottom: 80px; /* Leichter Slide-Up Effekt */
+}
+
+.info-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.info-header {
+    color: var(--primary);
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #333;
+    padding-bottom: 5px;
+    letter-spacing: 1px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: #aaa;
+    font-family: 'Russo One', sans-serif;
+}
+
+.info-row span:last-child {
+    color: #fff;
+    text-align: right;
+}
+
+/* Money Colors */
+.money-green { color: #39ff14 !important; }
+.money-blue { color: #00d2ff !important; }
+.money-red { color: #ff0055 !important; }
+
+.panel-footer {
+    position: absolute;
+    bottom: -30px; 
+    left: 0;
+    width: 100%;
+    text-align: center;
+    font-size: 0.75rem;
+    color: #fff; 
+    font-weight: bold;
+    text-shadow: 0 0 5px #000;
+    background: rgba(0,0,0,0.8); 
+    padding: 2px 0;
+    border-radius: 4px;
+    letter-spacing: 1px;
+}
+.player-details-container {
+    /* Change specific height to fit-content to wrap around text */
+    height: fit-content; 
+    min-height: 20rem;
+    max-height: 40rem; 
+    overflow-y: auto; 
+    
+
+    padding-bottom: 2rem; 
+}
+
+.sub-footer {
+    flex: 0 0 auto;
+    background: #0a0a0a; /* Etwas dunkler für Kontrast */
+    color: #777;          /* Gleiche Farbe wie Text-Dim */
+    text-align: center;
+    padding: 8px 10px;
+    font-size: 0.7rem;
+    border-top: 1px solid #222;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    
+    /* Standardmäßig versteckt, JS schaltet es an */
+    display: none; 
+    transition: all 0.3s ease;
+}
+
+.sub-footer.active {
+    display: block;
+    color: var(--text-dim);
+}
+
+input {
+    user-select: text;
+    -webkit-user-select: text;
+}
+
+/* [[ NUI LABS: INPUT MODAL STYLING ]] */
+.input-modal-wrapper {
+    position: fixed; /* FIX: Fixed statt Absolute orientiert sich am Fenster */
+    top: 0;
+    left: 0;
+    width: 100vw; /* 100% der Viewport Width */
+    height: 100vh; /* 100% der Viewport Height */
+    
+    background: rgba(0, 0, 0, 0.7); 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 20000; /* Sicherstellen, dass es GANZ oben ist */
+    
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    pointer-events: none; /* Klicks durchlassen wenn unsichtbar */
+}
+
+.input-modal-wrapper.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.input-box {
+    background: var(--bg-content);
+    border: 2px solid var(--primary);
+    padding: 30px;
+    width: 400px;
+    text-align: center;
+    transform: skewX(-2deg) scale(0.9);
+    box-shadow: 0 0 30px rgba(255, 0, 85, 0.2);
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.input-modal-wrapper.active .input-box {
+    transform: skewX(-2deg) scale(1);
+}
+
+.input-title {
+    color: var(--primary);
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    /* [FIX] Theme Variable statt Rot */
+    text-shadow: 0 0 15px var(--primary);
+}
+.input-subtitle {
+    color: #777;
+    font-size: 0.7rem;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+}
+
+#input-value {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid #333;
+    color: #fff;
+    font-family: 'Russo One', sans-serif;
+    font-size: 2rem;
+    text-align: center;
+    padding: 10px;
+    outline: none;
+    margin-bottom: 20px;
+}
+
+/* Grüne Zahl bei positiv, Rot bei negativ (wird via JS gesteuert) */
+#input-value.positive { color: #39ff14; text-shadow: 0 0 10px #39ff14; }
+#input-value.negative { color: #ff0055; text-shadow: 0 0 10px #ff0055; }
+
+.input-footer {
+    font-size: 0.7rem;
+    color: #555;
+    border-top: 1px solid #222;
+    padding-top: 10px;
+}
+
+/* [[ NUI LABS: TYPING INDICATOR ]] */
+.typing-hint {
+    color: var(--primary);
+    font-size: 0.6rem;
+    margin-top: 10px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: bold;
+}
+
+.input-modal-wrapper.active .typing-hint {
+    opacity: 1;
+    animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* [[ NUI LABS: INPUT CURSOR FIX ]] */
+#input-value {
+    /* Damit der blinkende Strich sichtbar ist */
+    caret-color: var(--primary); 
+    
+    /* Optional: Pulsierender Rand, wenn man tippt */
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+#input-value:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 15px rgba(255, 0, 85, 0.3);
+}
+
+/* [[ NUI LABS: STYLISH CLOSE BUTTON ]] */
+.input-close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 30px;
+    height: 30px;
+    font-size: 1.2rem;
+    color: #555;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    clip-path: polygon(10% 0, 100% 0, 100% 90%, 90% 100%, 0 100%, 0 10%); /* Cyber Shape */
+}
+
+.input-close-btn:hover {
+    color: #fff;
+    background: var(--primary);
+    border-color: var(--primary);
+    transform: rotate(90deg) scale(1.1); /* Dreh-Animation */
+    box-shadow: 0 0 15px var(--primary);
+    text-shadow: 0 0 5px #fff;
+}
+
+.input-close-btn:active {
+    transform: rotate(90deg) scale(0.9);
+}
+
+/* [[ NUI LABS: CONFIRMATION MODAL STYLES ]] */
+
+/* Spezifisches Styling für die Confirm Box */
+.confirm-box {
+    border-color: var(--primary) !important; /* Pures Rot für Warnung */
+    box-shadow: 0 0 50px rgba(255, 0, 0, 0.4);
+    background: rgba(10, 0, 0, 0.98);
+}
+
+.input-title.danger {
+    color: var(--primary);
+    animation: pulseDanger 1s infinite alternate;
+}
+
+@keyframes pulseDanger {
+    from { text-shadow: 0 0 10px #ff0000; }
+    to { text-shadow: 0 0 20px #ff0000, 0 0 30px red; }
+}
+
+.confirm-actions {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.cyber-btn {
+    font-family: 'Russo One', sans-serif;
+    font-size: 1rem;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    text-transform: uppercase;
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+    transition: all 0.2s ease;
+    letter-spacing: 1px;
+    color: #fff;
+}
+
+.btn-danger {
+    background: linear-gradient(45deg, #800000, var(--primary));
+    box-shadow: 0 0 10px var(--primary);
+}
+
+.btn-danger:hover {
+    transform: scale(1.05);
+    background: var(--primary);
+    box-shadow: 0 0 25px var(--primary);
+    color: #000;
+}
+
+.btn-safe {
+    background: var(--text-dim);
+    border: 1px solid #555;
+    color: #ccc;
+}
+
+.btn-safe:hover {
+    background: #fff;
+    color: #000;
+    transform: scale(1.05);
+    box-shadow: 0 0 15px #fff;
+}
+
+/* [[ NUI LABS: DYNAMIC COUNTER - COMPACT & STATIC ]] */
+.content-header-row {
+    flex: 0 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center; /* Zentriert Title und Counter vertikal */
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.content-title {
+    font-size: 2rem;
+    color: #fff;
+    text-transform: uppercase;
+    /* [FIX] Glow nutzt jetzt die Theme-Farbe */
+    text-shadow: 0 0 15px var(--primary);
+}
+
+.content-counter {
+    display: flex;
+    align-items: center;
+    gap: 3px; /* Engerer Abstand zwischen Zahlen */
+    
+    /* GRÖSSE ANGEPASST */
+    font-size: 1.1rem; /* War vorher 1.5rem - jetzt viel dezenter */
+    height: 30px;      /* War vorher 40px */
+    padding: 0 10px;   /* Weniger Padding an den Seiten */
+    
+    font-family: 'Russo One', sans-serif;
+    color: var(--primary); 
+}
+
+.counter-divider {
+    color: #777; /* Etwas dunkleres Grau für den Trenner */
+    font-size: 0.9rem;
+    margin: 0 2px;
+}
+
+.counter-digit {
+    min-width: 15px; /* Kleinerer fixer Platz für die Zahl */
+    text-align: center;
+    color: var(--text-dim); /* Zahl Weiß statt Rot (besser lesbar), Rahmen bleibt Rot */
+}
+
+/* [[ NUI LABS: LOCKED ITEMS UPDATE ]] */
+.menu-item.locked-item {
+    opacity: 0.6;
+    /* WICHTIG: Pointer Events AN lassen, damit der Klick für die Notify durchgeht! */
+    pointer-events: auto; 
+    filter: grayscale(100%);
+    cursor: not-allowed; /* Zeigt Verbot-Mauszeiger */
+}
+
+/* Optional: Roter Rand beim Hovern für Feedback */
+.menu-item.locked-item:hover {
+    background: rgba(20, 0, 0, 0.8) !important;
+    border: 1px solid rgba(255, 0, 0, 0.2);
+}
+
+/* Der Text neben dem Schloss */
+.locked-text {
+    font-size: 0.65rem;
+    color: #ff4444; /* Hellrot */
+    margin-left: 6px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    vertical-align: middle;
+    opacity: 0.9;
+}
+
+/* [[ NUI LABS: BAN MODAL STYLES ]] */
+.ban-box {
+    width: 500px;
+    border-color: var(--primary);
+    background: rgba(10, 5, 5, 0.98);
+    box-shadow: 0 0 40px rgba(255, 0, 85, 0.3);
+}
+
+.ban-section {
+    margin-bottom: 20px;
+    text-align: left;
+    transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+    max-height: 100px; /* Für Animation wichtig */
+    opacity: 1;
+    overflow: hidden;
+}
+
+/* Die Klasse, die wir per JS hinzufügen, um es "stylish" verschwinden zu lassen */
+.ban-section.collapsed {
+    max-height: 0;
+    opacity: 0;
+    margin-bottom: 0;
+    transform: translateX(-20px);
+}
+
+.ban-section label {
+    display: block;
+    color: #777;
+    font-size: 0.7rem;
+    margin-bottom: 8px;
+    letter-spacing: 2px;
+}
+
+.duration-options {
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+}
+
+.dur-btn {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid #333;
+    color: #aaa;
+    padding: 10px 0;
+    font-family: 'Russo One', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
+}
+
+.dur-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+/* Selected State */
+.dur-btn.active {
+    background: #fff;
+    color: #000;
+    border-color: #fff;
+    box-shadow: 0 0 15px rgba(255,255,255,0.5);
+}
+
+/* Perma Button Special Style */
+.dur-btn.perma-btn.active {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+    box-shadow: 0 0 20px var(--primary);
+    animation: pulseDanger 1s infinite alternate;
+}
+
+#ban-reason {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid #444;
+    color: #fff;
+    padding: 12px;
+    font-family: 'Russo One', sans-serif;
+    outline: none;
+    box-sizing: border-box; /* Fix padding issue */
+}
+
+#ban-reason:focus {
+    border-color: var(--primary);
+}
+
+.full-width {
+    width: 100%;
+    margin-top: 10px;
+    font-size: 1.2rem;
+}
+
+/* [[ NUI LABS: RIGHT SIDE BADGE ]] */
+.menu-item-right {
+    font-size: 0.75rem;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #aaa;
+    letter-spacing: 1px;
+}
+
+/* Wenn Item ausgewählt ist */
+.menu-item.selected .menu-item-right {
+    background: rgba(0, 0, 0, 0.3);
+    color: #fff;
+}
+
+/* Farben für Dauer */
+.badge-perm { color: #ff0055; border: 1px solid #ff0055; }
+.badge-temp { color: #00d2ff; border: 1px solid #00d2ff; }
+
+
+
+/* [[ NUI LABS FIX: SIDEBAR SCROLLING & FLEX ]] */
+.sidebar {
+    min-height: 0; /* WICHTIG für Flexbox Scrolling */
+    display: flex;
+    flex-direction: column;
+}
+
+#category-list {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0; /* WICHTIG */
+    padding-bottom: 30px;
+}
+
+/* Scrollbar verstecken */
+#category-list::-webkit-scrollbar { display: none; }
+
+/* Keybind Modal Animation */
+.key-press-anim {
+    animation: keyPulse 0.2s ease-out;
+    color: var(--primary) !important;
+    transform: scale(1.2);
+}
+
+@keyframes keyPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1.2); }
+}
+
+/* [[ FINAL LAYOUT FIX ]] */
+
+.body-row {
+    flex: 1 1 0; /* WICHTIG: Muss 0 sein, damit overflow greift */
+    display: flex;
+    overflow: hidden; 
+    min-height: 0;
+    position: relative;
+}
+
+.sidebar-content {
+    flex-grow: 1; /* Nimmt den restlichen Platz ein */
+    overflow-y: auto; /* Erlaubt scrollen NUR hier drin */
+    
+    /* Scrollbar verstecken für cleanen Look (Chrome/FiveM) */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;  /* IE */
+}
+
+.sidebar-content::-webkit-scrollbar { 
+    display: none; /* Chrome / FiveM Chromium */
+}
+
+/* [[ FINAL LAYOUT FIX: NO-SCROLL PARENTS ]] */
+.sidebar {
+    width: 250px;
+    background: var(--bg-sidebar);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden; /* WICHTIG: Verhindert, dass die Sidebar selbst scrollt */
+}
+
+.sidebar-title {
+    flex: 0 0 auto; /* Titel bleibt fest */
+    padding: 15px 30px; /* Padding angepasst an Design */
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    border-bottom: 1px solid #333;
+    margin-bottom: 10px;
+}
+
+#category-list {
+    flex: 1; /* Nimmt den Rest */
+    height: 0px; /* HACK: Zwingt Flexbox, die Höhe des Elternteils zu nutzen */
+    min-height: 0;
+    overflow-y: auto; /* Scrollt NUR hier */
+    padding-bottom: 20px;
+    width: 100%;
+    position: relative; /* Für scrollTop Positionierung */
+}
+
+/* Scrollbar verstecken */
+#category-list::-webkit-scrollbar {
+    display: none;
+}
+
+/* [[ FINAL SCROLL FIX ]] */
+.body-row {
+    flex: 1 1 auto;
+    display: flex;
+    overflow: hidden; 
+    min-height: 0; 
+}
+
+.sidebar {
+    width: 250px;
+    background: var(--bg-sidebar);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0; 
+}
+
+.sidebar-title {
+    flex: 0 0 auto; 
+    padding: 15px 20px;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    border-bottom: 1px solid #333;
+    margin-bottom: 10px;
+}
+
+#category-list {
+    flex: 1 1 auto; 
+    overflow-y: auto !important;
+    height: 0px; 
+    padding-bottom: 40px; 
+    scroll-behavior: smooth; /* CSS-basiertes weiches Scrollen */
+}
+
+#category-list::-webkit-scrollbar { display: none; }
+
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    max-height: 100%; /* WICHTIG */
+}
+
+#category-list {
+    flex: 1;
+    overflow-y: auto !important;
+    min-height: 0;
+    /* Damit man das letzte Element ganz sehen kann */
+    padding-bottom: 50px; 
+}
+
+/* [[ FINAL SCROLL SMOOTHNESS ]] */
+#category-list {
+    scroll-behavior: smooth; /* Macht das Scrollen per JS weicher */
+}
+
+/* [[ FINAL CONTRAST FIX ]] */
+
+/* Standard Status-Farben (wenn nicht ausgewählt) */
+.status.status-on {
+    color: #39ff14; /* Immer Neon-Grün für ON */
+    text-shadow: 0 0 5px rgba(57, 255, 20, 0.5);
+}
+
+.status.status-off {
+    color: #777; /* Grau für OFF */
+    text-shadow: none;
+}
+
+.status.status-open {
+    color: var(--primary); /* Nimmt die Farbe des aktuellen Themes! */
+    font-weight: bold;
+}
+
+.status.status-locked {
+    color: #555;
+}
+
+/* [[ WICHTIG: KONTRAST BEI AUSWAHL ]] 
+   Wenn ein Item ausgewählt ist (.selected), wird der Hintergrund hell (Primary Color).
+   Deshalb MUSS der Text schwarz werden, damit man ihn lesen kann. */
+.menu-item.selected .status {
+    color: #000 !important; /* Erzwingt Schwarz */
+    text-shadow: none !important; /* Kein Glow, stört die Lesbarkeit auf hellem Grund */
+    font-weight: 900;
+}
+
+/* Optional: Auch das Icon/Label rechts anpassen */
+.menu-item.selected .menu-item-right {
+    color: #000 !important;
+    background: rgba(0,0,0,0.2) !important;
+}
+
+/* [[ ANNOUNCEMENT BANNER FIX ]] */
+.announce-wrapper {
+    position: absolute;
+    top: 60px;
+    left: 50%;
+    
+    /* Animation Startposition */
+    transform: translate(-50%, -200%); 
+    
+    width: 700px; /* Etwas breiter */
+    
+    /* Hintergrund stabilisieren (Kein Glas-Blur, da manchmal buggy in FiveM) */
+    background: #0f0f0f; 
+    
+    /* Massiver Rahmen statt Clipping */
+    border: 2px solid var(--primary);
+    border-radius: 4px;
+    
+    box-shadow: 0 10px 40px rgba(0,0,0,0.8), 0 0 20px rgba(var(--primary), 0.3);
+    
+    z-index: 999999;
+    color: #fff;
+    font-family: 'Russo One', sans-serif;
+    
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    
+    /* WICHTIG: Clip-Path entfernen, das verursachte die Löcher! */
+    clip-path: none !important;
+}
+
+/* Wenn Aktiv: Fahr runter */
+.announce-wrapper.active {
+    transform: translate(-50%, 0);
+    opacity: 1;
+}
+
+.announce-content {
+    display: flex;
+    align-items: center;
+    padding: 25px 30px;
+    background: linear-gradient(90deg, rgba(var(--primary), 0.05) 0%, transparent 100%);
+}
+
+.announce-icon {
+    font-size: 3.5rem;
+    margin-right: 30px;
+    color: var(--primary);
+    filter: drop-shadow(0 0 10px var(--primary));
+    animation: alertPulse 1.5s infinite;
+}
+
+@keyframes alertPulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.announce-text-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.announce-header {
+    font-size: 1.8rem;
+    color: #fff;
+    text-transform: uppercase;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    letter-spacing: 2px;
+    border-bottom: 2px solid var(--primary);
+    display: inline-block;
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+}
+
+.announce-body {
+    font-size: 1.1rem;
+    color: #ddd;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    text-shadow: 1px 1px 2px #000;
+}
+
+.announce-footer {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    margin-top: 15px;
+    text-align: right;
+    font-style: italic;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    padding-top: 5px;
+}
+
+.announce-footer span {
+    color: var(--primary);
+    font-weight: bold;
+}
+
+/* Progress Bar */
+.announce-progress {
+    height: 6px;
+    background: var(--primary);
+    width: 100%;
+    transform-origin: left;
+    transform: scaleX(1);
+    box-shadow: 0 0 15px var(--primary);
+}
+
+/* [[ NUI LABS: CYBER INPUT STYLING (Global für Modals) ]] */
+.ban-section input[type="text"], 
+.ban-section textarea {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.4); /* Dunkler Hintergrund */
+    border: 1px solid #333;
+    color: #fff;
+    font-family: 'Russo One', sans-serif;
+    padding: 12px;
+    outline: none;
+    font-size: 1rem;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+    border-radius: 2px;
+}
+
+.ban-section input[type="text"]:focus, 
+.ban-section textarea:focus {
+    border-color: var(--primary); /* Leuchtet in Theme-Farbe */
+    /* [FIX] Theme Variable statt Rot */
+    box-shadow: 0 0 15px var(--primary); 
+    background: rgba(0, 0, 0, 0.7);
+}
+/* [[ CUSTOM CYBER CHECKBOX ]] */
+/* Versteckt die echte Checkbox */
+.cyber-checkbox-wrapper input {
+    display: none;
+}
+
+.cyber-checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    gap: 10px;
+}
+
+.checkmark {
+    width: 20px;
+    height: 20px;
+    background-color: rgba(0,0,0,0.5);
+    border: 1px solid #555;
+    display: inline-block;
+    position: relative;
+    transition: all 0.2s;
+}
+
+/* Wenn angehakt */
+.cyber-checkbox-wrapper input:checked ~ .checkmark {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    box-shadow: 0 0 10px var(--primary);
+}
+
+/* Das Häkchen Symbol */
+.cyber-checkbox-wrapper input:checked ~ .checkmark::after {
+    content: '✔';
+    position: absolute;
+    color: #000;
+    font-size: 14px;
+    left: 4px;
+    top: -1px;
+    font-weight: bold;
+}
+
+.cyber-checkbox-label {
+    color: #aaa;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    transition: color 0.2s;
+}
+
+.cyber-checkbox-wrapper:hover .cyber-checkbox-label {
+    color: #fff;
+}
+
+/* [[ ANNOUNCEMENT BANNER REDESIGN ]] */
+.announce-wrapper {
+    /* Mehr "Body" und Style */
+    background: linear-gradient(135deg, rgba(15,15,15,0.98) 0%, rgba(30,30,30,0.95) 100%);
+    border-left: 6px solid var(--primary);
+    /* ... restliche Positionierung bleibt gleich ... */
+}
+
+.announce-header {
+    font-size: 1.8rem; /* Größer */
+    text-shadow: 0 0 10px var(--primary); /* Mehr Glow */
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+}
+
+/* [[ NUI LABS: PROGRESS BAR V2 (STYLED) ]] */
+
+.announce-progress {
+    /* Positionierung: Ganz unten am Banner kleben */
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    
+    height: 6px;
+    width: 100%;
+    
+    /* Design: Verlauf von Theme-Farbe zu Weiß für "Energy"-Look */
+    background: linear-gradient(90deg, var(--primary) 0%, rgba(255,255,255,0.8) 100%);
+    
+    /* Fetter Neon Glow */
+    box-shadow: 0 -2px 10px var(--primary), 0 0 20px var(--primary);
+    
+    /* Startpunkt der Animation: Links */
+    transform-origin: left;
+    transform: scaleX(1);
+    
+    z-index: 10;
+}
+
+/* DIE FEHLENDE ANIMATION */
+@keyframes progressShrink {
+    0% { 
+        transform: scaleX(1); 
+        filter: brightness(1.5); /* Startet sehr hell */
+    }
+    100% { 
+        transform: scaleX(0); 
+        filter: brightness(1.0); 
+    }
+}
+
+/* [[ NUI LABS: PRIVATE ADMIN MESSAGE (HUD STYLE V3 - BIGGER) ]] */
+.private-msg-wrapper {
+    position: absolute;
+    bottom: 35%; /* Deutlich höher, damit es nicht mit Minimap kollidiert */
+    left: 50px;  /* Mehr Abstand vom Rand */
+    
+    width: 500px; /* Sehr breit für viel Text */
+    
+    /* Hintergrund: Dunkles "Tech-Blau" statt Schwarz */
+    background: linear-gradient(90deg, rgba(10, 20, 35, 0.98) 0%, rgba(5, 10, 20, 0.95) 100%);
+    
+    border-left: 8px solid #00d2ff; /* Dickerer Akzent */
+    border-radius: 6px;
+    
+    box-shadow: 15px 15px 50px rgba(0, 0, 0, 0.95), 0 0 20px rgba(0, 210, 255, 0.15);
+    font-family: 'Russo One', sans-serif;
+    color: #fff;
+    
+    /* Animation Start */
+    transform: translateX(-150%);
+    opacity: 0;
+    transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); /* Smoother Slide */
+    z-index: 19000;
+    pointer-events: none;
+}
+
+.private-msg-wrapper.active {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.pm-header {
+    /* Header leuchtet leicht */
+    background: linear-gradient(90deg, rgba(0, 210, 255, 0.2) 0%, transparent 100%);
+    padding: 15px 25px;
+    
+    font-size: 1.3rem; /* Größere Schrift im Titel */
+    color: #00d2ff;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border-bottom: 1px solid rgba(0, 210, 255, 0.15);
+}
+
+.pm-icon {
+    font-size: 1.8rem;
+    filter: drop-shadow(0 0 8px #00d2ff);
+    animation: blink 3s infinite; /* Langsames Blinken */
+}
+
+.pm-body {
+    padding: 25px;
+    font-size: 1.3rem; /* Sehr gut lesbare Schrift */
+    line-height: 1.5;
+    color: #ffffff;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    word-wrap: break-word;
+}
+
+.pm-footer {
+    padding: 10px 25px;
+    font-size: 0.9rem;
+    color: #8faab5; /* Leicht bläuliches Grau */
+    text-align: right;
+    background: rgba(0,0,0,0.3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Ladebalken */
+.pm-progress {
+    height: 5px;
+    background: #00d2ff;
+    width: 100%;
+    transform-origin: left;
+    transform: scaleX(1);
+    box-shadow: 0 0 15px #00d2ff;
+}
+
+.private-msg-wrapper.active .pm-progress {
+    animation: progressShrink linear forwards;
+}
+
+/* [[ NUI LABS: TUNING LOCK ANIMATION ]] */
+@keyframes criticalError {
+    0% { box-shadow: 0 0 0 transparent; border-color: var(--secondary); transform: translateX(0) skewX(-2deg) scale(var(--ui-scale)); }
+    25% { box-shadow: 0 0 30px #ff0000; border-color: #ff0000; transform: translateX(-10px) skewX(-2deg) scale(var(--ui-scale)); }
+    50% { box-shadow: 0 0 50px #ff0000; border-color: #ff0000; transform: translateX(10px) skewX(-2deg) scale(var(--ui-scale)); }
+    75% { box-shadow: 0 0 30px #ff0000; border-color: #ff0000; transform: translateX(-10px) skewX(-2deg) scale(var(--ui-scale)); }
+    100% { box-shadow: 0 0 0 transparent; border-color: var(--secondary); transform: translateX(0) skewX(-2deg) scale(var(--ui-scale)); }
+}
+
+.tuning-lock-active {
+    animation: criticalError 0.4s ease-in-out;
+}

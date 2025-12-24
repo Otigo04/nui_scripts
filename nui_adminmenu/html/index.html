@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NUI LABS Fun Menu</title>
+    <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="menu-wrapper" id="app">
+        
+        <div class="header">
+            <div class="brand">NUI LABS <span class="highlight">ADMIN</span></div>
+            <div class="version">V0.92 BETA</div>
+        </div>
+
+        <div class="body-row">
+            
+            <div class="sidebar">
+                <div class="sidebar-title">CATEGORIES <span id="cat-counter" style="float: right; font-size: 0.7rem; color: #555;">0/0</span></div>
+                <div id="category-list">
+                    </div>
+            </div>
+
+            <div class="content-area">
+                <div class="content-header-row">
+                    <div class="content-title" id="current-category-title">SELECT A CATEGORY</div>
+                    
+                    <div class="content-counter" id="item-counter-wrapper">
+                        <div class="counter-digit" id="cnt-current">0</div>
+                        <div class="counter-divider">/</div>
+                        <div class="counter-digit" id="cnt-total">0</div>
+                    </div>
+                </div>
+                
+                <div id="search-container" class="search-wrapper collapsed">
+                    <input type="text" id="player-search-input" placeholder="SEARCH ID OR NAME... (SPACEBAR)" autocomplete="off">
+                    <div class="search-icon">⚡</div>
+                </div>
+
+                <div class="item-list" id="item-list">
+                    </div>
+            </div>
+
+        </div>
+
+        <div class="footer">
+            [ARROWS] Navigate | [ENTER] Select | [BACKSPACE] Close
+        </div>
+        
+        <div class="sub-footer" id="context-helper">
+            [PAGEUP] HIDE INFO UI | [PAGEDOWN] SHOW INFO UI
+        </div>
+    </div>
+
+    <div class="info-panel" id="player-info-panel">
+        
+        <div class="info-col">
+            <div class="info-header" id="ph-1">CHARACTER INFORMATION</div>
+            <div class="info-row"><span id="lbl-1">NAME:</span> <span id="p-name">Loading...</span></div>
+            <div class="info-row"><span id="lbl-2">BIRTHDAY:</span> <span id="p-dob">N/A</span></div>
+            <div class="info-row"><span id="lbl-3">NATIONALITY:</span> <span id="p-nationality">N/A</span></div>
+            <div class="info-row"><span id="lbl-4">JOB:</span> <span id="p-job">N/A</span></div>
+            <div class="info-row"><span id="lbl-5">GANG:</span> <span id="p-gang">N/A</span></div>
+        </div>
+
+        <div class="info-col">
+            <div class="info-header" id="ph-2">ACCOUNTS</div>
+            <div class="info-row"><span id="lbl-6">CASH:</span> <span id="p-cash" class="money-green">$0</span></div>
+            <div class="info-row"><span id="lbl-7">BANK:</span> <span id="p-bank" class="money-blue">$0</span></div>
+            <div class="info-row"><span id="lbl-8">BLACK MONEY:</span> <span id="p-black" class="money-red">$0</span></div>
+        </div>
+
+        <div class="info-col">
+            <div class="info-header" id="ph-3">CONDITIONS</div>
+            <div class="info-row"><span id="lbl-9">HEALTH:</span> <span id="p-health">100%</span></div>
+            <div class="info-row"><span id="lbl-10">ARMOR:</span> <span id="p-armor">0%</span></div>
+            <div class="info-row"><span id="lbl-11">FOOD:</span> <span id="p-food">100%</span></div>
+            <div class="info-row"><span id="lbl-12">WATER:</span> <span id="p-water">100%</span></div>
+        </div>
+
+        <div class="info-col">
+            <div class="info-header" id="ph-4">ACCOUNT INFORMATION</div>
+            <div class="info-row"><span id="lbl-13">NAME:</span> <span id="p-steam">SteamName</span></div>
+            <div class="info-row"><span id="lbl-14">PING:</span> <span id="p-ping">0ms</span></div>
+            <div class="info-row"><span id="lbl-15">DISCORD:</span> <span id="p-discord">N/A</span></div>
+            <div class="info-row"><span id="lbl-16">ID:</span> <span id="p-id">0</span></div>
+        </div>
+    </div>
+
+    <div id="input-modal" class="input-modal-wrapper">
+        <div class="input-box">
+            <div class="input-close-btn" id="close-modal-btn">✕</div>
+            
+            <div class="input-title" id="input-title">ENTER AMOUNT</div>
+            <div class="input-subtitle">POSITIVE = ADD <span style="color:var(--primary)">|</span> NEGATIVE = REMOVE</div>
+            
+            <input type="number" id="input-value" placeholder="0" autocomplete="off">
+            
+            <div class="input-footer">[ARROWS] +/- 100 | [ENTER] CONFIRM | [ESC] CANCEL</div>
+            <div class="typing-hint">/// KEYBOARD INPUT MODE ACTIVE ///</div>
+        </div>
+    </div>
+
+    <div id="confirm-modal" class="input-modal-wrapper">
+        <div class="input-box confirm-box">
+            <div class="input-title danger">⚠️ WARNING ⚠️</div>
+            <div class="input-subtitle" id="confirm-text">ARE YOU SURE YOU WANT TO EXECUTE THIS?</div>
+            
+            <div class="confirm-actions">
+                <button id="btn-confirm-yes" class="cyber-btn btn-danger">CONFIRM ACTION</button>
+                <button id="btn-confirm-no" class="cyber-btn btn-safe">CANCEL</button>
+            </div>
+
+            <div class="input-footer">MOUSE CLICK REQUIRED FOR SAFETY</div>
+        </div>
+    </div>
+
+    <div id="ban-modal" class="input-modal-wrapper">
+        <div class="input-box ban-box">
+            <div class="input-close-btn" id="close-ban-btn">✕</div> 
+            <div class="input-title danger">BAN PLAYER</div>
+            <div class="input-subtitle" id="ban-target-name">TARGET: UNKNOWN</div>
+            
+            <div class="ban-section">
+                <label>DURATION</label>
+                <div class="duration-options">
+                    <button class="dur-btn" onclick="selectBanDuration(1, this)">1 H</button>
+                    <button class="dur-btn" onclick="selectBanDuration(6, this)">6 H</button>
+                    <button class="dur-btn" onclick="selectBanDuration(24, this)">1 D</button>
+                    <button class="dur-btn" onclick="selectBanDuration(168, this)">1 W</button>
+                    <button class="dur-btn perma-btn" onclick="selectBanDuration(-1, this)">PERMA</button>
+                </div>
+                <input type="hidden" id="ban-duration-value" value="0">
+            </div>
+
+            <div class="ban-section" id="ban-reason-wrapper">
+                <label>REASON</label>
+                <input type="text" id="ban-reason" placeholder="Enter valid reason..." autocomplete="off">
+            </div>
+
+            <div class="ban-footer">
+                <button id="btn-execute-ban" class="cyber-btn btn-danger full-width">EXECUTE JUDGMENT</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="kick-modal" class="input-modal-wrapper">
+        <div class="input-box ban-box" style="border-color: #ff9900; box-shadow: 0 0 40px rgba(255, 153, 0, 0.3);">
+            <div class="input-close-btn" id="close-kick-btn">✕</div> 
+            <div class="input-title danger" style="color: #ff9900; text-shadow: 0 0 10px #ff9900;">KICK PLAYER</div>
+            <div class="input-subtitle" id="kick-target-name">TARGET: UNKNOWN</div>
+            
+            <div class="ban-section">
+                <label>REASON FOR KICK</label>
+                <input type="text" id="kick-reason" placeholder="Enter reason (e.g. AFK, Rule Violation)..." autocomplete="off">
+            </div>
+
+            <div class="ban-footer">
+                <button id="btn-execute-kick" class="cyber-btn btn-danger full-width" style="background: linear-gradient(45deg, #804000, #ff9900);">KICK FROM SERVER</button>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <div id="announce-modal" class="input-modal-wrapper">
+        <div class="input-box ban-box" style="border-color: var(--primary);">
+            <div class="input-title danger" style="color: var(--primary);">📢 BROADCAST</div>
+            <div class="input-subtitle">SEND GLOBAL SERVER MESSAGE</div>
+            
+            <div class="ban-section">
+                <label>TITLE / HEADER</label>
+                <input type="text" id="announce-title" placeholder="e.g. SERVER RESTART" autocomplete="off" maxlength="40">
+            </div>
+
+            <div class="ban-section">
+                <label>MESSAGE CONTENT</label>
+                <textarea id="announce-msg" rows="4" placeholder="Enter your announcement text here..." maxlength="200"></textarea>
+            </div>
+
+            <div class="ban-section" style="margin-top: 15px;">
+                <label class="cyber-checkbox-wrapper">
+                    <input type="checkbox" id="announce-show-name" checked>
+                    <span class="checkmark"></span>
+                    <span class="cyber-checkbox-label">SHOW ADMIN NAME</span>
+                </label>
+            </div>
+
+            <div class="ban-footer" style="display: flex; gap: 10px; margin-top: 25px;">
+                <button id="btn-send-announce" class="cyber-btn btn-danger" style="flex: 1;">BROADCAST</button>
+                <button id="btn-cancel-announce" class="cyber-btn btn-safe" style="flex: 1;">CANCEL</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="announcement-banner" class="announce-wrapper">
+        <div class="announce-content">
+            <div class="announce-icon">⚠️</div> <div class="announce-text-area">
+                <div class="announce-header" id="disp-ann-title">SYSTEM ALERT</div>
+                <div class="announce-body" id="disp-ann-msg">Message Content...</div>
+                <div class="announce-footer" id="disp-ann-footer">ISSUED BY: <span id="disp-ann-author">ADMIN</span></div>
+            </div>
+        </div>
+        <div class="announce-progress"></div>
+    </div>
+
+    <div id="private-message-box" class="private-msg-wrapper">
+        <div class="pm-header">
+            <span class="pm-icon">📨</span> <span id="pm-title">ADMINISTRATOR</span>
+        </div>
+        <div class="pm-body" id="pm-content">
+            </div>
+        <div class="pm-footer" id="pm-author">
+            FROM: STAFF
+        </div>
+        <div class="pm-progress"></div>
+    </div>
+
+    
+    <div class="notification-container" id="notify-container">
+    </div>
+
+    <script src="menuData.js"></script> 
+    
+    <script src="script.js"></script>
+</body>
+</html>

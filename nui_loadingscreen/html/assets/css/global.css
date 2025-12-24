@@ -1,0 +1,54 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap");
+
+:root {
+    --cursor: url(/assets/img/jmj-cursor2.png), auto;
+}
+
+* {
+    font-family: "Poppins", sans-serif; 
+    margin: 0;
+    padding: 0;
+    outline: none;
+    border: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+  
+body {
+    overflow: hidden;
+    cursor: var(--cursor);
+}
+
+button {
+    cursor: var(--cursor);
+}
+
+img {
+    -webkit-user-drag: none;
+}
+
+/* Disable Arrows and Calendar */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button,
+input::-webkit-calendar-picker-indicator {
+    display: none;
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+video {
+    position: absolute;
+    appearance: none;
+}

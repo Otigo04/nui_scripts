@@ -1,0 +1,190 @@
+body {
+    position: relative;
+    display: grid;
+    height: 100vh;
+    width: 100vw;
+    background: #121212;
+    overflow: hidden;
+}
+
+main {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 1vw 0;
+    gap: 1vw;
+}
+
+.slideshow-container {
+    position: fixed;
+    inset: 0;
+}
+
+.slideshow-container img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;  
+    opacity: 0;
+    transform: scale(1);
+    animation: ken-burns 56s linear infinite;
+}
+
+@keyframes ken-burns {
+    0% { opacity: 0; transform: scale(1) }
+    2% { opacity: 1 }
+    14.3% { opacity: 1; transform: scale(1.1) }
+    16.3% { opacity: 0; transform: scale(1.1) }
+    100% { opacity: 0; transform: scale(1) }
+}
+
+.slideshow-container img:nth-child(1) { animation-delay: 0s; }
+.slideshow-container img:nth-child(2) { animation-delay: 8s; }
+.slideshow-container img:nth-child(3) { animation-delay: 16s; }
+.slideshow-container img:nth-child(4) { animation-delay: 24s; }
+.slideshow-container img:nth-child(5) { animation-delay: 32s; }
+.slideshow-container img:nth-child(6) { animation-delay: 40s; }
+.slideshow-container img:nth-child(7) { animation-delay: 48s; }
+
+.slideshow-container img:nth-child(2n + 1) { transform-origin: top right; }
+.slideshow-container img:nth-child(3n + 1) { transform-origin: top left; }
+.slideshow-container img:nth-child(4n + 1) { transform-origin: bottom right; }
+
+#music-container {
+    display: flex;
+    align-items: center;
+    gap: .3vw;  
+    padding: .25vw .5vw .25vw .4vw;
+    border-radius: 3vw; 
+    color: #fff;
+    font-size: .6vw;  
+    font-weight: 600;
+    background: rgba(217, 217, 217, 0.15);
+    backdrop-filter: blur(.3vw); 
+    box-shadow: 0 0 0.4vw 0 rgba(0, 0, 0, 0.250);
+    text-transform: uppercase;
+    z-index: 1;
+}
+
+.music-control {
+    display: flex;
+    align-items: center;
+    gap: .3vw;  
+    padding: .25vw .5vw;
+    border-radius: 3vw;  
+    background: rgba(255, 255, 255, 0.2); 
+    color: inherit;
+    font: inherit;
+    font-size: .6vw;  
+    text-transform: uppercase;
+    transition: background .4s ease, box-shadow .4s ease, color .4s ease;
+}
+
+.music-control[aria-pressed="true"] {
+    color: #00E5FF;
+    background: rgba(56, 150, 200, 0.25);
+    box-shadow: 0 0 0.58vw 0 rgba(35, 175, 247, 0.50) inset;
+}
+
+.music-control > img {
+    height: 1.2vw; 
+    aspect-ratio: 1/1;  
+}
+
+.loader {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 80%;
+}
+
+.loader-status {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto 1fr 4vw;
+    gap: 1vw;
+    height: 2.2vw;
+    overflow: hidden;
+}
+
+.loader-status > * {
+    padding: 0 1vw;
+    color: #fff;
+    font-size: .8vw;
+    background: rgba(217, 217, 217, 0.15);
+    backdrop-filter: blur(.5vw);
+}
+
+.loader-label,
+.loader-percentage {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0 1vw .25vw 1vw;
+    border-radius: 1vw 1vw 0 0;
+    text-transform: uppercase;
+}
+
+.loader-tip {
+    display: flex;
+    align-items: center;
+    height: 85%;
+    border-radius: .5vw;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.loader-tip span {
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.loader-bar-container {
+    display: grid;
+    place-items: center;
+    padding: 0 1vw;
+    height: 2vw;
+    border-radius: 0 0 1vw 1vw;
+    background: rgba(217, 217, 217, 0.15);
+    backdrop-filter: blur(.5vw);
+}
+
+.loader-bar {
+    display: flex;
+    height: .4vw;
+    width: 100%;
+    border-radius: 1vw;
+    background: rgba(0, 0, 0, 0.289);
+}
+
+.loader-bar-inner {
+    height: .4vw;
+    width: 0%;
+    border-radius: 1vw;
+    background: #00E5FF;
+    box-shadow: 0 0 0.52vw 0.05vw rgba(35, 175, 247, 0.50);
+    transition: width 0.2s linear;
+}
+
+#volume-icon,
+#volume-text,
+.loader-tip span {
+    transition: opacity 0.4s ease-in-out;
+}
+
+.fade-out {
+    opacity: 0;
+}
+
+.logo {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    height: 15vw;
+    aspect-ratio: 1/1;
+}

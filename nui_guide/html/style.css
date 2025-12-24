@@ -1,0 +1,503 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+
+:root {
+    --primary: #3498db;
+    --primary-gradient: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    --bg-glass: rgba(15, 15, 20, 0.90); /* Etwas dunkler für Kontrast */
+    --bg-sidebar: rgba(0, 0, 0, 0.3);
+    --text-main: #ffffff;
+    --text-muted: #8b9bb4;
+    --border: rgba(255, 255, 255, 0.08);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+
+body {
+    font-family: 'Inter', sans-serif;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+/* ANIMATION: Main Window Slide In */
+@keyframes windowPop {
+    0% { transform: scale(0.9); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.container {
+    width: 75vw;
+    height: 80vh;
+    background: var(--bg-glass);
+    border: 1px solid var(--border);
+    border-radius: 1.5rem;
+    display: flex;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.container.show {
+    opacity: 1;
+    visibility: visible;
+    animation: windowPop 0.4s forwards;
+}
+
+/* --- SIDEBAR --- */
+.sidebar {
+    width: 28%; /* Etwas breiter für die Sub-Items */
+    height: 100%;
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+}
+
+.brand {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin-bottom: 2.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    text-shadow: 0 0 20px rgba(52, 152, 219, 0.4);
+}
+
+.brand i { color: var(--primary); }
+
+.nav-list {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+/* Category Item Container */
+.category-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+/* Main Category Button */
+.nav-item {
+    padding: 1rem 1.2rem;
+    border-radius: 0.8rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border: 1px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Hover Animation */
+.nav-item:hover {
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-main);
+    padding-left: 1.5rem; /* Slide effect */
+}
+
+/* Active State (Category selected) */
+.nav-item.active {
+    background: var(--primary-gradient);
+    color: white;
+    box-shadow: 0 5px 20px rgba(52, 152, 219, 0.3);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+/* --- SUBCATEGORIES (The Accordion) --- */
+.submenu {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    margin-left: 1.5rem;
+    max-height: 0; /* Hidden by default */
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0, 1, 0, 1);
+    border-left: 2px solid var(--border);
+}
+
+.submenu.open {
+    max-height: 500px; /* Big enough to show items */
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.sub-item {
+    padding: 0.6rem 1rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: 0.2s;
+    border-radius: 0 0.5rem 0.5rem 0;
+}
+
+.sub-item:hover {
+    color: var(--text-main);
+    background: rgba(255,255,255,0.02);
+}
+
+.sub-item.active-sub {
+    color: var(--primary);
+    background: rgba(52, 152, 219, 0.1);
+    font-weight: 600;
+    border-left: 3px solid var(--primary);
+}
+
+/* --- CONTENT AREA --- */
+.content-wrapper {
+    width: 72%;
+    height: 100%;
+    padding: 4rem;
+    overflow-y: auto;
+    position: relative;
+    /* Fancy Background decoration */
+    background: radial-gradient(circle at top right, rgba(52, 152, 219, 0.1), transparent 40%);
+}
+
+/* Animation for Text Content */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.content-body {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+.content-body h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(90deg, #fff, #bbb);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.content-body p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #d1d1d1;
+    margin-bottom: 1.5rem;
+}
+
+.content-body ul > li {
+    color: #d1d1d1;
+}
+
+/* Placeholder */
+.placeholder {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.5;
+    animation: fadeInUp 0.6s ease;
+}
+.placeholder i {@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Inter:wght@300;400;600&display=swap');
+
+:root {
+    /* NUI LABS VIBRANT PALETTE */
+    --primary: #00d2ff; /* Helles Cyan */
+    --primary-dark: #3a7bd5; /* Dunkles Blau */
+    --accent: #9b59b6; /* Lila Akzent für Tiefe */
+    
+    /* Gradients */
+    --active-gradient: linear-gradient(90deg, rgba(0, 210, 255, 0.25) 0%, rgba(58, 123, 213, 0.05) 100%);
+    --bg-glass: rgba(12, 12, 16, 0.96); 
+    --sidebar-bg: rgba(20, 20, 25, 0.5);
+
+    /* Glows & Shadows */
+    --neon-glow: 0 0 15px rgba(0, 210, 255, 0.4);
+    --window-shadow: 0 0 50px rgba(0, 0, 0, 0.8), 0 0 100px rgba(0, 210, 255, 0.1);
+    
+    --text-main: #ffffff;
+    --text-muted: #8fa3b8;
+    --border: rgba(255, 255, 255, 0.08);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+
+body {
+    font-family: 'Inter', sans-serif;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    /* Optional: Vignette für Fokus */
+    background: radial-gradient(circle, transparent 60%, rgba(0,0,0,0.8) 100%);
+}
+
+/* --- MAIN CONTAINER --- */
+@keyframes popIn {
+    0% { transform: scale(0.95) translateY(10px); opacity: 0; }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.container {
+    width: 75vw;
+    height: 80vh;
+    background: var(--bg-glass);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid rgba(255, 255, 255, 0.2); /* Highlight top */
+    border-radius: 1rem;
+    display: flex;
+    box-shadow: var(--window-shadow);
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px); /* Falls FiveM es unterstützt, macht es smoother */
+}
+
+.container.show {
+    opacity: 1;
+    visibility: visible;
+    animation: popIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* --- SIDEBAR --- */
+.sidebar {
+    width: 28%;
+    height: 100%;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+    position: relative;
+    z-index: 2;
+}
+
+/* Brand Header */
+.brand {
+    font-family: 'Rajdhani', sans-serif; /* Sci-Fi Font */
+    font-size: 2rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-main);
+    margin-bottom: 3rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    letter-spacing: 0.1rem;
+    text-shadow: 0 0 20px rgba(255,255,255,0.2);
+}
+
+.brand i { 
+    color: var(--primary); 
+    filter: drop-shadow(0 0 10px var(--primary));
+}
+
+/* Scroll Area */
+.nav-list {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    padding-right: 0.5rem;
+}
+
+/* --- NAVIGATION ITEMS --- */
+.category-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.nav-item {
+    padding: 1.2rem 1.5rem;
+    border-radius: 0.6rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-weight: 600;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border: 1px solid transparent;
+    position: relative;
+    overflow: hidden; /* Für den Glanz-Effekt */
+}
+
+.nav-item i {
+    font-size: 1.2rem;
+    transition: 0.3s;
+    width: 20px;
+    text-align: center;
+}
+
+.nav-item:hover {
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-main);
+    border-color: rgba(255,255,255,0.1);
+    transform: translateX(5px); /* Kleiner Schubser nach rechts */
+}
+
+.nav-item:hover i {
+    color: var(--primary);
+    filter: drop-shadow(0 0 5px var(--primary));
+}
+
+/* ACTIVE STATE - DAS WICHTIGSTE */
+.nav-item.active {
+    background: var(--active-gradient);
+    color: white;
+    border-left: 4px solid var(--primary); /* Neon Balken links */
+    border-color: rgba(0, 210, 255, 0.2);
+    box-shadow: 0 10px 30px -10px rgba(0, 210, 255, 0.3);
+}
+
+.nav-item.active i {
+    color: var(--primary);
+    filter: drop-shadow(0 0 8px var(--primary));
+}
+
+/* --- SUBMENU (ACCORDION) --- */
+.submenu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0, 1, 0, 1);
+    margin-left: 1rem;
+    border-left: 1px solid rgba(255,255,255,0.05);
+}
+
+.submenu.open {
+    max-height: 600px;
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.sub-item {
+    padding: 0.8rem 1.5rem;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: 0.2s;
+    position: relative;
+    opacity: 0.7;
+}
+
+.sub-item:hover {
+    color: var(--text-main);
+    opacity: 1;
+    background: linear-gradient(90deg, rgba(255,255,255,0.03), transparent);
+}
+
+.sub-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0px;
+    height: 2px;
+    background: var(--primary);
+    transition: 0.2s;
+}
+
+.sub-item.active-sub {
+    color: var(--primary);
+    font-weight: 600;
+    opacity: 1;
+    background: linear-gradient(90deg, rgba(0, 210, 255, 0.1), transparent);
+}
+
+.sub-item.active-sub::before {
+    width: 10px; /* Kleiner Strich links */
+    box-shadow: 0 0 10px var(--primary);
+}
+
+/* --- CONTENT AREA --- */
+.content-wrapper {
+    width: 72%;
+    height: 100%;
+    padding: 4rem 5rem;
+    overflow-y: auto;
+    position: relative;
+    background: radial-gradient(circle at 90% 10%, rgba(0, 210, 255, 0.05), transparent 50%);
+}
+
+.content-body h1 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: white;
+    text-transform: uppercase;
+    /* Cooler Text-Gradient Effekt */
+    background: -webkit-linear-gradient(#fff, #a2c2e1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 20px rgba(0, 210, 255, 0.3));
+}
+
+.content-body p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #cbd5e1;
+    margin-bottom: 1.5rem;
+    max-width: 900px;
+}
+
+.content-body strong {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+/* Placeholder Center */
+.placeholder {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.3;
+}
+.placeholder i {
+    font-size: 6rem;
+    margin-bottom: 2rem;
+    color: var(--primary);
+    filter: drop-shadow(0 0 30px var(--primary));
+    animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+    100% { transform: translateY(0px); }
+}
+
+/* Scrollbar Customization */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { 
+    background: rgba(255,255,255,0.1); 
+    border-radius: 10px; 
+}
+::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+    font-size: 5rem;
+    margin-bottom: 1.5rem;
+    color: var(--primary);
+    filter: drop-shadow(0 0 15px var(--primary));
+}

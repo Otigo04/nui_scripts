@@ -1,0 +1,460 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Lato:wght@300;400;700&family=Courier+Prime:wght@400;700&display=swap');
+
+:root {
+    --bg-color: #1a1a1a;
+    --text-color: #ffffff; 
+    --accent-color: #0078d4;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: transparent !important;
+    font-family: 'Inter', sans-serif;
+    user-select: none;
+    pointer-events: none; 
+    color: var(--text-color); 
+}
+
+#tablet-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    width: 80vh; /* Festes Seitenverhältnis für Tablet-Look */
+    height: 60vh; /* Querformat */
+    /* Alternativ für Hochformat (iPad): width: 60vh; height: 80vh; */
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.show-tablet {
+    opacity: 1 !important;
+    transform: translate(-50%, -50%) scale(1) !important;
+    pointer-events: all !important;
+}
+
+#tablet-frame {
+    width: 100%;
+    height: 100%;
+    /* Hardware Bezel (Der schwarze Rand) */
+    background: #000000; 
+    border-radius: 24px;
+    /* Der innere Bildschirm */
+    box-shadow: 
+        inset 0 0 0 2px #333, /* Leichter Glanz am Rand */
+        0 20px 60px rgba(0,0,0,0.8); /* Schatten hinter dem Tablet */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    /* Ein schönes Hintergrundbild oder Gradient für den Screen */
+    background-image: linear-gradient(135deg, #1c1c1c 0%, #2a2a2a 100%);
+    border: 12px solid #000000; /* Das ist der physische Rand */
+}
+
+.camera-notch {
+    position: absolute;
+    top: 10px; /* Etwas tiefer */
+    width: 100px; /* Breiter (Pillenform) */
+    height: 18px; /* Höher */
+    background: #000000;
+    border-radius: 20px; /* Rundung */
+    border: 1px solid #222; /* Subtiler Rand */
+    z-index: 20;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.8);
+}
+
+/* Status Bar - Größere Schrift & mehr Platz */
+#status-bar {
+    width: 94%;
+    height: 50px; /* Höher, damit Platz für Logo-Verschiebung ist */
+    display: flex;
+    justify-content: space-between;
+    align-items: center; /* Vertikal zentrieren */
+    color: white;
+    font-size: 16px; /* Größere Schrift für Uhrzeit */
+    margin-top: 5px;
+    padding: 0 15px; /* Mehr Abstand zum Rand */
+    font-weight: 600;
+    z-index: 10;
+    color: var(--text-color);
+}
+
+/* Icons in der Statusleiste (Wifi/Battery) */
+#status-bar .icons {
+    display: flex;
+    gap: 10px; /* Abstand zwischen den Icons */
+    font-size: 18px; /* Größere Icons */
+}
+
+.logo {
+    font-weight: 800;
+    letter-spacing: 2px;
+    font-size: 16px;
+    opacity: 0.9;
+    text-shadow: 0 0 15px rgba(0, 120, 212, 0.6);
+    padding-top: 30px; /* Schiebt das Logo unter die Notch */
+}
+
+/* --- GRID SYSTEM UPDATE --- */
+#app-screen {
+    flex-grow: 1;
+    width: 100%;
+    overflow-y: auto;
+    padding-top: 20px;
+    
+    /* Scrollbar verstecken */
+    scrollbar-width: none; 
+}
+#app-screen::-webkit-scrollbar { 
+    display: none; 
+}
+
+#app-grid {
+    display: grid;
+    /* Automatische Spalten, aber mindestens 100px breit */
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    /* Zeilen sollen sich nicht strecken -> FIXT DEN GHOST CLICK BUG */
+    grid-auto-rows: min-content; 
+    align-content: start; /* Inhalt klebt oben */
+    gap: 25px;
+    padding: 0 40px; /* Seitenabstand */
+}
+
+#home-bar {
+    width: 140px;
+    height: 5px;
+    background-color: rgba(255, 255, 255, 0.6);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    margin-top: 5px;
+}
+
+/* --- NEUES APP DESIGN (Bunter & Größer) --- */
+
+.app-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); /* Bouncy Effekt */
+    padding: 10px;
+    border-radius: 12px;
+}
+
+.app-item:hover {
+    transform: scale(1.1); /* Größer werden beim Hover */
+    background-color: rgba(255,255,255,0.05); /* Heller Hintergrund beim Hover */
+}
+
+.app-icon {
+    width: 72px; /* Größer */
+    height: 72px;
+    border-radius: 18px; /* Smooth Corners */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 32px;
+    color: white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    margin-bottom: 10px;
+    
+    /* Standard Gradient (Falls keine Farbe definiert ist) */
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.app-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: white;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    color: var(--text-color);
+}
+
+/* --- FARBEN FÜR APPS (Beispielklassen) --- */
+/* Diese werden wir gleich dynamisch nutzen */
+.icon-blue { background: linear-gradient(135deg, #0099f7, #f11712); } /* Mail Style */
+.icon-grey { background: linear-gradient(135deg, #434343 0%, #000000 100%); } /* Settings Style */
+
+/* --- APP WINDOW & ANIMATIONS --- */
+
+#app-window {
+    width: 100%;
+    height: 100%;
+    display: none; /* Standardmäßig aus */
+    flex-direction: column;
+}
+
+#app-content {
+    width: 100%;
+    height: 100%;
+    color: var(--text-color);
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+/* Hilfsklassen für Animationen */
+.fade-in {
+    animation: fadeIn 0.3s forwards;
+    display: grid !important; /* Grid erzwingen */
+}
+
+.fade-out {
+    animation: fadeOut 0.3s forwards;
+    pointer-events: none; /* Keine Klicks während Animation */
+}
+
+/* Spezialfall für App Window Display */
+.show-window {
+    display: flex !important;
+    animation: fadeIn 0.3s forwards;
+}
+
+.hide-grid {
+    display: none !important;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.98); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; transform: scale(1); }
+    to { opacity: 0; transform: scale(1.02); }
+}
+
+/* Home Bar Interaktion */
+#home-bar-container {
+    width: 100%;
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 50;
+    margin-bottom: 5px;
+}
+
+#home-bar-container:hover #home-bar {
+    background-color: white; /* Leuchtet auf beim Drüberfahren */
+    width: 160px; /* Wird etwas breiter */
+    transition: all 0.3s ease;
+}
+
+/* --- IFRAME LOGIC --- */
+
+#app-content {
+    width: 100%;
+    height: 100%;
+    position: relative; /* Wichtig für absolute Positionierung darin */
+    overflow: hidden;
+}
+
+#app-frame {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: none; /* Standardmäßig aus */
+    background: transparent;
+}
+
+#internal-app-container {
+    width: 100%;
+    height: 100%;
+    display: none; /* Standardmäßig aus */
+    overflow-y: auto;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Hilfsklassen zum Umschalten */
+.show-iframe {
+    display: block !important;
+}
+
+.show-internal {
+    display: block !important;
+}
+
+/* --- SETTINGS APP STYLING --- */
+
+.settings-container {
+    padding: 20px;
+    /* FIX: Hier stand vorher white. Jetzt nutzen wir die Variable! */
+    color: var(--text-color); 
+    height: 100%;
+    overflow-y: auto;
+    transition: color 0.3s ease; /* Weicher Übergang beim Wechseln */
+}
+
+.settings-section {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.settings-title {
+    font-size: 14px;
+    text-transform: uppercase;
+    /* FIX: Vorher rgba(255,255,255,0.5). Jetzt Variable + Opacity */
+    color: var(--text-color);
+    opacity: 0.6; 
+    
+    margin-bottom: 15px;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+/* Settings Row (Label links, Control rechts) */
+.settings-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.settings-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+/* Toggle Switch (iOS Style) */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 24px;
+}
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #333;
+    transition: .4s;
+    border-radius: 34px;
+}
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px; width: 18px;
+    left: 3px; bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+input:checked + .slider { background-color: var(--accent-color); }
+input:checked + .slider:before { transform: translateX(16px); }
+
+/* Wallpaper Grid */
+.wallpaper-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 15px;
+}
+.wallpaper-option {
+    height: 60px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+}
+.wallpaper-option:hover { transform: scale(1.05); }
+.wallpaper-option.active { border-color: var(--accent-color); box-shadow: 0 0 10px var(--accent-color); }
+
+/* Color Picker Circles */
+.color-grid { display: flex; gap: 10px; }
+.color-circle {
+    width: 30px; height: 30px; border-radius: 50%;
+    cursor: pointer; border: 2px solid transparent;
+    transition: transform 0.2s;
+}
+.color-circle:hover { transform: scale(1.1); }
+.color-circle.active { border-color: white; }
+
+/* Custom Inputs */
+.custom-input {
+    width: 100%;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.1);
+    
+    /* FIX: Auch der Input Text soll die Farbe haben */
+    color: var(--text-color);
+    
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 5px;
+    font-family: 'Inter', sans-serif;
+}
+
+.custom-input::placeholder {
+    color: var(--text-color);
+    opacity: 0.5;
+}
+
+/* --- ULTIMATE SCROLLBAR STYLING --- */
+/* Funktioniert in FiveM (Chrome Engine) perfekt */
+
+::-webkit-scrollbar {
+    width: 6px; /* Sehr dünn */
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02); 
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2); 
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-color); /* Leuchtet in deiner Farbe beim Drüberfahren */
+}
+
+/* --- FONT CLASSES --- */
+.font-inter { font-family: 'Inter', sans-serif; }
+.font-roboto { font-family: 'Roboto', sans-serif; }
+.font-lato { font-family: 'Lato', sans-serif; }
+.font-mono { font-family: 'Courier Prime', monospace; letter-spacing: -0.5px; }
+
+/* Font Selection Buttons */
+.font-btn {
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: 0.2s;
+}
+.font-btn:hover { background: rgba(255,255,255,0.2); }
+.font-btn.active { 
+    background: var(--accent-color); 
+    border-color: var(--accent-color); 
+    color: black; 
+    font-weight: bold;
+}
+
+/* Accent Color Fixes für Inputs */
+input:checked + .slider {
+    background-color: var(--accent-color) !important;
+    box-shadow: 0 0 10px var(--accent-color);
+}
+
+.wallpaper-option.active {
+    border-color: var(--accent-color) !important;
+    box-shadow: 0 0 15px var(--accent-color);
+}

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Jumanji - Loading Screen</title>
+    <link rel="stylesheet" href="assets/css/global.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main>
+        <div class="slideshow-container">
+            <img src="assets/img/wallpaper/1.png" />
+            <img src="assets/img/wallpaper/2.png" />
+            <img src="assets/img/wallpaper/3.png" />
+            <img src="assets/img/wallpaper/4.png" />
+            <img src="assets/img/wallpaper/5.png" />
+            <img src="assets/img/wallpaper/6.png" />
+            <img src="assets/img/wallpaper/7.png" />
+        </div>
+
+        <div id="music-container">
+            <button type="button" class="music-control" id="music-toggle">
+                <img src="assets/img/volume-full.svg" id="volume-icon" alt="Volume Icon">
+                <p>SPACEBAR</p>
+            </button>
+            <p id="volume-text">MUTE MUSIC</p>
+        </div>
+
+        <div class="loader">
+            <div class="loader-status">
+                <div class="loader-label">Game is loading...</div>
+                <div class="loader-tip"><span>Tips are loading...</span></div>
+                <div class="loader-percentage">0%</div>
+            </div>
+            <div class="loader-bar-container">
+                <div class="loader-bar"><div class="loader-bar-inner" /></div>
+            </div>
+        </div>
+
+        <img src="assets/img/jmj-logo.png" class="logo" alt="JMJ Roleplay Logo">
+    </main>
+
+    <video id="background-music" src="assets/audio/music.mp3" autoplay loop></video>
+    <script src="main.js"></script>
+</body>
+</html>

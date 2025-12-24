@@ -1,0 +1,273 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+:root {
+    /* Color Palette */
+    --primary: #007aff;
+    --primary-glow: rgba(0, 122, 255, 0.4);
+    --accent: #00d1ff;
+    --bg-dark: rgba(10, 20, 30, 0.95);
+    --bg-glass: rgba(15, 30, 45, 0.7);
+    --sidebar-bg: rgba(8, 15, 25, 0.98);
+    
+    /* Text Colors */
+    --text-main: #ffffff;
+    --text-muted: rgba(255, 255, 255, 0.5);
+    
+    /* Dimensions */
+    --sidebar-width: 22rem;
+    --info-panel-width: 28rem;
+    --border-radius: 1.2rem;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+    user-select: none;
+}
+
+html, body {
+    background-color: transparent !important;
+    background: transparent !important;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+}
+html, body {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+#app-container {
+    width: 100vw;
+    height: 100vh;
+    display: flex; /* Wird per JS auf 'none' oder 'flex' gesetzt */
+    justify-content: center;
+    align-items: center;
+    background: transparent !important; /* Kein Schleier, kein Blur */
+    backdrop-filter: none !important;
+}
+    
+
+/* Der Hauptcontainer mit Glass-Effekt */
+.dispatch-wrapper {
+    display: flex;
+    width: 92vw;
+    height: 85vh;
+    background: var(--bg-dark);
+    backdrop-filter: blur(1.5rem);
+    border-radius: var(--border-radius);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 3rem 6rem rgba(0, 0, 0, 0.6);
+    overflow: hidden;
+    position: relative;
+}
+
+.menu-sections {
+    flex-grow: 1;
+    overflow-y: auto; /* Scrollen erlauben */
+    padding-right: 0.5rem;
+}
+
+/* Stylischer Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 0.4rem;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 1rem;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;
+    transition: background 0.2s;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--primary); /* Leuchtet auf beim drüberfahren */
+}
+
+/* Sidebar: Mehr Kontrast und Tiefe */
+.sidebar {
+    width: var(--sidebar-width);
+    background: var(--sidebar-bg);
+    display: flex;
+    flex-direction: column;
+    padding: 3rem 1.5rem;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    z-index: 10;
+}
+.sidebar {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.brand {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--text-main);
+    letter-spacing: -0.05rem;
+    margin-bottom: 4rem;
+    padding-left: 1rem;
+}
+
+.brand span {
+    color: var(--primary);
+    text-shadow: 0 0 1.5rem var(--primary-glow);
+}
+
+/* Nav-Items: Subtile Animationen */
+.nav-group { margin-bottom: 2.5rem; }
+
+.category {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.15rem;
+    margin-bottom: 1rem;
+    padding-left: 1rem;
+}
+
+.nav-item {
+    list-style: none;
+    padding: 1.2rem 1.5rem;
+    margin-bottom: 0.5rem;
+    border-radius: 0.8rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    font-size: 1.15rem;
+    font-weight: 500;
+    opacity: 0;
+    transform: translateX(-2rem);
+    animation: slideIn 0.5s ease forwards;
+}
+
+.nav-item:nth-child(1) { animation-delay: 0.1s; }
+.nav-item:nth-child(2) { animation-delay: 0.15s; }
+.nav-item:nth-child(3) { animation-delay: 0.2s; }
+
+.nav-item i {
+    font-size: 1.3rem;
+    width: 2rem;
+    transition: transform 0.25s ease;
+}
+
+.nav-item:hover {
+    color: var(--text-main);
+    background: rgba(255, 255, 255, 0.03);
+    transform: translateX(0.5rem);
+}
+
+.nav-item.active {
+    background: linear-gradient(90deg, var(--primary), #0056b3);
+    color: white;
+    box-shadow: 0 0.8rem 2rem rgba(0, 122, 255, 0.25);
+}
+
+@keyframes slideIn {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.nav-item.active {
+    position: relative;
+    overflow: hidden;
+}
+
+.nav-item.active::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    animation: shine 3s infinite;
+}
+
+/* Main Content Area */
+.main-content {
+    flex-grow: 1;
+    position: relative;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+/* Info Panel (Rechts): Karten-Optik */
+.info-panel {
+    width: var(--info-panel-width);
+    background: var(--sidebar-bg);
+    padding: 2.5rem 1.8rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.panel-segment h3 {
+    font-size: 1rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Button Styling für "Juicyness" */
+.btn-small {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-main);
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-small:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+    box-shadow: 0 0 1rem var(--primary-glow);
+}
+
+@keyframes shine {
+    to { left: 100%; }
+}
+
+/* 3. Page Transition: Content slidet sanft hoch */
+.page-content.active {
+    display: block;
+    animation: fadeInUp 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(2rem);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Hochwertigerer Glass-Look für den Dispatch-Wrapper */
+.dispatch-wrapper {
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 
+        0 0 0 1px rgba(0, 0, 0, 0.5),
+        0 2rem 5rem rgba(0, 0, 0, 0.8);
+    background: linear-gradient(135deg, rgba(10, 20, 30, 0.97) 0%, rgba(5, 12, 20, 0.99) 100%);
+}

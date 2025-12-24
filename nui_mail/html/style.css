@@ -1,0 +1,2026 @@
+:root {
+    /* --- STANDARD (DARK) --- */
+    --bg-rgb: 20, 20, 20;
+    --glass-opacity: 0.95;
+    
+    --sidebar-bg: rgba(0, 0, 0, 0.4);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --accent-color: #00d4ff;
+    
+    --text-main: #ffffff;
+    --text-header: #ffffff;
+    --text-muted: #aaaaaa;
+    
+    --mail-item-bg: rgba(255, 255, 255, 0.05);
+    --input-bg: rgba(255, 255, 255, 0.05);
+    --input-border: rgba(255, 255, 255, 0.1);
+    --settings-bg: rgba(255, 255, 255, 0.05);
+    --account-bg: rgba(255, 255, 255, 0.05);
+    
+    --login-bg: rgba(20, 20, 20, 0.95);
+    --login-border: rgba(255, 255, 255, 0.1);
+    --ui-scale: 1.0;
+}
+
+/* --- THEME 2: WHITE MODE (High Contrast Fix) --- */
+/* --- THEME 2: WHITE MODE (Fixed) --- */
+body.theme-white {
+    --bg-rgb: 243, 244, 246;  /* Das ist das Hellgrau für Rechts */
+    --glass-opacity: 0.98;
+    
+    --sidebar-bg: #ffffff;    /* Reinweiß für Links */
+    
+    --glass-border: #e2e8f0;
+    --accent-color: #2563eb;
+    
+    --text-main: #1f2937;
+    --text-header: #111827;
+    --text-muted: #6b7280;
+    
+    --mail-item-bg: #ffffff;
+    --input-bg: #ffffff;
+    --input-border: #cbd5e1;  /* Deutlicher Rand für Inputs */
+    --settings-bg: #ffffff;
+    --account-bg: #ffffff;    /* Account Box Weiß */
+    
+    --login-bg: #ffffff;
+    --login-border: #e5e7eb;
+}
+
+/* --- THEME 3: PURPLE --- */
+body.theme-purple {
+    --bg-rgb: 25, 10, 40; /* Tiefes Lila RGB */
+    
+    --sidebar-bg: rgba(40, 10, 60, 0.6);
+    --glass-border: rgba(236, 72, 153, 0.4);
+    --accent-color: #d946ef;
+    
+    --text-main: #ffffff;
+    --text-header: #ffffff;
+    --text-muted: #e9d5ff;
+    
+    --mail-item-bg: rgba(255, 255, 255, 0.05);
+    --input-bg: rgba(255, 255, 255, 0.05);
+    --input-border: rgba(236, 72, 153, 0.3);
+    --settings-bg: rgba(255, 255, 255, 0.05);
+    
+    --login-bg: rgba(25, 10, 40, 0.95);
+    --login-border: rgba(236, 72, 153, 0.4);
+}
+
+/* --- THEME 4: MIDNIGHT GOLD --- */
+body.theme-midnight {
+    --bg-rgb: 2, 6, 23; /* Midnight Blue RGB */
+    
+    --sidebar-bg: rgba(15, 23, 42, 0.8);
+    --glass-border: rgba(251, 191, 36, 0.3);
+    --accent-color: #fbbf24;
+    
+    --text-main: #fffbeb;
+    --text-header: #ffffff;
+    --text-muted: #94a3b8;
+    
+    --mail-item-bg: rgba(255, 255, 255, 0.03);
+    --input-bg: rgba(255, 255, 255, 0.05);
+    --input-border: rgba(251, 191, 36, 0.2);
+    --settings-bg: rgba(255, 255, 255, 0.05);
+    
+    --login-bg: rgba(2, 6, 23, 0.95);
+    --login-border: rgba(251, 191, 36, 0.3);
+}
+/* WICHTIG: Container Anpassung für die neuen Variablen */
+.container {
+    width: 1200px;
+    height: 800px;
+    transform: scale(var(--ui-scale));
+    transform-origin: center center;
+    
+    /* HIER IST DER FIX: Wir nutzen wieder rgba mit den Variablen! */
+    /* Dadurch greift der Slider (--glass-opacity) wieder in die Farbe ein */
+    background: rgba(var(--bg-rgb), var(--glass-opacity));    
+    
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+    
+    display: flex;
+    overflow: hidden;
+    color: var(--text-main);
+    
+    opacity: 0; 
+    transition: background 0.3s, color 0.3s, border-color 0.3s;
+}
+
+/* WICHTIG: HTML und Body auf 0 setzen */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    /* Erzwingt Transparenz */
+    background: transparent !important; 
+    background-color: rgba(0,0,0,0) !important;
+    overflow: hidden;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+
+
+/* Stellen wir sicher, dass die Animationen sauber greifen */
+.container.opening {
+    opacity: 1;
+    transform: scale(1);
+    animation: openWindow 0.4s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+}
+
+.container.closing {
+    opacity: 0;
+    transform: scale(0.95);
+    animation: closeWindow 0.3s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+}
+
+
+
+/* --- SIDEBAR --- */
+.sidebar {
+    width: 250px;
+    /* Variable nutzen! */
+    background: var(--sidebar-bg);
+    
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--glass-border); /* Trennlinie hinzufügen */
+    transition: background 0.5s;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 40px;
+    letter-spacing: 1px;
+}
+.highlight { color: var(--accent-color); }
+
+.menu { list-style: none; padding: 0; }
+/* --- MENU ITEMS ANIMATION --- */
+.menu li {
+    padding: 12px 15px;
+    margin-bottom: 8px;
+    border-radius: 12px; /* Runder */
+    cursor: pointer;
+    color: var(--text-muted);
+    font-weight: 500;
+    position: relative;
+    overflow: hidden;
+    
+    /* Smooth Transition für alles */
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    border: 1px solid transparent; /* Platzhalter für Border */
+}
+
+.menu li i { 
+    margin-right: 12px; 
+    width: 20px;
+    text-align: center;
+    transition: transform 0.3s;
+}
+
+/* Hover Effekt: Leicht nach rechts schieben & heller werden */
+.menu li:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    transform: translateX(5px); /* Die Bewegung */
+    border-color: rgba(255,255,255,0.1);
+}
+
+.menu li:hover i {
+    transform: scale(1.1); /* Icon wächst leicht */
+}
+
+/* Aktiver Reiter: Leuchten & Blauer Rand */
+.menu li.active {
+    background: rgba(0, 212, 255, 0.15); /* Dein Accent-Blau aber transparent */
+    color: #fff;
+    border-color: rgba(0, 212, 255, 0.3);
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.1); /* Glow */
+}
+
+/* Der blaue Strich links (verschönert) */
+.menu li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%) scaleY(0); /* Startet klein */
+    height: 60%; /* Nicht ganz so hoch */
+    width: 3px;
+    background: var(--accent-color);
+    border-radius: 0 4px 4px 0;
+    transition: transform 0.2s ease-out;
+}
+
+.menu li.active::before {
+    transform: translateY(-50%) scaleY(1); /* Fährt aus */
+}
+
+.my-account {
+    margin-top: auto;
+    margin-bottom: 10px;
+    padding: 10px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    font-size: 12px;
+}
+.account-label { color: var(--text-muted); margin-bottom: 2px; }
+.account-email { color: var(--accent-color); font-weight: bold; word-break: break-all; }
+
+.compose-btn {
+    background: var(--accent-color);
+    border: none;
+    padding: 15px;
+    border-radius: 12px;
+    color: #000;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: transform 0.2s;
+    box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2); /* Sanfter Schatten */
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+.compose-btn:hover {
+    transform: translateY(-2px); /* Schwebt leicht nach oben */
+    box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4); /* Schatten wird stärker */
+}
+.compose-btn:active {
+    transform: translateY(1px); /* Klick-Feedback */
+}
+
+/* --- CONTENT AREA (Fix für Scrolling) --- */
+.content {
+    flex: 1;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+/* Alle Views erben 100% Höhe */
+#view-list, #view-read, #view-compose {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.header {
+    display: flex; 
+    align-items: center; 
+    /* "flex-start" packt alles nach links, "gap" sorgt für den Abstand */
+    justify-content: flex-start; 
+    gap: 40px; 
+    
+    margin-bottom: 30px; 
+    flex-shrink: 0;
+    position: relative;
+    
+    /* Wir lassen rechts Platz, damit der Header nicht unter den Close-Button rutscht */
+    padding-right: 50px; 
+}
+
+/* --- SEARCH BAR ANIMATION FIX --- */
+.search-bar {
+    width: 220px; /* Startbreite definiert, damit Transition funktioniert */
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), 
+                border-color 0.3s, 
+                box-shadow 0.3s;
+}
+.search-bar input {
+    background: transparent; border: none; color: white; margin-left: 10px; outline: none;
+}
+
+/* --- LIST VIEW --- */
+.mail-list {
+    overflow-y: auto;
+    flex: 1;
+    padding-right: 10px;
+}
+.mail-list::-webkit-scrollbar { width: 5px; }
+.mail-list::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 10px; }
+
+.mail-item {
+    /* Variable nutzen! */
+    background: var(--mail-item-bg);
+    
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    display: flex; align-items: center;
+    cursor: pointer;
+    transition: 0.3s;
+    border: 1px solid transparent;
+}
+.mail-item:hover { 
+    border-color: var(--glass-border); 
+    /* Leichte Abdunklung/Aufhellung beim Hover */
+    filter: brightness(1.1);
+}
+.mail-item.unread { border-left: 3px solid var(--accent-color); }
+
+.avatar {
+    width: 40px; 
+    height: 40px;
+    border-radius: 50%;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    font-weight: bold; 
+    margin-right: 15px; 
+    font-size: 14px;
+    
+    /* NEU: Kleiner Schatten für bessere Lesbarkeit */
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.mail-info { flex: 1; min-width: 0; /* Verhindert Text-Overflow */ }
+.sender { font-size: 14px; font-weight: 600; display: flex; justify-content: space-between; }
+.time { font-size: 12px; color: var(--text-muted); font-weight: normal; }
+.subject { font-size: 15px; margin: 2px 0; color: #fff; }
+.preview { font-size: 13px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* --- READ VIEW --- */
+.hidden { display: none !important; }
+
+.back-btn {
+    background: transparent; border: none; color: var(--text-muted); cursor: pointer;
+    font-size: 16px; display: flex; align-items: center; gap: 8px; transition: 0.2s;
+}
+.back-btn:hover { color: var(--text-main); }
+
+.icon-btn {
+    background: var(--glass-bg); border: 1px solid var(--glass-border); color: white;
+    width: 35px; height: 35px; border-radius: 8px; cursor: pointer; margin-left: 5px;
+    transition: 0.2s;
+}
+.icon-btn:hover { background: rgba(255,255,255,0.1); }
+
+.read-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.read-content h1, .read-meta, .divider { flex-shrink: 0; }
+.read-content h1 { font-size: 22px; margin-bottom: 10px; }
+.sender-pill { 
+    background: rgba(0, 212, 255, 0.1); 
+    color: var(--accent-color); 
+    padding: 4px 10px; 
+    border-radius: 5px; 
+    font-size: 12px; 
+    font-weight: bold;
+    
+    /* FIX: Verhindert, dass der Balken über die ganze Breite geht */
+    align-self: flex-start; 
+    /* Alternativ/Zusätzlich sicherheitshalber: */
+    width: fit-content;
+}
+.divider { border: 0; border-top: 1px solid var(--glass-border); margin: 20px 0; }
+
+.read-meta {
+    display: flex;
+    flex-direction: column;
+    /* NEU: Abstand zwischen Absender-Pill und Uhrzeit */
+    gap: 8px; 
+    /* NEU: Etwas Abstand zum Trennstrich darunter */
+    margin-bottom: 10px;
+    flex-shrink: 0;
+}
+
+.email-body {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 10px;
+    line-height: 1.6;
+    color: #ddd;
+    white-space: pre-wrap;
+}
+
+/* --- COMPOSE VIEW (Fix für Senden Button) --- */
+.compose-form {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 15px;
+    padding-bottom: 40px; /* Genug Platz für den Button */
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.input-field {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    padding: 15px;
+    border-radius: 10px;
+    color: white;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    transition: 0.3s;
+    flex-shrink: 0;
+}
+
+.textarea-field {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    padding: 15px;
+    border-radius: 10px;
+    color: white;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    transition: 0.3s;
+    resize: none;
+    flex: 1; /* Nimmt den Restplatz */
+    min-height: 100px;
+}
+
+.input-field:focus, .textarea-field:focus {
+    border-color: var(--accent-color);
+    background: rgba(255,255,255,0.05);
+}
+
+.compose-footer {
+    display: flex;
+    justify-content: flex-end;
+    flex-shrink: 0;
+    padding-top: 10px;
+}
+
+.send-btn {
+    background: var(--accent-color);
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    color: #000;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.send-btn:hover { transform: scale(1.05); box-shadow: 0 0 15px rgba(0, 212, 255, 0.4); }
+
+/* --- ANIMATIONEN --- */
+@keyframes fadeInUp {
+    0% { opacity: 0; transform: translateY(30px) scale(0.98); filter: blur(10px); }
+    100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+.animate-enter { animation: fadeInUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+
+::placeholder { color: rgba(255, 255, 255, 0.6) !important; opacity: 1; }
+
+/* --- LIST ITEM ANIMATION --- */
+
+@keyframes popIn {
+    0% {
+        opacity: 0;
+        transform: translateY(15px) scale(0.95); /* Startet tiefer und kleiner */
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1); /* Endet normal */
+    }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Wir überschreiben die .mail-item Klasse leicht */
+.mail-item {
+    /* ... deine alten Styles bleiben, wir ergänzen nur das hier: ... */
+    
+    /* Standardmäßig unsichtbar, damit sie nicht kurz aufblitzen */
+    opacity: 0; 
+    
+    /* Die Animation: 0.3s lang, sanftes Ende (ease-out), Zustand beibehalten (forwards) */
+    animation: popIn 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* --- FENSTER ANIMATIONEN --- */
+
+/* Animation beim Öffnen: Zoom In + Fade In */
+@keyframes openWindow {
+    0% {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Animation beim Schließen: Zoom Out + Fade Out */
+@keyframes closeWindow {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+}
+
+
+
+/* --- PREMIUM SEARCH BAR --- */
+.search-bar {
+    /* Layout & Shape */
+    width: 220px; 
+    height: 40px; /* Feste Höhe für cleanen Look */
+    border-radius: 20px; /* Pill-Shape (Rund) */
+    padding: 0 15px; /* Innenabstand links/rechts */
+    
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Abstand zwischen Icon und Text */
+    
+    /* Colors (Variable Basis) */
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    
+    /* Animation */
+    transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), 
+                border-color 0.3s, 
+                box-shadow 0.3s,
+                background 0.3s;
+}
+
+/* Das Eingabefeld selbst (unsichtbarer Hintergrund) */
+.search-bar input {
+    border: none;
+    background: transparent;
+    flex: 1; /* Füllt den Restplatz */
+    height: 100%;
+    outline: none;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    color: var(--text-main); /* Standard Textfarbe */
+}
+
+/* Das Lupen-Icon */
+.search-bar i {
+    font-size: 14px;
+    color: var(--text-muted);
+    transition: color 0.3s;
+}
+
+/* --- ANIMATION STATE (FOCUS) --- */
+.search-bar:focus-within {
+    width: 320px; /* Wächst an */
+    border-color: var(--accent-color);
+    box-shadow: 0 0 15px rgba(var(--accent-color), 0.15); /* Leichter Glow */
+}
+
+.search-bar:focus-within i {
+    color: var(--accent-color); /* Icon leuchtet mit */
+}
+
+.input-field, .textarea-field {
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--text-main) !important;
+}
+
+/* Settings Bereich lesbar machen */
+.settings-area {
+    background: var(--settings-bg);
+    border: 1px solid var(--glass-border);
+}
+.settings-label {
+    color: var(--text-muted);
+}
+h1, h2, h3, .header h2 {
+    color: var(--text-header) !important;
+}
+
+/* --- MODERNER SLIDER --- */
+input[type=range] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    background: transparent;
+    height: 4px;
+    border-radius: 2px;
+    cursor: pointer;
+}
+
+input[type=range]:focus { outline: none; }
+
+/* Die Linie (Track) */
+input[type=range]::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    transition: background 0.3s;
+}
+
+/* Der Knopf (Thumb) */
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 14px;
+    width: 14px;
+    border-radius: 50%;
+    background: var(--accent-color);
+    margin-top: -5px; /* Zentriert den Knopf */
+    box-shadow: 0 0 10px var(--accent-color); /* Neon Glow */
+    transition: transform 0.1s, background 0.2s;
+}
+
+/* Hover Effekte */
+input[type=range]:hover::-webkit-slider-runnable-track {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+input[type=range]:active::-webkit-slider-thumb {
+    transform: scale(1.3); /* Wird größer beim Ziehen */
+    background: #fff; /* Wird weiß beim Ziehen */
+}
+
+/* --- BILD ANHÄNGE (Mittelgroß & Eng anliegend) --- */
+/* --- BILD ANHÄNGE (Tight Fit) --- */
+.mail-attachment {
+    max-width: 85%;
+    max-height: 250px;
+    width: auto;
+    
+    display: block; /* Eigene Zeile */
+    
+    /* Optik */
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    
+    /* HIER DER FIX: Nur 2px Abstand nach oben/unten */
+    margin: 2px 0; 
+    
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+/* --- SCROLLBAR DESIGN (Schlank & Modern) --- */
+.email-body::-webkit-scrollbar {
+    width: 4px; /* Viel dünner (vorher oft 10-15px) */
+}
+
+.email-body::-webkit-scrollbar-track {
+    background: transparent; /* Keine Hintergrundfarbe im Balken */
+}
+
+.email-body::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15); /* Dezent glasig/grau */
+    border-radius: 10px;
+}
+
+.email-body::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-color); /* Leuchtet blau beim Drüberfahren */
+}
+
+/* --- LOGIN SCREEN --- */
+#login-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000; /* Über allem anderen */
+    /* Optional: Hintergrund leicht abdunkeln */
+    background: rgba(0, 0, 0, 0.4); 
+}
+
+.login-box {
+    width: 400px;
+    padding: 40px;
+    
+    /* Variable nutzen! */
+    background: var(--login-bg);
+    border: 1px solid var(--login-border);
+    
+    border-radius: 20px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+    text-align: center;
+    
+    /* Damit der Text auch im White Mode stimmt */
+    color: var(--text-main);
+}
+
+/* Der Titel NUI MAIL im Login */
+.login-logo {
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 40px;
+    letter-spacing: 2px;
+    color: var(--text-main); /* Passt sich an */
+}
+
+/* Die Inputs im Login Screen */
+.login-box input {
+    width: 100%;
+    
+    /* Variablen nutzen! */
+    background: var(--input-bg);
+    border: 1px solid var(--glass-border);
+    color: var(--text-main);
+    
+    padding: 12px;
+    border-radius: 8px;
+    font-family: 'Inter', monospace;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+/* Label Farben im Login */
+.input-group label {
+    font-size: 12px;
+    color: var(--text-muted); /* Passt sich an */
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: block;
+    font-weight: 600;
+}
+
+/* Die Inputs sehen aus wie normale Felder, sind aber Readonly */
+.login-box input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 12px;
+    border-radius: 8px;
+    color: #fff;
+    font-family: 'Inter', monospace; /* Monospace wirkt technischer */
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box; /* Wichtig damit Padding nicht die Breite sprengt */
+}
+
+.login-btn {
+    width: 100%;
+    margin-top: 20px;
+    padding: 15px;
+    background: var(--accent-color);
+    border: none;
+    border-radius: 8px;
+    color: #000;
+    font-weight: bold;
+    font-size: 14px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: 0.2s;
+    
+    /* Button erst unsichtbar, kommt später rein */
+    opacity: 0; 
+    transform: translateY(10px);
+    transition: all 0.3s;
+}
+
+.login-btn.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.login-btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+}
+
+.mail-attachment + a {
+    display: none;
+    margin-top: 4px;
+    color: var(--accent-color);
+    font-size: 12px;
+    text-decoration: none;
+    border: 1px solid var(--accent-color);
+    padding: 4px 10px;
+    border-radius: 4px;
+    width: fit-content;
+}
+
+
+/* --- AVATAR & SETTINGS STYLING --- */
+
+/* --- SETTINGS INPUT STYLE --- */
+.settings-input {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 12px;
+    outline: none;
+    box-sizing: border-box;
+    transition: 0.2s;
+}
+.settings-input:focus {
+    border-color: var(--accent-color);
+    background: rgba(0, 0, 0, 0.4);
+}
+
+/* Update für die Avatar-Klasse (damit Bilder passen) */
+.avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Bild füllt den Kreis perfekt aus */
+    border-radius: 50%;
+}
+
+/* --- SETTINGS VIEW --- */
+.settings-content {
+    padding: 20px;
+    background: var(--glass-bg);
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+}
+
+.setting-group {
+    margin-bottom: 30px;
+}
+
+.setting-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--text-main);
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Avatar Upload Area */
+.avatar-upload-area {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.current-avatar-preview {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    border: 2px solid var(--accent-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    overflow: hidden;
+}
+.current-avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+
+.upload-btn {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+    font-family: 'Inter', sans-serif;
+}
+.upload-btn:hover { background: var(--accent-color); border-color: var(--accent-color); color: black; }
+
+/* Kleines Avatar in der Sidebar unten links */
+.my-account {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    /* ... deine alten styles ... */
+}
+.account-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.account-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Damit das Bild perfekt reinpasst */
+.current-avatar-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.upload-btn:hover {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: #000;
+}
+
+/* --- MULTI RECIPIENT STYLING --- */
+.multi-input-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    padding: 8px 15px; /* Etwas kompakter */
+    min-height: 45px;
+    height: auto; /* Wächst mit */
+    cursor: text;
+}
+
+.ghost-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    font-family: 'Inter', sans-serif;
+    flex: 1;
+    min-width: 120px;
+    font-size: 14px; /* Gleiche Größe wie andere Inputs */
+}
+
+.email-chip {
+    background: rgba(0, 212, 255, 0.15); /* Blau Transparent */
+    border: 1px solid var(--accent-color);
+    color: #fff;
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+    /* Animation */
+    opacity: 0;
+    transform: scale(0.8);
+    animation: popIn 0.2s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+}
+
+.chip-close {
+    cursor: pointer;
+    opacity: 0.6;
+    font-size: 14px;
+    line-height: 1;
+}
+.chip-close:hover { opacity: 1; color: #ff5555; }
+
+/* --- MULTI SELECT STYLES --- */
+
+/* Header Adjustments */
+.header-titles {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.bulk-btn {
+    background: rgba(239, 68, 68, 0.2); /* Red tint */
+    border: 1px solid rgba(239, 68, 68, 0.5);
+    color: #fca5a5;
+    padding: 8px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.2s;
+    animation: popIn 0.2s forwards;
+}
+.bulk-btn:hover {
+    background: rgba(239, 68, 68, 0.4);
+    color: white;
+}
+
+/* Custom Checkbox */
+.mail-checkbox {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--glass-border);
+    border-radius: 6px;
+    background: rgba(0,0,0,0.2);
+    margin-right: 15px;
+    cursor: pointer;
+    position: relative;
+    transition: 0.2s;
+    flex-shrink: 0;
+}
+
+.mail-checkbox:checked {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.mail-checkbox:checked::after {
+    content: '✔';
+    position: absolute;
+    color: black;
+    font-size: 12px;
+    font-weight: bold;
+    left: 4px;
+    top: 0px;
+}
+
+.mail-checkbox:hover {
+    border-color: var(--text-muted);
+}
+
+/* --- ACCOUNT SWITCHER --- */
+.account-wrapper {
+    position: relative; /* For popup positioning */
+    margin-top: auto;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.my-account {
+    cursor: pointer;
+    transition: 0.2s;
+    /* keep your existing styles */
+}
+.my-account:hover {
+    background: rgba(255,255,255,0.1);
+}
+.acc-details { display: flex; flex-direction: column; }
+.acc-name { font-size: 12px; font-weight: bold; color: #fff; }
+.acc-mail { font-size: 10px; color: #aaa; }
+.acc-badge { background: var(--accent-color); color: #000; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 10px; }
+.account-add-btn:hover { color: white; }
+.account-option:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px); /* Kleiner Slide Effekt */
+}
+
+/* --- MODAL OVERLAY --- */
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6); /* Dunkler Dimmer */
+    backdrop-filter: blur(5px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+/* Wenn das Modal sichtbar ist */
+.modal-overlay:not(.hidden) {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* --- MODAL BOX DESIGN --- */
+.modal-box {
+    width: 450px;
+    background: rgba(20, 20, 20, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 30px;
+    position: relative;
+    overflow: hidden; /* Wichtig für die Snake Lines */
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    transform: translateY(20px) scale(0.95);
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.modal-overlay:not(.hidden) .modal-box {
+    transform: translateY(0) scale(1);
+}
+
+.modal-header h2 {
+    font-size: 24px;
+    margin: 0;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+.modal-header p {
+    color: var(--text-muted);
+    font-size: 13px;
+    margin-top: 5px;
+}
+
+.modal-body {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* --- INPUTS --- */
+.input-wrapper label {
+    display: block;
+    font-size: 10px;
+    font-weight: bold;
+    color: var(--accent-color);
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+}
+
+.input-wrapper { position: relative; }
+
+.input-wrapper input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 12px 15px;
+    border-radius: 8px;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    transition: 0.3s;
+}
+
+.input-wrapper input:focus {
+    border-color: var(--accent-color);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.1);
+}
+
+.input-icon {
+    position: absolute;
+    right: 15px;
+    top: 38px;
+    color: rgba(255,255,255,0.3);
+}
+
+/* Kombiniertes Email Feld */
+.email-input-group {
+    display: flex;
+    align-items: center; /* Zentriert Text vertikal */
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+}
+
+.email-input-group:focus-within {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.1);
+}
+
+.email-input-group input {
+    border: none;
+    background: transparent;
+    flex: 1; /* Nimmt den ganzen Platz links */
+    padding: 12px 15px;
+    color: white;
+    outline: none;
+}
+.email-input-group input:focus { box-shadow: none; }
+
+.domain-badge {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-muted); /* Etwas dunkler */
+    padding: 12px 15px;
+    font-size: 13px;
+    user-select: none; /* Nicht markierbar */
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    white-space: nowrap; /* Kein Umbruch */
+}
+
+/* --- BUTTONS --- */
+.modal-footer {
+    margin-top: 30px;
+    display: flex;
+    gap: 15px;
+}
+
+.btn-ghost {
+    flex: 1;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.btn-ghost:hover { background: rgba(255,255,255,0.1); }
+
+.btn-neon {
+    flex: 2; /* Breiter als Cancel */
+    background: var(--accent-color);
+    border: none;
+    color: #000;
+    font-weight: bold;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: 0.2s;
+}
+.btn-neon:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+}
+
+/* --- SNAKE ANIMATION (Der Schlange-Effekt) --- */
+.snake-line {
+    position: absolute;
+    background: var(--accent-color);
+    box-shadow: 0 0 15px var(--accent-color);
+    display: block;
+    opacity: 0; /* Start unsichtbar */
+}
+
+/* Wenn Modal nicht hidden ist, starte Animation */
+.modal-overlay:not(.hidden) .snake-line {
+    opacity: 1;
+}
+
+/* 1. OBEN (Links nach Rechts) */
+.snake-line.top {
+    top: 0; left: 0; width: 100%; height: 2px;
+    transform: translateX(-100%);
+    animation: snake-top 1s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+    animation-delay: 0.1s;
+}
+@keyframes snake-top { 100% { transform: translateX(0); } }
+
+/* 2. RECHTS (Oben nach Unten) */
+.snake-line.right {
+    top: 0; right: 0; width: 2px; height: 100%;
+    transform: translateY(-100%);
+    animation: snake-right 1s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+    animation-delay: 0.3s; /* Startet etwas später */
+}
+@keyframes snake-right { 100% { transform: translateY(0); } }
+
+/* 3. UNTEN (Rechts nach Links) */
+.snake-line.bottom {
+    bottom: 0; right: 0; width: 100%; height: 2px;
+    transform: translateX(100%);
+    animation: snake-bottom 1s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+    animation-delay: 0.5s;
+}
+@keyframes snake-bottom { 100% { transform: translateX(0); } }
+
+/* 4. LINKS (Unten nach Oben) */
+.snake-line.left {
+    bottom: 0; left: 0; width: 2px; height: 100%;
+    transform: translateY(100%);
+    animation: snake-left 1s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+    animation-delay: 0.7s;
+}
+@keyframes snake-left { 100% { transform: translateY(0); } }
+
+/* --- ACCOUNT SWITCHER (REMASTERED) --- */
+.account-wrapper {
+    position: relative;
+    width: 100%;
+    margin-top: auto;
+    margin-bottom: 20px;
+}
+
+.account-list {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    width: 100%;
+    
+    /* Glassmorphism & Tiefe */
+    background: rgba(18, 18, 18, 0.85); /* Etwas transparenter */
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px; /* Runder */
+    padding: 8px;
+    
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    
+    box-shadow: 0 -15px 50px rgba(0,0,0,0.7), 
+                inset 0 1px 0 rgba(255,255,255,0.1); /* Inneres Licht oben */
+    backdrop-filter: blur(25px); /* Starker Blur für Premium Look */
+    z-index: 100;
+    
+    margin-bottom: 12px;
+    
+    /* Entry Animation */
+    opacity: 0;
+    pointer-events: none;
+    transform-origin: bottom center;
+    transform: translateY(15px) scale(0.9);
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); /* Bouncy Effect */
+}
+
+/* Sichtbar machen */
+.account-list:not(.hidden) {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateY(0) scale(1);
+}
+
+/* Einzelne Accounts */
+.account-option {
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 10px;
+    border: 1px solid transparent;
+    transition: all 0.25s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Hover Effekt: Helles Aufleuchten & Slide */
+.account-option:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.1);
+    transform: translateX(3px) scale(1.02);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.account-option:active {
+    transform: scale(0.98);
+}
+
+/* Add Account Button (Ganz oben) */
+.account-add-btn {
+    padding: 12px;
+    text-align: center;
+    font-size: 11px;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    
+    border: 1px dashed rgba(255,255,255,0.15);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: rgba(0,0,0,0.2);
+    margin-bottom: 6px;
+}
+
+.account-add-btn:hover {
+    color: #fff;
+    border-color: var(--accent-color);
+    background: rgba(0, 212, 255, 0.08);
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);
+    border-style: solid; /* Wird solide beim Hover */
+}
+
+/* Die roten Badges im Switcher */
+.acc-badge {
+    background: var(--accent-color);
+    color: #000;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 20px;
+    box-shadow: 0 0 10px var(--accent-color); /* Neon Glow */
+}
+
+/* --- UNGELESEN PUNKT (FINAL ROUND FIX) --- */
+.unread-dot {
+    width: 8px;
+    height: 8px;
+    
+    /* Hintergrundfarbe */
+    background-color: var(--accent-color);
+    
+    /* Macht den Kern rund */
+    border-radius: 50%;
+    
+    /* Layout */
+    display: inline-block;
+    flex-shrink: 0;
+    margin-left: 8px;
+    
+    /* DER FIX: Wir nutzen box-shadow statt filter.
+       Wenn border-radius 50% ist, macht box-shadow auch einen runden Schatten. */
+    box-shadow: 0 0 6px var(--accent-color);
+    
+    /* Animation */
+    animation: pulseDot 2s infinite ease-in-out;
+}
+
+@keyframes pulseDot {
+    0% {
+        transform: scale(0.9);
+        opacity: 0.7;
+        /* Kleinerer, schwächerer Schatten */
+        box-shadow: 0 0 4px var(--accent-color);
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 1;
+        /* Größerer, stärkerer Schatten beim Pulsieren */
+        box-shadow: 0 0 10px var(--accent-color); 
+    }
+    100% {
+        transform: scale(0.9);
+        opacity: 0.7;
+        box-shadow: 0 0 4px var(--accent-color);
+    }
+}
+
+/* --- THEME BUTTONS --- */
+.settings-label {
+    font-size: 10px; text-transform: uppercase; color: var(--text-muted); 
+    display: block; letter-spacing: 1px; font-weight: 700;
+}
+
+.theme-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+}
+
+.theme-btn:hover {
+    transform: scale(1.1);
+}
+
+/* Aktiver Status (Weißer Ring drumherum) */
+.theme-btn.active {
+    box-shadow: 0 0 0 2px var(--bg-rgb), 0 0 0 4px var(--accent-color);
+    transform: scale(1.1);
+}
+
+/* --- WHITE MODE SPECIALS --- */
+
+/* Schatten für Mail-Items nur im White Mode */
+body.theme-white .mail-item {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); /* Zarter Schatten */
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+/* Hover Effekt im White Mode verstärken */
+body.theme-white .mail-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border-color: var(--accent-color);
+}
+
+/* Inputs im White Mode etwas dunklerer Text beim Tippen */
+body.theme-white input, 
+body.theme-white textarea {
+    color: #000000 !important;
+    font-weight: 500;
+}
+
+/* --- UI POLISHING --- */
+
+/* Sidebar Border rechts */
+.sidebar {
+    /* Das sorgt für eine feine Linie zwischen Links und Rechts */
+    border-right: 1px solid var(--glass-border);
+}
+
+/* White Mode Spezifische Schatten (Card Design) */
+body.theme-white .mail-item {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* Zarter Schatten */
+    border: 1px solid #e5e7eb; /* Echter grauer Rand */
+}
+
+body.theme-white .settings-area,
+body.theme-white .account-list, 
+body.theme-white .modal-box {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08); /* Weichere Schatten im White Mode */
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+}
+
+/* Inputs im White Mode deutlicher machen */
+body.theme-white input,
+body.theme-white textarea {
+    border-color: #d1d5db; /* Etwas dunklerer Rand */
+    background: #ffffff;
+}
+
+/* =========================================
+   WHITE MODE FINAL FIXES
+   ========================================= */
+
+/* 1. BETREFFZEILE (Subject) */
+/* Wir nutzen !important, um die Farbe zu erzwingen, 
+   egal was im JavaScript steht. */
+body.theme-white .subject {
+    color: #111827 !important; /* Dunkles Schwarzgrau */
+}
+
+/* 2. AKTIVER MENÜ-REITER (Linke Seite) */
+/* Vorher war der Text weiß auf weißem Grund. */
+body.theme-white .menu li.active {
+    color: var(--accent-color); /* Die Textfarbe wird Blau (oder Theme Farbe) */
+    background: rgba(37, 99, 235, 0.1); /* Ganz leichter blauer Hintergrund */
+    border-color: var(--accent-color);
+}
+
+/* Hover-Effekt für inaktive Reiter im White Mode */
+body.theme-white .menu li:hover {
+    color: #000000;
+    background: rgba(0, 0, 0, 0.05);
+}
+
+/* 3. TRANSPARENZ SLIDER (Die Linie) */
+/* Die Linie war weiß und damit unsichtbar auf weißem Grund. 
+   Wir machen sie grau. */
+body.theme-white input[type=range]::-webkit-slider-runnable-track {
+    background: rgba(0, 0, 0, 0.2); /* Dunkles Grau für die Schiene */
+}
+
+/* Optional: Der Slider-Knopf (Thumb) einen Schatten geben, damit er poppt */
+body.theme-white input[type=range]::-webkit-slider-thumb {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+/* =========================================
+   WHITE MODE: CONTRAST FIXES
+   ========================================= */
+
+/* 1. Account Liste (Popup) */
+body.theme-white .account-list {
+    background: #1f2937 !important; /* Dunkler Hintergrund */
+    border: 1px solid #374151;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+/* 2. Einzelne Accounts in der Liste */
+body.theme-white .account-option {
+    background: rgba(255, 255, 255, 0.05); /* Leicht aufgehellt */
+    color: #ffffff !important; /* Text WEISS */
+}
+
+body.theme-white .account-option .acc-name {
+    color: #ffffff !important;
+}
+
+body.theme-white .account-option:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* 3. Add Account Button */
+body.theme-white .account-add-btn {
+    background: #000000;      /* Schwarz */
+    color: #ffffff;           /* Text Weiß */
+    border: 1px solid #374151;
+}
+
+body.theme-white .account-add-btn:hover {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+/* Falls du Settings doch dunkel willst wie oben in Var definiert, 
+   musst du hier color: white setzen. Ich empfehle Weiß mit Rand (siehe oben),
+   da es sauberer aussieht. */
+
+/* 5. Account Bar unten (Mein Profil) */
+body.theme-white .account-wrapper .my-account {
+    border: 1px solid #d1d5db; /* Sichtbarer Rand */
+    background: #f9fafb;
+}
+
+/* 6. Search Bar Animation Wiederherstellen */
+/* Das Problem war oft, dass transition überschrieben wurde */
+.search-bar {
+    transition: width 0.4s cubic-bezier(0.19, 1, 0.22, 1), 
+                border-color 0.3s, 
+                background 0.3s,
+                box-shadow 0.3s !important;
+}
+
+/* Fokus State */
+.search-bar:focus-within {
+    width: 320px; /* Zielbreite */
+    border-color: var(--accent-color);
+    box-shadow: 0 0 15px rgba(var(--accent-color), 0.2);
+}
+
+/* --- ACCOUNT BOX STYLING --- */
+.my-account {
+    /* Variable nutzen! */
+    background: var(--account-bg);
+    border: 1px solid var(--glass-border);
+    
+    /* Rest bleibt */
+    border-radius: 12px;
+    padding: 10px;
+    display: flex; 
+    align-items: center; 
+    gap: 10px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.my-account:hover {
+    filter: brightness(1.05);
+    border-color: var(--glass-border);
+}
+
+/* =========================================
+   WHITE MODE SPECIFIC OVERRIDES
+   ========================================= */
+
+/* 1. Account Box im White Mode: Schatten statt nur Border */
+body.theme-white .my-account {
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    background: #ffffff;
+}
+
+/* 2. Mail Items: Clean Card Look */
+body.theme-white .mail-item {
+    background: #ffffff !important; /* Erzwingt Weiß auch bei offiziellen Mails */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    border: 1px solid #e2e8f0 !important; /* Grauer Rand statt Avatar-Farbe im White Mode? */
+}
+
+/* Offizielle Mails im White Mode: Nur linker Rand farbig, Rest clean */
+body.theme-white .mail-item[style*="border"] {
+    background: #ffffff !important;
+    /* Wir lassen den Border vom JS, aber erzwingen weißen Hintergrund */
+}
+
+/* 3. Settings Area & Add Account Button */
+body.theme-white .settings-area {
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+body.theme-white .account-add-btn {
+    background: #111827; /* Schwarz */
+    color: #fff;
+}
+
+/* 1. Hintergrund & Border im White Mode */
+body.theme-white .search-bar {
+    background: #f3f4f6; /* Leichtes Grau für Kontrast zur weißen Sidebar */
+    border: 1px solid #d1d5db;
+}
+
+/* 2. Wenn man reinklickt im White Mode */
+body.theme-white .search-bar:focus-within {
+    background: #ffffff;
+    border-color: var(--accent-color);
+    box-shadow: 0 2px 10px rgba(37, 99, 235, 0.15);
+}
+
+/* 3. TEXT FARBE (Tippen) */
+body.theme-white .search-bar input {
+    color: #111827 !important; /* Dunkles Grau/Schwarz */
+}
+
+/* 4. ICON FARBE */
+body.theme-white .search-bar i {
+    color: #6b7280; /* Mittelgrau */
+}
+
+/* 5. PLACEHOLDER FIX ("Search..." lesbar machen) */
+body.theme-white .search-bar input::placeholder {
+    color: #000000; /* Sichtbares Grau */
+    opacity: 1;
+}
+
+/* --- PREMIUM SEARCH BAR (FIXED) --- */
+.search-bar {
+    /* Layout & Size */
+    width: 220px; 
+    height: 40px; 
+    
+    /* Shape: High pixel value ensures perfect Pill-Shape */
+    border-radius: 50px; 
+    
+    /* Clipping: Ensures corners are cut off cleanly */
+    overflow: hidden; 
+    
+    padding: 0 15px; 
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    
+    /* Colors */
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    
+    /* Animation */
+    transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), 
+                border-color 0.3s, 
+                box-shadow 0.3s,
+                background 0.3s;
+}
+
+/* The Input Field */
+.search-bar input {
+    border: none;
+    background: transparent !important; /* Important to not overlay the container */
+    flex: 1; 
+    height: 100%;
+    outline: none;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    color: var(--text-main);
+}
+
+/* Icon */
+.search-bar i {
+    font-size: 14px;
+    color: var(--text-muted);
+    transition: color 0.3s;
+}
+
+/* --- ANIMATION STATE (FOCUS) --- */
+.search-bar:focus-within {
+    width: 320px; 
+    border-color: var(--accent-color);
+    box-shadow: 0 0 15px rgba(var(--accent-color), 0.15);
+}
+
+.search-bar:focus-within i {
+    color: var(--accent-color);
+}
+
+/* --- WHITE MODE SPECIFIC FIXES --- */
+body.theme-white .search-bar {
+    background: #f3f4f6; 
+    border: 1px solid #d1d5db;
+    border-radius: 50px; /* Force roundness again */
+}
+
+body.theme-white .search-bar:focus-within {
+    background: #ffffff;
+    border-color: var(--accent-color);
+    box-shadow: 0 2px 10px rgba(37, 99, 235, 0.15);
+}
+
+body.theme-white .search-bar input {
+    color: #111827 !important; 
+}
+
+body.theme-white .search-bar input::placeholder {
+    color: #000000 !important;
+    opacity: 1;
+}
+
+body.theme-white .search-bar i {
+    color: #6b7280; 
+}
+
+.modal-close-x {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 10; /* Damit es über allem liegt */
+    
+    transition: transform 0.2s, color 0.2s;
+    
+    /* Kleiner Bereich zum leichteren Klicken */
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.modal-close-x:hover {
+    color: #ef4444; /* Wird Rot beim Drüberfahren */
+    background: rgba(255, 255, 255, 0.05);
+    transform: rotate(90deg); /* Coole Drehung beim Hover */
+}
+
+/* =========================================
+   WHITE MODE: MODAL INPUT FIXES
+   ========================================= */
+
+/* 1. Normale Inputs (z.B. Account Label) */
+
+/* 2. Die Email-Gruppe (Input + Badge Container) */
+body.theme-white .email-input-group {
+    background: #ffffff;
+    border: 1px solid #cbd5e1 !important; /* Der Rahmen um die ganze Gruppe */
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05); /* Leichter Schatten für Tiefe */
+}
+
+/* 3. Der Domain-Badge (@nui-labs.ls) rechts */
+body.theme-white .domain-badge {
+    background: #f3f4f6; /* Leichtes Grau, damit es sich vom Input abhebt */
+    border-left: 1px solid #cbd5e1; /* Trennlinie */
+    color: #4b5563; /* Dunkelgraue Schrift */
+}
+
+/* 4. Focus Effekt (Wenn man reinklickt) */
+body.theme-white .input-wrapper input:focus,
+body.theme-white .email-input-group:focus-within {
+    border-color: var(--accent-color) !important;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); /* Blauer Glow */
+}
+
+/* =========================================
+   WHITE MODE: MODAL & BUTTON FIXES
+   ========================================= */
+
+/* 1. Cancel Button (Ghost) sichtbar machen */
+body.theme-white .btn-ghost {
+    color: #374151 !important; /* Dunkelgrauer Text */
+    border: 1px solid #d1d5db !important; /* Grauer Rand */
+}
+
+body.theme-white .btn-ghost:hover {
+    background: #f3f4f6; /* Hellgrau beim Hover */
+    color: #000000 !important;
+}
+
+/* 2. Email Input Gruppe reparieren */
+/* Wir geben dem Container einen festen Rahmen, damit man die Box sieht */
+body.theme-white .email-input-group {
+    background: #ffffff;
+    border: 1px solid #cbd5e1 !important; /* Der Rahmen um Input + Badge */
+    display: flex;
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+/* Der Text im Email-Input muss schwarz sein */
+body.theme-white .email-input-group input {
+    color: #111827 !important;
+    background: transparent !important; /* Kein eigener Hintergrund, da Gruppe weiß ist */
+    border: none !important; /* Kein Rahmen innen */
+}
+
+/* 3. Placeholder Text (z.B. "name") lesbar machen */
+body.theme-white .email-input-group input::placeholder {
+    color: #9ca3af !important;
+}
+
+/* 4. Domain Badge (@nui-labs.ls) */
+body.theme-white .domain-badge {
+    background: #f3f4f6;
+    border-left: 1px solid #cbd5e1; /* Trennlinie zum Input */
+    color: #4b5563;
+}
+
+/* --- DELETE BUTTON IN LIST --- */
+.acc-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.acc-delete-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    color: var(--text-muted);
+    transition: all 0.2s;
+    font-size: 12px;
+}
+
+.acc-delete-btn:hover {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    transform: scale(1.2);
+}
+
+/* --- DANGER MODAL STYLES --- */
+.snake-line.danger {
+    background: #ef4444 !important;
+    box-shadow: 0 0 15px #ef4444 !important;
+}
+
+/* White Mode Fixes für das Delete Modal */
+body.theme-white #lbl-delete-title {
+    color: #dc2626 !important; /* Dunkleres Rot für Lesbarkeit auf Weiß */
+}
+
+/* --- AUTOCOMPLETE SUGGESTIONS --- */
+.suggestion-box {
+    position: absolute; /* Fixed via JS */
+    background: #1f1f1f;
+    border: 1px solid var(--accent-color);
+    border-radius: 8px;
+    z-index: 9999;
+    max-height: 200px;
+    overflow-y: auto;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+}
+
+.suggestion-item {
+    padding: 10px 15px;
+    color: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    transition: background 0.2s;
+}
+
+.suggestion-item:last-child { border-bottom: none; }
+
+.suggestion-item:hover {
+    background: var(--accent-color);
+    color: #000;
+    font-weight: bold;
+}
+
+/* White Mode Support for Suggestions */
+body.theme-white .suggestion-box {
+    background: #ffffff;
+    border-color: #cbd5e1;
+}
+body.theme-white .suggestion-item {
+    color: #1f2937;
+    border-bottom: 1px solid #f3f4f6;
+}
+body.theme-white .suggestion-item:hover {
+    background: #f3f4f6;
+    color: var(--accent-color);
+}
+
+.main-close-btn {
+    position: absolute;
+    top: 25px;
+    right: 25px;
+    width: 32px;
+    height: 32px;
+    
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-muted);
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    cursor: pointer;
+    z-index: 1000; /* Ganz wichtig: Muss über allem liegen */
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    backdrop-filter: blur(5px);
+}
+.main-close-btn:hover {
+    background: rgba(239, 68, 68, 0.2); /* Rötlicher Hintergrund */
+    border-color: #ef4444;
+    color: #ef4444;
+    transform: rotate(90deg) scale(1.1); /* Drehung Animation */
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+}
+
+/* White Mode Anpassung für den Button */
+body.theme-white .main-close-btn {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+    color: #6b7280;
+}
+
+body.theme-white .main-close-btn:hover {
+    background: #fee2e2;
+    color: #ef4444;
+    border-color: #ef4444;
+}

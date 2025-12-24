@@ -1,0 +1,229 @@
+/* THEME FONTS */
+@import url('https://fonts.googleapis.com/css2?family=Saira:wght@400;600;800&display=swap'); /* Sport/Retro */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap'); /* Cyberpunk/SciFi */
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap'); /* Minimal */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap'); /* Luxury */
+@import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&display=swap'); /* Military */
+@import url('https://fonts.googleapis.com/css2?family=Racing+Sans+One&display=swap'); /* NFS */
+@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap'); /* Drift */
+
+* { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+
+body {
+    background: transparent;
+    overflow: hidden;
+    font-family: 'Saira', sans-serif;
+}
+/* ... Rest vom CSS bleibt gleich ... */
+
+#app { width: 100vw; height: 100vh; position: relative; }
+
+/* CONTAINER */
+.cluster-container {
+    position: absolute;
+    bottom: 2.5rem;
+    right: 2.5rem;
+    display: flex;
+    align-items: flex-end;
+    gap: 15px;
+    transform: scale(0.9);
+    transform-origin: bottom right;
+    transition: all 0.5s ease; /* Smooth transition bei Theme wechsel */
+}
+
+.pod { position: relative; display: flex; justify-content: center; align-items: center; }
+
+canvas {
+    display: block;
+    /* Basis-Schatten, wird per JS je nach Theme überschrieben */
+    filter: drop-shadow(0 10px 10px rgba(0,0,0,0.8));
+    transition: filter 0.3s ease;
+}
+
+/* OVERLAYS */
+.overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    color: #fff;
+    text-shadow: 0 0 5px rgba(0,0,0,0.8);
+}
+
+.label-rpm { margin-top: 55px; font-size: 0.8rem; font-weight: 600; opacity: 0.8; letter-spacing: 1px; }
+
+.speed-overlay { justify-content: flex-end; padding-bottom: 85px; }
+.digital-speed { font-size: 3.8rem; font-weight: 800; line-height: 0.9; }
+.unit { font-size: 1.1rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; margin-top: 5px; }
+
+.gear-box {
+    margin-top: 10px; font-size: 2rem; font-weight: 800;
+    color: #fff;
+    padding: 2px 18px; border-radius: 4px;
+    text-shadow: 0 0 10px currentColor;
+    border: 2px solid rgba(255,255,255,0.1);
+    background: rgba(0,0,0,0.4);
+}
+
+.icons-overlay { flex-direction: row; gap: 18px; align-items: flex-end; padding-bottom: 60px; }
+.icons-overlay i { font-size: 1.3rem; opacity: 0.15; transition: all 0.2s; }
+
+/* Icon Colors */
+.icon-blue.active { opacity: 1; color: #00ccff; filter: drop-shadow(0 0 8px #00ccff); }
+.icon-green.active { opacity: 1; color: #00ff66; filter: drop-shadow(0 0 8px #00ff66); }
+.icon-red.active { opacity: 1; color: #ff3333; filter: drop-shadow(0 0 8px #ff3333); animation: blink 0.5s infinite; }
+.icon-yellow.active { opacity: 1; color: #ffcc00; filter: drop-shadow(0 0 8px #ffcc00); }
+.icon-orange { color: #ff9d00; opacity: 0.8; margin-bottom: 25px;}
+
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+/* =========================================
+   SETTINGS MENU (Glassmorphism & Transparent)
+   ========================================= */
+#settings-menu {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    
+    /* NEUER HINTERGRUND: Viel transparenter */
+    /* Mitte fast unsichtbar (0.1), Ränder leicht abgedunkelt (0.6) */
+    background: radial-gradient(circle, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.6) 100%);
+    
+    backdrop-filter: blur(4px); /* Blur etwas reduzieren für mehr Klarheit */
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+}
+
+.menu-card {
+    width: 900px;
+    /* Auch die Karte selbst etwas transparenter machen */
+    background: rgba(15, 15, 20, 0.90); 
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+    padding: 40px;
+    font-family: 'Saira', sans-serif;
+    animation: zoomIn 0.25s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Background Deco Line */
+.menu-card::before {
+    content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+    background: linear-gradient(90deg, #ff4400, #00ccff, #ff00ff);
+}
+
+@keyframes zoomIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.menu-header h2 {
+    color: #fff;
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+.menu-header h2 span { color: #555; font-weight: 400; font-size: 1rem; margin-left: 10px; vertical-align: middle; }
+
+#close-btn {
+    width: 40px; height: 40px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 1.2rem;
+    cursor: pointer; transition: all 0.2s;
+}
+#close-btn:hover { background: #ff4444; transform: rotate(90deg); }
+
+/* ADVANCED GRID */
+.theme-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px;
+}
+
+/* THE BUTTON CARDS */
+.theme-btn {
+    background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 20px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+
+.theme-btn i {
+    font-size: 1.8rem;
+    color: #666;
+    transition: color 0.3s;
+    margin-bottom: 5px;
+}
+
+.theme-btn span {
+    color: #aaa;
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Hover Effects */
+.theme-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+}
+
+.theme-btn:hover i { color: #fff; }
+.theme-btn:hover span { color: #fff; }
+
+/* ACTIVE STATE (Dynamic Border Color via JS) */
+.theme-btn.active {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+.theme-btn.active i { color: #fff; transform: scale(1.1); }
+.theme-btn.active span { color: #fff; }
+
+/* Color Indicator Bar at Bottom */
+.theme-btn::after {
+    content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px;
+    background: var(--theme-color, #555); /* Variable from JS */
+    opacity: 0.5; transition: opacity 0.3s;
+}
+.theme-btn:hover::after, .theme-btn.active::after { opacity: 1; }
+
+/* NOTIFICATIONS */
+#notify-container {
+    position: absolute; top: 30px; right: 30px;
+    display: flex; flex-direction: column; gap: 10px; z-index: 100000;
+}
+.notify-toast {
+    background: rgba(10, 10, 10, 0.95);
+    border-left: 4px solid; /* Color via JS */
+    color: #fff; padding: 15px 20px;
+    border-radius: 4px; box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+    font-family: 'Saira', sans-serif; font-weight: 600; font-size: 0.9rem;
+    display: flex; align-items: center; gap: 12px;
+    animation: slideIn 0.3s ease-out;
+}
+@keyframes slideIn { from { transform: translateX(50px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }

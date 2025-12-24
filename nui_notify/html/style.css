@@ -1,0 +1,440 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Rajdhani:wght@500;700&family=Courier+Prime:wght@400;700&display=swap');
+
+:root {
+    --font-primary: 'Montserrat', sans-serif;
+    --font-tech: 'Rajdhani', sans-serif;
+    --font-mono: 'Courier Prime', monospace;
+}
+
+html, body {
+    height: 100vh;
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: transparent;
+    font-family: var(--font-primary);
+}
+
+/* --- FONT SHARPNESS FIX (GLOBAL) --- */
+* {
+    /* Macht die Schrift dünner und schärfer */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Optimiert das Rendering für Lesbarkeit */
+    text-rendering: optimizeLegibility;
+}
+
+.notification {
+    /* Verhindert Blurriness während der Animation */
+    backface-visibility: hidden;
+    transform-style: preserve-3d;
+    /* Erzwingt GPU Rendering, aber sauber */
+    will-change: transform, opacity;
+}
+
+/* --- WRAPPER --- */
+#wrapper {
+    position: absolute;
+    top: 0; left: 0;
+    height: 100%;
+    width: auto;
+    min-width: 400px; 
+    display: flex;
+    flex-direction: column;
+    justify-content: center; 
+    padding-left: 5px; 
+    pointer-events: none;
+}
+
+#notification-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* --- BASE NOTIFICATION --- */
+.notification {
+    position: relative;
+    width: 320px; 
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    padding: 0;
+    box-sizing: border-box;
+    color: #fff;
+    pointer-events: auto;
+    overflow: hidden; /* Hält alles sauber im Rahmen */
+    
+    /* Animation */
+    opacity: 0;
+    transform: translateX(-50px);
+    animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.notification.hide {
+    animation: slideOut 0.3s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+}
+
+/* Common Elements Defaults */
+.accent-strip { display: none; width: 4px; height: 100%; background: var(--color); flex-shrink: 0; }
+.bg-layer { position: absolute; top:0; left:0; width:100%; height:100%; z-index:-1; }
+.icon-box { width: 50px; display: flex; justify-content: center; align-items: center; font-size: 20px; color: var(--color); z-index: 2; flex-shrink: 0;}
+.content-box { flex-grow: 1; padding: 12px; display: flex; flex-direction: column; justify-content: center; z-index: 2; }
+.title { font-weight: 800; font-size: 13px; text-transform: uppercase; margin-bottom: 2px; }
+.message { font-size: 11px; opacity: 0.8; line-height: 1.3; font-weight: 500; }
+
+/* --- PROGRESS BAR (Ladebalken) --- */
+.progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px; /* Schön flach */
+    background: var(--color); /* Nimmt die Farbe des Typs (Rot, Grün, Cyan...) */
+    width: 0%; /* Startet leer */
+    
+    /* Der Style-Faktor: Ein Schein nach oben */
+    box-shadow: 0 -2px 10px var(--color-dim); 
+    z-index: 10;
+    opacity: 0.9;
+    
+    /* Sorgt dafür, dass die Kante bei runden Themes nicht übersteht */
+    border-bottom-left-radius: inherit;
+    border-bottom-right-radius: inherit;
+}
+
+
+/* ============================================================
+   DIE 10 THEMES
+   ============================================================ */
+
+/* 1. INDUSTRIAL (Dein Favorit: Clean, Dark, Accent Strip) */
+.notification.theme-industrial {
+    background: rgba(18, 18, 23, 0.98);
+    border-radius: 4px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,255,255,0.05);
+}
+.theme-industrial .accent-strip { display: block; box-shadow: 2px 0 10px var(--color-dim); }
+.theme-industrial .title { color: #fff; }
+
+/* 2. TECH (Ehemals Glass - Jetzt High-End Cyber Look) */
+.notification.theme-tech { 
+    background: #050505;
+    
+    /* Abgeschnittene Ecken (Chamfered) */
+    clip-path: polygon(
+        15px 0, 100% 0, 
+        100% calc(100% - 15px), calc(100% - 15px) 100%, 
+        0 100%, 0 15px
+    );
+    
+    border-left: 2px solid var(--color);
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
+    
+    /* Grid Hintergrund */
+    background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 20px 20px;
+    padding-left: 15px;
+}
+
+.notification.theme-tech::after {
+    content: '';
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 15px; height: 15px;
+    background: linear-gradient(135deg, transparent 50%, var(--color) 50%);
+    opacity: 0.8;
+}
+
+.theme-tech .icon-box {
+    color: #fff;
+    background: var(--color);
+    width: 36px; height: 36px;
+    clip-path: polygon(20% 0%, 100% 0, 100% 80%, 80% 100%, 0 100%, 0 20%);
+    display: flex; justify-content: center; align-items: center;
+    box-shadow: 0 0 15px var(--color);
+    font-size: 16px;
+    text-shadow: none;
+    margin-right: 15px;
+}
+
+.theme-tech .title {
+    font-family: 'Rajdhani', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--color);
+    text-shadow: 0 0 10px var(--color-dim);
+    font-size: 14px;
+}
+
+.theme-tech .message {
+    color: #ddd;
+    font-family: monospace;
+    font-size: 11px;
+    font-weight: 600; /* Etwas dicker für bessere Lesbarkeit */
+}
+
+/* Verstecke Standard-Elemente */
+.theme-tech .accent-strip { display: none !important; }
+.theme-tech .bg-layer { display: none !important; }
+
+/* TECH PROGRESS BAR */
+.theme-tech .progress-bar {
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: var(--color);
+    box-shadow: 0 0 10px var(--color);
+    z-index: 200;
+}
+/* Ein leuchtendes Deko-Element rechts unten */
+.notification.theme-glass::after {
+    content: '';
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 20px; height: 20px;
+    background: linear-gradient(135deg, transparent 50%, var(--color) 50%);
+    opacity: 0.8;
+}
+
+.theme-glass .icon-box {
+    color: #fff;
+    background: var(--color);
+    width: 40px; height: 40px;
+    /* Rauten-Form für das Icon */
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+    display: flex; justify-content: center; align-items: center;
+    box-shadow: 0 0 15px var(--color);
+    font-size: 16px;
+    text-shadow: none;
+}
+
+.theme-glass .title {
+    font-family: 'Rajdhani', sans-serif; /* Tech Font falls geladen, sonst Standard */
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--color);
+    text-shadow: 0 0 5px var(--color-dim);
+}
+
+.theme-glass .message {
+    color: #ccc;
+    font-family: monospace; /* Code-Look */
+    font-size: 10px;
+}
+
+/* Verstecke Standard-Elemente */
+.theme-glass .accent-strip { display: none !important; }
+.theme-glass .bg-layer { display: none !important; }
+/* 3. CYBER (Futuristic, Sharp, Neon) */
+.notification.theme-cyber {
+    background: #000;
+    border: 1px solid var(--color);
+    box-shadow: 0 0 10px var(--color-dim), inset 0 0 20px rgba(0,0,0,0.8);
+    font-family: var(--font-tech);
+    clip-path: polygon(0 0, 100% 0, 100% 85%, 95% 100%, 0 100%); /* Abgeschnittene Ecke unten rechts */
+}
+.theme-cyber .title { color: var(--color); letter-spacing: 2px; text-shadow: 0 0 5px var(--color); }
+.theme-cyber .accent-strip { display: block; width: 2px; box-shadow: 0 0 10px var(--color); }
+
+/* 4. MINIMAL (Kein Hintergrund, nur Text & Icon) */
+.notification.theme-minimal {
+    background: transparent;
+    padding-left: 10px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8); /* Wichtig für Lesbarkeit */
+}
+.theme-minimal .icon-box { font-size: 24px; text-shadow: 0 0 15px var(--color); width: 40px;}
+.theme-minimal .title { color: var(--color); }
+
+/* 5. PILL (Rund, Smooth, iOS Style) */
+.notification.theme-pill {
+    background: #1a1a1a;
+    border-radius: 50px; /* Pillenform */
+    padding: 5px 20px 5px 5px;
+    border: 1px solid #333;
+}
+.theme-pill .icon-box { background: var(--color); color: #000; border-radius: 50%; width: 40px; height: 40px; }
+.theme-pill .content-box { padding-left: 15px; }
+
+/* 6. GRADIENT (Voller Farbverlauf) */
+.notification.theme-gradient {
+    border-radius: 8px;
+}
+.theme-gradient .bg-layer {
+    background: linear-gradient(90deg, var(--color-dim) 0%, rgba(0,0,0,0.9) 100%);
+    opacity: 1;
+}
+.theme-gradient .icon-box { color: #fff; text-shadow: 0 0 5px rgba(0,0,0,0.5); }
+.theme-gradient .title { color: #fff; }
+
+/* 7. RETRO (Pixel/Terminal Style) */
+.notification.theme-retro {
+    background: #000;
+    border: 2px solid var(--color);
+    font-family: var(--font-mono);
+    border-radius: 0;
+}
+.theme-retro .title { text-transform: none; color: var(--color); }
+.theme-retro .message { font-size: 10px; letter-spacing: 1px; }
+.theme-retro .icon-box { border-right: 2px solid var(--color); width: 40px; height: 100%; border-radius: 0; }
+
+/* 8. BOX (Eckig, Dicke Outline) */
+.notification.theme-box {
+    background: rgba(0,0,0,0.9);
+    border: 2px solid #333;
+    border-left: 6px solid var(--color); /* Dicker Balken */
+    border-radius: 0;
+}
+.theme-box .title { text-decoration: underline var(--color); }
+
+/* 9. SOCIAL (Hell/Modern, wie Twitter/Insta Popups) */
+.notification.theme-social {
+    background: #fff;
+    color: #111;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+.theme-social .title { color: #000; font-size: 12px; }
+.theme-social .message { color: #555; font-weight: 600; }
+.theme-social .icon-box { color: var(--color); font-size: 18px; }
+
+/* 10. GHOST (Transparent mit Glow Border) */
+.notification.theme-ghost {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--color);
+    box-shadow: inset 0 0 20px var(--color-dim);
+    border-radius: 6px;
+}
+.theme-ghost .title { color: var(--color); }
+.theme-ghost .message { color: #ddd; }
+
+
+/* --- ANIMATION KEYFRAMES --- */
+@keyframes slideIn {
+    0% { opacity: 0; transform: translateX(-40px) scale(0.95); }
+    100% { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes slideOut {
+    0% { opacity: 1; transform: translateX(0); }
+    100% { opacity: 0; transform: translateX(-20px) scale(0.9); }
+}
+
+/* ============================================================
+   PROGRESS BARS (THEME SPECIFIC)
+   ============================================================ */
+
+/* Base Style - Invisible Foundation */
+.progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0%; /* Start state */
+    height: 3px;
+    background: var(--color);
+    z-index: 100; /* Ensure it's on top of everything */
+    pointer-events: none;
+    transition-timing-function: linear; /* Default linear movement */
+}
+
+/* 1. INDUSTRIAL (Standard: Glowing Line) */
+.theme-industrial .progress-bar {
+    height: 2px;
+    box-shadow: 0 -2px 10px var(--color);
+}
+
+/* 2. GLASS (Subtle, semi-transparent) */
+.theme-glass .progress-bar {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2); /* Track background */
+}
+/* For Glass, we animate a child pseudo-element or just the bar itself.
+   To keep it simple, we override the background to be the active color but with opacity */
+.theme-glass .progress-bar {
+    background: var(--color);
+    opacity: 0.7;
+    border-top-right-radius: 4px;
+}
+
+/* 3. CYBER (Sharp, Glitchy Look) */
+.theme-cyber .progress-bar {
+    height: 4px;
+    background: var(--color);
+    clip-path: polygon(0 0, 100% 0, 98% 100%, 0 100%); /* Angled cut */
+    box-shadow: 0 0 5px var(--color);
+}
+
+/* 4. MINIMAL (Very thin line at top) */
+.theme-minimal .progress-bar {
+    top: 0; bottom: auto; /* Move to top */
+    height: 1px;
+    opacity: 0.8;
+}
+
+/* 5. PILL (Follows border radius) */
+.theme-pill .progress-bar {
+    bottom: 5px;
+    left: 20px; /* Offset to align with text */
+    width: 0%; /* Will animate to calc(100% - 40px) logic handled in JS? 
+                  Better: Just mask it with overflow:hidden on parent */
+    height: 2px;
+    opacity: 0.5;
+    /* Reset left/bottom for standard full width animation inside hidden overflow */
+    left: 0; bottom: 0; 
+}
+
+/* 6. GRADIENT (White bar to contrast with color bg) */
+.theme-gradient .progress-bar {
+    background: #fff;
+    opacity: 0.5;
+    height: 3px;
+}
+
+/* 7. RETRO (The Pixel/Blocky Look) */
+.theme-retro .progress-bar {
+    height: 6px;
+    background: transparent;
+    /* Create a "dashed" or "pixel" look using repeating gradient */
+    background-image: repeating-linear-gradient(
+        90deg,
+        var(--color),
+        var(--color) 4px,
+        transparent 4px,
+        transparent 6px
+    );
+    border-top: 2px solid #000;
+}
+
+/* 8. BOX (Thick, Brutalist) */
+.theme-box .progress-bar {
+    height: 6px;
+    background: var(--color-dim);
+    border-top: 1px solid var(--color);
+}
+
+/* 9. SOCIAL (Top Loading Line like Instagram Stories) */
+.theme-social .progress-bar {
+    top: 0; bottom: auto;
+    height: 4px;
+    background: var(--color);
+}
+
+/* 10. GHOST (Glowing bottom border) */
+.theme-ghost .progress-bar {
+    height: 1px;
+    box-shadow: 0 -1px 8px var(--color);
+}
+
+/* 2. CYBER PROGRESS BAR */
+.theme-glass .progress-bar {
+    bottom: 0;
+    left: 0;
+    height: 4px;
+    background: var(--color);
+    box-shadow: 0 0 10px var(--color);
+    z-index: 200;
+}

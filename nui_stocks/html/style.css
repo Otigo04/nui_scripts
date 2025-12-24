@@ -1,0 +1,1100 @@
+/* --- GLOBAL SCROLLBAR (The "Cool" Look) --- */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.2);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
+}
+
+:root {
+    --bg-dark: #131722;
+    --bg-panel: #1e222d;
+    --border-color: #2a2e39;
+    --text-main: #d1d4dc;
+    --text-muted: #787b86;
+    
+    --color-up: #00e396; /* Gewinn Grün */
+    --color-down: #ff4560; /* Verlust Rot */
+    --accent: #2962ff; /* NUI Blue */
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0; padding: 0;
+    width: 100vw; height: 100vh;
+    font-family: 'Inter', sans-serif;
+    background: transparent;
+    display: none;
+    align-items: center; justify-content: center;
+    overflow: hidden;
+    /* ADJUSTMENT: Slightly larger base font for readability, 
+       but we will control element sizes with REM to keep them tight. */
+    font-size: 1.0vh; 
+}
+
+.app-container {
+    /* ADJUSTMENT: Made it slightly more compact (70vw width) */
+    width: 70vw; 
+    height: 75vh; 
+    
+    max-width: 160rem; 
+    
+    background: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 1.2rem;
+    box-shadow: 0 2rem 5rem rgba(0,0,0,0.5);
+    display: flex;
+    overflow: hidden;
+    color: var(--text-main);
+}
+
+.sidebar {
+    width: 16rem; /* Thinner sidebar (was 26rem) */
+    background: var(--bg-panel);
+    border-right: 1px solid var(--border-color);
+    display: flex; flex-direction: column;
+    padding: 2rem;
+}
+
+.logo {
+    font-size: 2.2rem; /* Größerer Header */
+    font-weight: 800; 
+    color: white; 
+    margin-bottom: 4rem;
+}
+
+
+.highlight { color: var(--accent); }
+
+.nav { list-style: none; padding: 0; margin: 0; flex: 1; }
+.nav li {
+    padding: 1.2rem 1.5rem; 
+    margin-bottom: 0.5rem;
+    color: var(--text-muted); 
+    cursor: pointer; 
+    border-radius: 0.6rem;
+    transition: 0.2s; 
+    font-weight: 600; /* Bolder text */
+    font-size: 1rem; /* Bigger text (was implied smaller) */
+}
+.nav li:hover { background: rgba(255,255,255,0.05); color: white; }
+.nav li.active { background: rgba(41, 98, 255, 0.1); color: var(--accent); }
+.nav li i { width: 25px; }
+
+.user-profile {
+    border-top: 1px solid var(--border-color);
+    padding-top: 20px;
+}
+.balance-label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); }
+.balance-value { font-size: 1.8rem; font-weight: 700; color: white; font-family: 'JetBrains Mono', monospace; }
+/* --- MAIN CONTENT --- */
+.main-content {
+    flex: 1;
+    display: flex; flex-direction: column;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.stock-header {
+    display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;
+}
+.stock-info h1 { margin: 0; font-size: 2rem; color: white; }
+.stock-info span { color: var(--text-muted); font-size: 1.4rem; }
+
+.stock-price-box { 
+    text-align: right; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: flex-end; /* Aligns everything to the right */
+}
+.current-price { 
+    font-size: 2.5rem; 
+    font-weight: 700; 
+    color: white; 
+    font-family: 'JetBrains Mono', monospace; 
+    line-height: 1; /* Tighter line height */
+    margin-bottom: 0.8rem; /* Space between price and badge */
+}
+.negative { color: var(--color-down); background: rgba(255, 69, 96, 0.1); }
+
+.chart-container {
+    width: 100%;
+    /* ADJUSTMENT: Fixed height reduced to 30rem. 
+       This forces the graph to stay compact and gives the list below more room. */
+    height: 20rem !important; 
+    min-height: 20rem;
+    
+    background: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    border-radius: 0.8rem;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    display: flex; flex-direction: column;
+    position: relative;
+    flex-shrink: 0; /* Prevent it from shrinking too much */
+}
+
+/* Market List */
+.market-list-container {
+    flex: 1;
+    display: flex; 
+    flex-direction: column;
+    overflow-y: auto; /* Liste muss scrollbar sein! */
+    margin-top: 10px;
+    min-height: 200px; /* Mindesthöhe erzwingen */
+}
+.market-header-row {
+    display: flex;
+    padding: 12px 15px;
+    background: rgba(255,255,255,0.03); /* Leichter Hintergrund für Header */
+    border-radius: 6px;
+    margin-bottom: 5px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.market-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid rgba(255,255,255,0.03); /* Subtilerer Border */
+    cursor: pointer;
+    transition: all 0.2s ease;
+    height: 75px;
+    border-radius: 6px; /* Abgerundet für Hover Effekt */
+}
+.market-item:hover {
+    background: rgba(255,255,255,0.04);
+    transform: translateX(5px); /* Kleiner Slide nach rechts */
+}
+.market-item span { display: flex; align-items: center; }
+.mono { font-family: 'JetBrains Mono', monospace; }
+
+/* --- TRADING PANEL --- */
+.trading-panel {
+    width: 28rem;
+    min-width: 28rem;
+    background: var(--bg-panel);
+    border-left: 1px solid var(--border-color);
+    padding: 2rem;
+    display: flex; flex-direction: column;
+    
+    /* FIX: Verhindert Quetschen/Verschieben */
+    flex-shrink: 0; 
+}
+
+.trading-panel h2 { margin-top: 0; font-size: 18px; margin-bottom: 20px; }
+
+.trade-tabs {
+    display: flex; background: var(--bg-dark); border-radius: 6px; padding: 4px; margin-bottom: 20px;
+}
+.trade-tab {
+    flex: 1; border: none; background: transparent; color: var(--text-muted);
+    padding: 8px; cursor: pointer; border-radius: 4px; font-weight: 600; transition: 0.2s;
+}
+.trade-tab.active { background: var(--bg-panel); color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+
+/* Inputs */
+.input-group { margin-bottom: 15px; }
+.input-group label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 5px; }
+.input-group input {
+    width: 100%; background: var(--bg-dark); border: 1px solid var(--border-color);
+    color: white; padding: 10px; border-radius: 6px; font-family: 'JetBrains Mono', monospace; outline: none;
+}
+.input-group input:focus { border-color: var(--accent); }
+
+.summary {
+    display: flex; justify-content: space-between; margin: 20px 0; font-size: 14px;
+}
+.total-price { font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+
+.execute-btn {
+    width: 100%; padding: 12px; border: none; border-radius: 6px;
+    font-weight: 800; cursor: pointer; text-transform: uppercase; transition: 0.2s;
+}
+.execute-btn.buy-btn { background: var(--color-up); color: #000; }
+.execute-btn.sell-btn { background: var(--color-down); color: white; }
+.execute-btn:hover { filter: brightness(1.1); }
+
+.my-position {
+    margin-top: auto; border-top: 1px solid var(--border-color); padding-top: 20px;
+}
+.my-position h3 { font-size: 14px; margin-top: 0; }
+.position-row {
+    display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; color: var(--text-muted);
+}
+.text-green { color: var(--color-up); }
+.text-red { color: var(--color-down); }
+
+/* --- IN-APP NOTIFICATIONS --- */
+#notification-area {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toast {
+    background: var(--bg-panel);
+    border-left: 4px solid var(--accent);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 4px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    font-size: 13px;
+    font-weight: 600;
+    min-width: 250px;
+    animation: slideIn 0.3s ease forwards;
+    display: flex; align-items: center; gap: 10px;
+}
+.toast.success { border-color: var(--color-up); }
+.toast.error { border-color: var(--color-down); }
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+@keyframes fadeOut {
+    to { opacity: 0; transform: translateY(-10px); }
+}
+
+/* --- LIVE UPDATE ANIMATIONS --- */
+
+@keyframes flashGreen {
+    0% { background-color: rgba(0, 227, 150, 0.8); color: black; }
+    100% { background-color: transparent; }
+}
+
+@keyframes flashRed {
+    0% { background-color: rgba(255, 69, 96, 0.8); color: white; }
+    100% { background-color: transparent; }
+}
+
+.flash-up {
+    animation: flashGreen 1s ease-out;
+    border-radius: 4px;
+}
+
+.flash-down {
+    animation: flashRed 1s ease-out;
+    border-radius: 4px;
+}
+
+/* --- CATEGORY HEADERS (UPDATED) --- */
+.category-header {
+    padding: 20px 15px 10px 15px; /* Mehr Luft */
+    font-size: 14px; /* Größer (vorher 11px) */
+    font-weight: 800; /* Extra Fett */
+    text-transform: uppercase;
+    color: var(--accent);
+    border-bottom: 2px solid rgba(41, 98, 255, 0.3); /* Dickerer Strich */
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    letter-spacing: 1.5px;
+    background: rgba(19, 23, 34, 0.98); /* Fast undurchsichtig */
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2); /* Schatten für 3D Effekt */
+}
+
+.category-header i {
+    font-size: 16px; /* Icon auch größer */
+    opacity: 0.8;
+}
+
+/* Anpassung damit die Items unter dem Sticky Header nicht verschwinden */
+.market-list {
+    flex: 1;
+    overflow-y: auto; /* Scroll enabled inside the list only */
+    padding-right: 0.5rem; /* Space for the scrollbar */
+}
+
+/* --- VIEWS LOGIC --- */
+.view-section {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    animation: fadeIn 0.3s ease;
+}
+.view-section.hidden {
+    display: none !important; 
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- PORTFOLIO STYLES --- */
+.portfolio-stats-container {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    background: var(--bg-panel);
+    padding: 25px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    margin-bottom: 30px;
+}
+
+.portfolio-donut {
+    width: 160px;
+    height: 160px;
+    position: relative;
+}
+
+.portfolio-summary .p-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+}
+
+.portfolio-summary .p-value {
+    font-size: 36px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    color: white;
+}
+
+/* Asset List Items */
+.asset-item {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.asset-item:hover {
+    transform: translateX(5px);
+    border-color: var(--accent);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.asset-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    min-width: 200px;
+}
+
+.asset-icon {
+    width: 40px; height: 40px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; color: var(--accent);
+}
+
+.asset-stats {
+    display: flex;
+    gap: 40px;
+    text-align: right;
+}
+
+.stat-group { display: flex; flex-direction: column; gap: 15px }
+.stat-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 2px; }
+.stat-val { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600; }
+
+/* Aktive Aktie in der Liste */
+.market-item.active-stock {
+    background: linear-gradient(90deg, rgba(41, 98, 255, 0.15), transparent);
+    border-left: 3px solid var(--accent);
+}
+
+.col-name { flex: 2; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; }
+.col-shares { flex: 1.5; display: flex; justify-content: center; align-items: center; } /* Etwas breiter */
+.col-price { flex: 1; display: flex; justify-content: flex-end; align-items: center; font-weight: 700; color: white; }
+.col-change { flex: 1; display: flex; justify-content: flex-end; align-items: center; }
+.col-trend { flex: 0.5; display: flex; justify-content: flex-end; align-items: center; padding-right: 10px; }
+
+.text-green { color: var(--color-up) !important; }
+.text-red { color: var(--color-down) !important; }
+
+/* --- IPO SCREEN --- */
+.ipo-container {
+    max-width: 600px;
+    margin: 40px auto;
+    text-align: center;
+    background: var(--bg-panel);
+    padding: 40px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.ipo-icon { font-size: 60px; color: var(--accent); margin-bottom: 20px; }
+.ipo-requirements {
+    display: flex; justify-content: center; gap: 20px; margin: 30px 0;
+}
+.req-item {
+    background: rgba(255,255,255,0.05); padding: 10px 15px; border-radius: 6px; font-size: 13px; color: var(--text-muted);
+}
+.req-item.valid { color: var(--color-up); border: 1px solid var(--color-up); }
+.req-item.invalid { color: var(--color-down); border: 1px solid var(--color-down); }
+
+.ipo-form { text-align: left; }
+.form-row { display: flex; gap: 20px; }
+.form-row .input-group { flex: 1; }
+
+.custom-select {
+    width: 100%; background: var(--bg-dark); border: 1px solid var(--border-color);
+    color: white; padding: 10px; border-radius: 6px; outline: none;
+}
+
+/* --- CEO DASHBOARD --- */
+.ceo-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;
+}
+
+.ceo-card {
+    background: var(--bg-panel); border: 1px solid var(--border-color);
+    border-radius: 8px; padding: 20px;
+}
+.ceo-card h3 { margin-top: 0; font-size: 16px; margin-bottom: 15px; color: white; }
+
+.ceo-actions {
+    display: flex; gap: 10px; margin-top: 10px; margin-bottom: 10px;
+}
+
+.btn-small {
+    flex: 1; padding: 8px; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; color: white; transition: 0.2s;
+}
+.btn-small:hover { filter: brightness(1.1); }
+.btn-small.green { background: var(--color-up); color: black; }
+.btn-small.red { background: var(--color-down); }
+.btn-small.blue { background: var(--accent); }
+.btn-small.outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); }
+
+.small-text { font-size: 11px; font-style: italic; }
+
+/* Fix für Dropdown Optionen */
+select option {
+    background-color: var(--bg-dark);
+    color: white;
+    padding: 10px;
+}
+
+/* IPO Styles Update */
+.req-tag {
+    padding: 5px 10px; border-radius: 4px; font-size: 12px; margin: 0 5px;
+    background: rgba(255,255,255,0.1); color: #888;
+}
+.req-tag.valid { color: var(--color-up); border: 1px solid var(--color-up); background: rgba(0,227,150,0.1); }
+.req-tag.invalid { color: var(--color-down); border: 1px solid var(--color-down); background: rgba(255,69,96,0.1); }
+
+.owned-companies-section {
+    margin-top: 30px; border-top: 1px solid var(--border-color); padding-top: 20px;
+}
+.owned-companies-section h3 { font-size: 14px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 15px; }
+
+.time-btn {
+    background: transparent; border: 1px solid var(--border-color); color: var(--text-muted);
+    padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; margin-left: 5px;
+}
+.time-btn:hover { color: white; border-color: white; }
+.time-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+.app-container {
+    width: 1800px; 
+    height: 1200px; 
+    max-width: none;
+}
+
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    overflow-y: auto; /* WICHTIG: Erlaubt Scrollen, falls Inhalt zu groß ist */
+    position: relative;
+    min-width: 0;
+}
+
+.trading-panel {
+    width: 20rem; /* Slightly narrower to match compact look */
+    min-width: 20rem;
+    background: var(--bg-panel);
+    border-left: 1px solid var(--border-color);
+    padding: 2rem;
+    display: flex; flex-direction: column;
+}
+
+/* FORCE HIDE */
+.hidden {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* CHART FIX */
+.chart-container {
+    position: relative; /* Wichtig für Chart.js */
+    height: 350px !important; /* Höhe erzwingen */
+    width: 100%;
+    overflow: hidden;
+}
+canvas#mainChart {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* The "Pill" Badge */
+.price-change { 
+    display: inline-flex; /* Allows Flexbox alignment inside the badge */
+    align-items: center;  /* Vertically center text and icon */
+    justify-content: center;
+    gap: 0.6rem;          /* Space between % and Icon */
+    
+    font-size: 0.8rem; 
+    font-weight: 700; 
+    padding: 0.6rem 1.2rem; /* Breathing room */
+    border-radius: 0.6rem;  /* Soft corners */
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: -0.5px;
+}
+/* Modern Colors: Text is bright, background is subtle transparent */
+.positive { 
+    color: #00e396; 
+    background: rgba(0, 227, 150, 0.12); 
+    border: 1px solid rgba(0, 227, 150, 0.2);
+}
+
+.negative { 
+    color: #ff4560; 
+    background: rgba(255, 69, 96, 0.12); 
+    border: 1px solid rgba(255, 69, 96, 0.2);
+}
+
+/* --- WALLET SECTION STYLES (Old Wallet Container inside Portfolio - Legacy support) --- */
+.wallet-container {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    border-radius: 0.8rem;
+    padding: 2rem;
+    margin-bottom: 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.wallet-balance-box { display: flex; flex-direction: column; }
+.w-label { font-size: 1rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+.w-value { font-size: 2rem; font-weight: 700; color: white; font-family: 'JetBrains Mono', monospace; }
+
+.wallet-actions { display: flex; gap: 1rem; align-items: center; }
+
+.w-input-group input {
+    background: var(--bg-dark); border: 1px solid var(--border-color); color: white;
+    padding: 1.2rem; border-radius: 0.6rem; font-family: 'JetBrains Mono', monospace; width: 15rem; outline: none;
+}
+
+.w-btn {
+    padding: 1.2rem 2rem; border: none; border-radius: 0.6rem;
+    font-weight: 700; cursor: pointer; text-transform: uppercase;
+    color: white; transition: 0.2s; display: flex; align-items: center; gap: 0.5rem;
+}
+.w-btn:hover { filter: brightness(1.2); }
+.w-btn.deposit { background: var(--color-up); color: black; }
+.w-btn.withdraw { background: var(--bg-dark); border: 1px solid var(--border-color); }
+.tax-info small { color: var(--text-muted); font-style: italic; }
+
+/* --- NEW UNIFIED WRAPPER DESIGN (Wallet & Shareholders) --- */
+
+/* 1. Container Logic: Center Content */
+#view-wallet, #view-shareholders {
+    width: 100%;
+    height: 100%;
+    display: flex !important; /* Force Flex */
+    align-items: center;
+    justify-content: center;
+}
+
+/* 2. The Card Itself */
+.wallet-wrapper, .wallet-center-card {
+    max-width: 900px;
+    width: 90%;
+    background: linear-gradient(145deg, #1e2024, #181a1d);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    /* Force Visibility */
+    opacity: 1 !important; 
+    visibility: visible !important;
+}
+
+/* Header & Typography inside Wrapper */
+.wallet-wrapper .wallet-header, .wallet-center-card .wallet-header { margin-bottom: 30px; text-align: center; }
+.wallet-wrapper h2 { font-size: 2.4rem; margin: 0; color: white; font-weight: 700; }
+.wallet-wrapper .text-muted { font-size: 1.2rem; color: #6c757d; display: block; margin-top: 5px; }
+
+.icon-circle {
+    width: 70px; height: 70px; background: rgba(41, 98, 255, 0.1);
+    color: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 2rem; margin: 0 auto 15px;
+}
+
+/* Large Balance Display */
+.wallet-balance-display {
+    margin: 2rem 0 3rem 0; font-family: 'JetBrains Mono', monospace; font-weight: 700;
+    color: white; display: flex; align-items: flex-start; justify-content: center;
+}
+.currency-sign { font-size: 2.5rem; margin-top: 1rem; color: var(--accent); margin-right: 0.5rem; }
+#broker-balance-display { font-size: 5rem; line-height: 1; }
+
+/* Inputs & Actions */
+.wallet-input-area { margin-bottom: 2rem; width: 100%; display: flex; justify-content: center; }
+.input-group.large {
+    background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 12px;
+    display: flex; align-items: center; padding: 0 1.5rem; width: 100%; max-width: 500px;
+}
+.input-group.large .prefix { font-size: 1.5rem; color: var(--text-muted); }
+.input-group.large input {
+    background: transparent; border: none; width: 100%; font-size: 1.5rem; color: white;
+    padding: 1.5rem; font-family: 'JetBrains Mono', monospace; text-align: center; outline: none;
+}
+
+.wallet-actions-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; max-width: 600px; margin: 0 auto;
+}
+.action-btn {
+    display: flex; align-items: center; padding: 20px; border: none; border-radius: 16px;
+    cursor: pointer; transition: 0.2s; text-align: left;
+}
+.action-btn:hover { transform: translateY(-3px); }
+.action-btn.deposit { background: rgba(46, 204, 113, 0.15); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.2); }
+.action-btn.deposit:hover { background: #2ecc71; color: white; }
+.action-btn.withdraw { background: rgba(231, 76, 60, 0.15); color: #e74c3c; border: 1px solid rgba(231, 76, 60, 0.2); }
+.action-btn.withdraw:hover { background: #e74c3c; color: white; }
+
+.btn-icon { font-size: 1.5rem; margin-right: 15px; }
+.btn-text { display: flex; flex-direction: column; }
+.btn-text span { font-weight: 700; font-size: 1.1rem; }
+.btn-text small { font-size: 0.8rem; opacity: 0.8; font-weight: 400; }
+
+.wallet-footer { margin-top: 30px; font-size: 0.9rem; color: #495057; text-align: center; }
+
+/* --- SHAREHOLDER SPECIFIC --- */
+#shareholder-company-select {
+    width: 100%; padding: 15px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1);
+    color: white; border-radius: 12px; outline: none; font-size: 1.1rem; cursor: pointer;
+}
+#shareholder-company-select option { background-color: #1e222d; padding: 10px; }
+
+/* Trading Panel Hide Logic */
+#view-market.hidden ~ .trading-panel { display: none !important; }
+
+.sh-header { text-align: center; margin-bottom: 20px; flex-shrink: 0; }
+.sh-header i { font-size: 2.5rem; color: var(--accent); margin-bottom: 10px; }
+.sh-header h2 { margin: 0; color: white; font-size: 1.8rem; font-weight: 700; }
+.sh-header span { color: #888; font-size: 0.9rem; }
+
+.sh-controls { margin-bottom: 20px; display: flex; justify-content: center; flex-shrink: 0; }
+.sh-input-box {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0 15px;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 400px;
+}
+.sh-input-box i { color: #666; margin-right: 10px; }
+
+#sh-company-select {
+    width: 100%; padding: 12px 0; background: transparent; border: none;
+    color: white; font-size: 1rem; outline: none; cursor: pointer;
+}
+#sh-company-select option { background: #1e2024; color: white; }
+
+.sh-list-header {
+    display: flex; padding: 12px 20px;
+    background: rgba(255,255,255,0.03); border-radius: 6px;
+    color: #888; text-transform: uppercase; font-size: 0.75rem; font-weight: 800; letter-spacing: 1px;
+    margin-bottom: 8px; flex-shrink: 0;
+}
+
+.sh-list-body {
+    flex: 1; /* Nimmt den restlichen Platz ein */
+    overflow-y: auto; /* Scrollbar nur hier drin */
+    padding-right: 5px;
+}
+
+.sh-item {
+    display: flex; padding: 15px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.05); align-items: center;
+}
+.sh-empty-state { text-align: center; padding: 40px; color: #555; }
+
+/* --- FINAL SHAREHOLDER OVERLAY FIX --- */
+
+/* 1. Der Container: Wir machen ihn zum Overlay über die ganze App */
+#view-shareholders {
+    position: fixed; /* Bricht aus allem aus! */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Exakte Mitte */
+    
+    width: 70vw; /* Gleiche Breite wie App Container */
+    height: 75vh; /* Gleiche Höhe wie App Container */
+    
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* Über allem anderen */
+    pointer-events: none; /* Klicks gehen durch, wenn leer */
+}
+
+/* 2. Das Panel selbst */
+.shareholder-panel-unique {
+    width: 900px;
+    height: 600px;
+    max-width: 90%;
+    max-height: 90%;
+    
+    background: linear-gradient(145deg, #1e2024, #181a1d);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 50px 100px rgba(0,0,0,0.8);
+    
+    display: flex;
+    flex-direction: column;
+    
+    pointer-events: all;
+    opacity: 1 !important;
+    visibility: visible !important;
+
+    /* WICHTIG: Animation aus, aber Zentrierung bleibt an! */
+    animation: none !important; 
+    transform: translate(-50%, -50%);
+}
+
+/* 3. Styling für den Inhalt (Damit es gut aussieht) */
+.sh-header { text-align: center; margin-bottom: 30px; flex-shrink: 0; }
+.sh-header i { font-size: 3rem; color: var(--accent); margin-bottom: 10px; }
+.sh-header h2 { margin: 0; color: white; font-size: 2rem; font-weight: 700; }
+.sh-header span { color: #888; font-size: 1rem; }
+
+.sh-controls { margin-bottom: 25px; display: flex; justify-content: center; flex-shrink: 0; }
+.sh-input-box {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 0 15px;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 500px;
+}
+.sh-input-box i { color: #666; margin-right: 10px; }
+
+#sh-company-select {
+    width: 100%; padding: 15px 0; background: transparent; border: none;
+    color: white; font-size: 1.1rem; outline: none; cursor: pointer;
+}
+#sh-company-select option { background: #1e2024; color: white; }
+
+.sh-list-header {
+    display: flex; padding: 15px 20px;
+    background: rgba(255,255,255,0.03); border-radius: 8px;
+    color: #888; text-transform: uppercase; font-size: 0.8rem; font-weight: 700; letter-spacing: 1px;
+    margin-bottom: 10px; flex-shrink: 0;
+}
+
+.sh-list-body {
+    flex: 1; overflow-y: auto; padding-right: 5px;
+}
+
+.sh-item {
+    display: flex; padding: 15px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.05); align-items: center;
+}
+.sh-empty-state { text-align: center; padding: 40px; color: #555; font-style: italic; }
+
+/* --- FIX: DEAD ZONE / CLICK THROUGH --- */
+/* Das hier löst das Problem, dass man nicht klicken kann */
+#view-shareholders.hidden {
+    display: none !important;
+    pointer-events: none !important;
+    z-index: -9999 !important; /* Schiebt es ganz nach hinten */
+    visibility: hidden !important;
+}
+
+/* --- FIX FÜR SPRINGENDES FENSTER --- */
+
+/* Diese Animation beinhaltet das Translate (-50%, -50%), 
+   damit das Fenster während des Einblendens nicht wegspringt */
+@keyframes fadeInCenter {
+    from { 
+        opacity: 0; 
+        transform: translate(-50%, -50%) scale(0.95); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translate(-50%, -50%) scale(1); 
+    }
+}
+
+/* --- FIX: STOP JUMPING ANIMATION --- */
+#view-shareholders, 
+.shareholder-panel-unique {
+    /* Deaktiviert jegliche Bewegung/Fade-In */
+    animation: none !important;
+    transition: none !important;
+    
+    /* Entfernt alte Verschiebe-Befehle, da Flexbox das Zentrieren übernimmt */
+    transform: none !important; 
+}
+
+/* Sicherstellen, dass der Container starr mittig sitzt */
+#view-shareholders {
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+}
+
+/* --- FINAL CENTER FIX (FLEXBOX METHOD) --- */
+
+/* 1. Der Eltern-Container wird zum Overlay */
+#view-shareholders {
+    position: fixed; /* Bricht aus allem aus */
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    
+    /* WICHTIG: Flexbox Zentrierung */
+    display: flex !important;
+    justify-content: center; /* Horizontal mittig */
+    align-items: center;     /* Vertikal mittig */
+    
+    background: transparent;
+    z-index: 9999;
+    pointer-events: none;
+    
+    /* FIX: Setzt Padding auf 0, damit nichts verschiebt */
+    padding: 0 !important;
+    margin: 0;
+    margin-left: 7rem;
+}
+
+.shareholder-panel-unique {
+    /* Größe */
+    width: 900px;
+    height: 600px;
+    max-width: 90%;
+    max-height: 85%; /* Etwas kleiner als 90%, damit oben/unten Luft ist */
+    
+    background: linear-gradient(145deg, #1e2024, #181a1d);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 50px 100px rgba(0,0,0,0.8);
+    
+    display: flex;
+    flex-direction: column;
+    
+    pointer-events: all;
+    opacity: 1 !important;
+    visibility: visible !important;
+    animation: none !important;
+    
+    /* FIX: Margin Reset */
+    margin: 0 !important; 
+    /* Optional: Ein kleines bisschen nach oben schieben (-20px) für optische Mitte */
+    transform: translateY(-20px); 
+}
+
+/* --- CUSTOM DROPDOWN STYLES --- */
+
+/* Der Trigger Button */
+.dropdown-trigger {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: white;
+    font-size: 1.1rem;
+}
+
+.dropdown-trigger:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--accent);
+    box-shadow: 0 0 15px rgba(41, 98, 255, 0.2);
+}
+
+.dropdown-trigger i { transition: transform 0.3s ease; }
+.dropdown-trigger.open i#sh-dropdown-arrow { transform: rotate(180deg); }
+
+/* Die Liste */
+.dropdown-list {
+    position: absolute;
+    top: 110%; /* Direkt unter dem Trigger */
+    left: 0;
+    width: 100%;
+    max-height: 300px;
+    overflow-y: auto;
+    
+    background: #1e2024;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    
+    display: flex;
+    flex-direction: column;
+    padding: 5px;
+    
+    /* Animation */
+    transform-origin: top;
+    animation: dropdownOpen 0.2s ease-out forwards;
+    z-index: 200;
+}
+
+.dropdown-list.hidden {
+    display: none !important;
+}
+
+@keyframes dropdownOpen {
+    from { opacity: 0; transform: scaleY(0.9) translateY(-10px); }
+    to { opacity: 1; transform: scaleY(1) translateY(0); }
+}
+
+/* Items in der Liste */
+.dd-item {
+    padding: 12px 15px;
+    border-radius: 8px;
+    color: #ccc;
+    cursor: pointer;
+    transition: 0.1s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.dd-item:hover {
+    background: var(--accent);
+    color: white;
+}
+
+.dd-item strong {
+    font-family: 'JetBrains Mono', monospace;
+    background: rgba(0,0,0,0.2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+/* Scrollbar für das Dropdown */
+.dropdown-list::-webkit-scrollbar { width: 4px; }
+.dropdown-list::-webkit-scrollbar-thumb { background: #444; border-radius: 2px; }
+
+/* --- SHAREHOLDER LIST DESIGN (FIXED ALIGNMENT) --- */
+
+/* Der Header (Spalten-Titel) */
+.sh-list-header {
+    display: flex;
+    align-items: center;
+    padding: 15px 25px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    color: #888;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    margin-bottom: 10px;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+/* Die einzelne Zeile */
+.sh-item {
+    display: flex;
+    align-items: center; /* Vertikal mittig */
+    padding: 15px 25px;  /* Gleiches Padding wie Header! */
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    transition: 0.2s;
+    background: rgba(255,255,255,0.01);
+    margin-bottom: 4px;
+    border-radius: 6px;
+}
+
+.sh-item:hover {
+    background: rgba(41, 98, 255, 0.05);
+    transform: translateX(5px);
+}
+
+/* SPALTEN DEFINITION (Exakt wie im Header: 50% | 25% | 25%) */
+.sh-col-name {
+    width: 50%;
+    font-weight: 600;
+    color: #fff;
+    font-size: 1rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sh-col-shares {
+    width: 25%;
+    text-align: right;
+    display: flex;
+    justify-content: flex-end; /* Inhalt rechtsbündig */
+}
+
+.sh-col-percent {
+    width: 25%;
+    text-align: right;
+    color: var(--accent);
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* Das Design für die Zahl (Die graue Box) - OHNE WIDTH! */
+.sh-badge {
+    background: rgba(255,255,255,0.1);
+    color: #ccc;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    display: inline-block;
+}
