@@ -27,43 +27,52 @@
     user-select: none;
 }
 
+/* ABSOLUTE TRANSPARENZ FIX */
 html, body {
+    background: rgba(0, 0, 0, 0) !important;
     background-color: transparent !important;
-    background: transparent !important;
-    width: 100vw;
-    height: 100vh;
-    overflow: hidden;
     margin: 0;
     padding: 0;
-}
-html, body {
-    background: transparent !important;
-    background-color: transparent !important;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
 }
 
 #app-container {
     width: 100vw;
     height: 100vh;
-    display: flex; /* Wird per JS auf 'none' oder 'flex' gesetzt */
+    display: flex;
     justify-content: center;
     align-items: center;
-    background: transparent !important; /* Kein Schleier, kein Blur */
-    backdrop-filter: none !important;
+    background: transparent !important; /* KEIN HINTERGRUND HIER */
 }
-    
 
-/* Der Hauptcontainer mit Glass-Effekt */
+/* Der Wrapper ist das einzige mit Farbe */
 .dispatch-wrapper {
     display: flex;
-    width: 92vw;
-    height: 85vh;
-    background: var(--bg-dark);
-    backdrop-filter: blur(1.5rem);
-    border-radius: var(--border-radius);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 3rem 6rem rgba(0, 0, 0, 0.6);
+    width: 95vw;
+    height: 90vh;
+    background: rgba(10, 20, 30, 0.98); /* Fast solide, aber transparent genug für Style */
+    border-radius: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2rem 5rem rgba(0, 0, 0, 0.9);
     overflow: hidden;
-    position: relative;
+    pointer-events: auto;
+}
+
+/* --- SCROLLBAR STYLE --- */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 0.3rem;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
 }
 
 .menu-sections {
@@ -202,23 +211,49 @@ html, body {
     background: rgba(0, 0, 0, 0.2);
 }
 
-/* Info Panel (Rechts): Karten-Optik */
 .info-panel {
     width: var(--info-panel-width);
     background: var(--sidebar-bg);
     padding: 2.5rem 1.8rem;
     display: flex;
     flex-direction: column;
-    gap: 2.5rem;
+    gap: 2rem;
     border-left: 1px solid rgba(255, 255, 255, 0.05);
+    overflow-y: auto; /* Erlaubt Scrollen im rechten Panel */
 }
 
 .panel-segment h3 {
     font-size: 1rem;
-    color: var(--text-muted);
+    color: white !important; /* Erzwingt Weiß statt der gedimmten Farbe */
     text-transform: uppercase;
     letter-spacing: 0.1rem;
     margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    opacity: 1; /* Verhindert, dass die Schrift durch Transparenz dunkel wirkt */
+}
+
+.panel-segment h3 .btn-small, 
+.panel-segment h3 .badge {
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+.panel-segment {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.list-container {
+    min-height: 5rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 0.5rem;
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.segment-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -248,7 +283,7 @@ html, body {
 
 /* 3. Page Transition: Content slidet sanft hoch */
 .page-content.active {
-    display: block;
+    display: block !important;
     animation: fadeInUp 0.4s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
@@ -270,4 +305,1375 @@ html, body {
         0 0 0 1px rgba(0, 0, 0, 0.5),
         0 2rem 5rem rgba(0, 0, 0, 0.8);
     background: linear-gradient(135deg, rgba(10, 20, 30, 0.97) 0%, rgba(5, 12, 20, 0.99) 100%);
+}
+
+/* NUIPolice/html/style.css */
+
+#map {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #050505; /* Schwarz statt Blau fixiert die Optik bei Fehlern */
+    z-index: 1;
+    outline: none;
+}
+
+/* Verstecke die Leaflet-Standard-Panels für einen cleanen Look */
+.leaflet-control-container {
+    display: none;
+}
+
+/* Pulsierender Effekt für den Karten-Overlay-Titel */
+.map-overlay-top {
+    position: absolute;
+    top: 2rem;
+    left: 2rem;
+    padding: 0.8rem 1.5rem;
+    background: rgba(0, 122, 255, 0.2);
+    border: 1px solid var(--primary);
+    border-radius: 0.5rem;
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.2rem;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 0 1.5rem var(--primary-glow);
+}
+
+/* Hover Effekt für die Sidebar-Kategorien */
+.category:hover {
+    color: var(--primary);
+    transition: color 0.3s ease;
+}
+
+/* In der style.css */
+
+#map-page {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background-color: #0b1a29; /* Dunkler Hintergrund falls Tiles laden */
+}
+
+#map {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #0fa8d1; /* Wasserfarbe */
+    z-index: 1;
+}
+
+/* Der "E-Karte" Button soll über der Map schweben */
+.map-overlay-top {
+    position: absolute;
+    top: 2rem;
+    left: 2rem;
+    z-index: 100; /* Muss höher als die Map sein */
+}
+
+.unit-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 0.5rem;
+    border-left: 3px solid var(--primary);
+    transition: transform 0.2s ease;
+}
+
+.unit-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateX(0.3rem);
+}
+
+/* FIX FÜR SCHWARZE NAMEN IN DER RECHTEN SEITENLEISTE */
+.unit-item .name {
+    color: #ffffff !important; /* Erzwingt weißes Schriftbild */
+    font-weight: 600;
+    margin-top: 0.2rem;
+    opacity: 1;
+}
+
+/* Optional: Macht auch den Dienstgrad (Badge) rechts daneben besser lesbar */
+.unit-item .badge {
+    color: rgba(255, 255, 255, 0.7) !important;
+    background: rgba(255, 255, 255, 0.05);
+    font-weight: 700;
+}
+
+.info-panel .list-container,
+.info-panel span,
+.info-panel div {
+    color: white;
+}
+
+.unit-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.callsign {
+    font-weight: 800;
+    color: var(--primary);
+    font-size: 0.9rem;
+}
+
+.name {
+    font-size: 1.1rem;
+}
+
+.badge {
+    background: var(--bg-light);
+    padding: 0.3rem 0.6rem;
+    border-radius: 0.3rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* NUIPolice/html/style.css */
+
+/* NUIPolice/html/style.css */
+
+/* NUIPolice/html/style.css */
+
+/* NUIPolice/html/style.css */
+
+.custom-unit-blip {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.blip-icon-wrapper {
+    width: 2.2rem;
+    height: 2.2rem;
+    background: #1a4a8e; /* Dunkles Polizei-Blau */
+    border-radius: 50%;
+    border: 0.15rem solid #ffffff;
+    box-shadow: 0 0.4rem 1rem rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* PULSIEREN UND ÜBERFLÜSSIGE EFFEKTE ENTFERNT */
+}
+
+.blip-icon-wrapper i {
+    color: white;
+    font-size: 1.1rem;
+}
+
+.map-tooltip {
+    background: rgba(10, 20, 30, 0.95) !important;
+    border: 1px solid var(--primary) !important;
+    color: white !important;
+    padding: 0.4rem 0.7rem !important;
+    border-radius: 0.4rem !important;
+    font-size: 0.85rem !important;
+}
+
+.officer-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    animation: cardAppear 0.4s ease-out;
+}
+
+.officer-card:hover {
+    background: rgba(255, 255, 255, 0.07);
+    transform: translateY(-0.3rem);
+    border-color: var(--primary);
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    backdrop-filter: blur(10px);
+}
+
+/* --- MODAL UPGRADE (JUICY LOOK) --- */
+.modal-content {
+    background: linear-gradient(160deg, #0a141e 0%, #050a0f 100%);
+    border: 1px solid var(--primary);
+    box-shadow: 0 0 3rem rgba(0, 122, 255, 0.2);
+    position: relative;
+    padding: 3rem !important;
+}
+
+@keyframes cardAppear {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes modalSlide {
+    from { opacity: 0; transform: translateY(5rem); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.input-group { margin-bottom: 1.5rem; }
+.input-group label { display: block; color: var(--text-muted); margin-bottom: 0.5rem; }
+.input-group input, .input-group select {
+    width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
+    padding: 0.8rem; border-radius: 0.5rem; color: white;
+}
+
+/* Stellt sicher, dass das Grid die Karten nebeneinander anzeigt */
+/* BEAMTEN GRID OPTIMIERUNG */
+.officer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(24rem, 1fr)); /* Größere Karten */
+    gap: 2.5rem;
+    padding-top: 2rem;
+}
+
+/* Verhindert, dass die Beamten-Seite hinter der Map verschwindet */
+.page-content {
+    display: none; /* WICHTIG: Standardmäßig aus */
+    padding: 4.5rem 4rem !important;
+    height: 100%;
+    width: 100%;
+    overflow-y: auto;
+    position: relative;
+    z-index: 10;
+    background: transparent !important; 
+}
+/* EINHEITLICHER HEADER FÜR ALLE REITER */
+.page-header {
+    margin-bottom: 4rem;
+    padding-left: 2rem;
+    border-left: 0.5rem solid var(--primary); /* Blauer Akzent-Balken links */
+}
+
+.page-header h2 {
+    color: #ffffff !important;
+    font-size: 2.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.15rem;
+    line-height: 1;
+}
+
+.page-header p {
+    color: var(--text-muted) !important;
+    font-size: 1.2rem;
+    margin-top: 0.8rem;
+}
+
+/* OPTIMIERUNG DER BEAMTEN-KARTEN TEXTE */
+.officer-card h3 {
+    color: var(--text-main);
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+}
+
+.officer-card p {
+    margin-bottom: 0.3rem;
+}
+
+/* Der Button in der Karte */
+.officer-card .btn-small {
+    margin-top: 1.2rem;
+    width: 100%;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.officer-card {
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 1.2rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 2rem;
+}
+
+.modal-header h3 {
+    color: white !important; /* Fix für schwarze Schrift */
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: 0.05rem;
+    margin-bottom: 2rem;
+}
+
+/* Das "X" oben rechts perfekt platziert */
+.close-modal {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    font-size: 1.4rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.close-modal:hover { color: #ff4d4d; }
+
+/* JUICY SAVE BUTTON */
+#save-officer {
+    background: linear-gradient(90deg, var(--primary), #00d1ff);
+    border: none;
+    color: white;
+    padding: 1.2rem;
+    border-radius: 0.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 0.5rem 1.5rem var(--primary-glow);
+    margin-top: 1rem;
+}
+
+#save-officer:hover {
+    transform: scale(1.03) translateY(-2px);
+    box-shadow: 0 0.8rem 2.5rem var(--primary-glow);
+    filter: brightness(1.1);
+}
+
+#save-officer:active { transform: scale(0.95); }
+
+/* FEUERN BUTTON (DANGER LOOK) */
+.btn-fire {
+    background: rgba(255, 77, 77, 0.1);
+    border: 1px solid rgba(255, 77, 77, 0.2);
+    color: #ff4d4d;
+    margin-top: 0.5rem;
+}
+.btn-fire:hover {
+    background: #ff4d4d;
+    color: white;
+}
+
+/* FIX FÜR SCHWARZE NAMEN IN DER LISTE */
+.nearby-player-item span {
+    color: #ffffff !important; /* Weißer Name */
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.nearby-player-item small {
+    color: var(--primary); /* ID in Blau abheben */
+    font-weight: 800;
+}
+
+/* CONFIRM MODAL ANPASSUNG */
+#confirm-modal .modal-content {
+    border: 2px solid #ff4d4d;
+    box-shadow: 0 0 3rem rgba(255, 77, 77, 0.2);
+    animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes modalPop {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Die Rang-Trenner in der Liste */
+.rank-separator-list {
+    padding: 1.5rem 1rem 0.5rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 0.5rem;
+}
+.rank-separator-list span {
+    color: var(--primary);
+    font-weight: 800;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15rem;
+}
+
+.officer-row:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateX(0.3rem);
+}
+
+.off-col { display: flex; align-items: center; color: white; font-weight: 500; }
+.name-col { flex: 2; font-size: 1.1rem; }
+.callsign-col { flex: 1; justify-content: center; }
+
+.callsign-tag {
+    background: rgba(0, 122, 255, 0.15);
+    color: var(--primary);
+    padding: 0.2rem 0.8rem;
+    border-radius: 2rem;
+    font-weight: 800;
+    font-size: 0.9rem;
+    border: 1px solid var(--primary-glow);
+}
+
+/* Aktions-Icons */
+.actions-col { gap: 1.5rem; }
+
+.action-icon {
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    opacity: 0.6;
+}
+
+.edit-btn:hover { color: var(--primary); opacity: 1; transform: scale(1.3); }
+.fire-btn:hover { color: #ff4d4d; opacity: 1; transform: scale(1.3); }
+
+/* SAUBERES GRID-LAYOUT */
+.officer-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-top: 0.5rem;
+    padding-right: 0.5rem; /* Platz für die Scrollbar */
+}
+
+/* --- OPTIMIERTE TABELLEN LEGENDE --- */
+.officer-table-legend {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.8rem 1.5rem;
+    background: transparent; /* Hintergrund entfernt für Dezentheit */
+    margin-top: 2.5rem;       /* Schiebt die Legende weiter nach unten */
+    margin-bottom: 0.5rem;    /* Abstand zur Liste */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Hauchdünne, graue Linie */
+}
+
+.leg-col {
+    color: rgba(255, 255, 255, 0.4); /* Sehr dezenter Text */
+    font-weight: 600;                /* Nicht mehr ganz so fett */
+    font-size: 0.75rem;              /* Etwas kleiner */
+    text-transform: uppercase;
+    letter-spacing: 0.15rem;
+}
+
+/* Flex-Werte bleiben gleich für die Ausrichtung */
+.leg-name { flex: 2; }
+.leg-call { flex: 1; text-align: center; }
+.leg-actions { flex: 0 0 6rem; text-align: right; }
+
+/* Kleine Korrektur der officer-row für perfekte Ausrichtung */
+.actions-col { 
+    flex: 0 0 6rem; 
+    justify-content: flex-end; 
+    gap: 1.5rem; 
+}
+
+.officer-row:active {
+    background: rgba(255, 255, 255, 0.08) !important;
+    transform: translateX(0.3rem) scale(0.998); 
+}
+/* ICONS OPTIMIERUNG - KEINE OUTLINES */
+.action-icon {
+    outline: none !important;
+}
+
+/* DEZENTE LEGENDE */
+.officer-table-legend {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05); /* Noch dünnere Linie */
+    padding: 0.5rem 1.5rem; /* Etwas flacher */
+    margin-top: 3.5rem; /* Mehr Abstand zum Header für besseres Layout */
+    opacity: 0.6; /* Gesamte Legende leicht transparent */
+}
+
+/* SCROLLBAR REINIGUNG */
+.officer-grid::-webkit-scrollbar {
+    width: 4px;
+}
+
+.officer-grid::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+
+.officer-row {
+    background: rgba(255, 255, 255, 0.015);
+    border: none !important; /* Entfernt den Rahmen, der den Balken verursacht */
+    padding: 0.8rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: background 0.2s ease, transform 0.1s ease;
+    border-radius: 0.4rem;
+    outline: none !important;
+    box-shadow: none !important;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    cursor: default;
+    margin-bottom: 0.2rem; /* Kleiner Abstand statt Border */
+}
+
+/* PREMIUM HIRE BUTTON */
+.btn-hire-premium {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%) !important;
+    border: none !important;
+    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+    padding: 1.2rem 2.5rem !important;
+    font-weight: 800 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.1rem;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}
+
+.btn-hire-premium:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(34, 197, 94, 0.5);
+    filter: brightness(1.1);
+}
+
+/* STATISTIK TAG IM HEADER */
+.officer-stat-tag {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.4rem 1rem;
+    border-radius: 0.5rem;
+    color: var(--accent);
+    font-weight: 800;
+    font-size: 1rem;
+    border: 1px solid rgba(0, 209, 255, 0.2);
+}
+
+/* DUTY STATUS BADGES */
+.status-badge {
+    padding: 0.3rem 0.8rem;
+    border-radius: 0.4rem;
+    font-size: 0.75rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.05rem;
+}
+
+.on-duty {
+    color: #4ade80;
+    background: rgba(74, 222, 128, 0.1);
+    border: 1px solid rgba(74, 222, 128, 0.2);
+}
+
+.off-duty {
+    color: #f87171;
+    background: rgba(248, 113, 113, 0.1);
+    border: 1px solid rgba(248, 113, 113, 0.2);
+}
+
+/* AUSRICHTUNG DER SPALTEN */
+.leg-status, .status-col { flex: 1; text-align: center; display: flex; justify-content: center; }
+
+
+
+.unit-category-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.unit-category-header {
+    font-size: 0.9rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.2rem;
+    color: var(--primary);
+    border-bottom: 1px solid rgba(0, 122, 255, 0.2);
+    padding-bottom: 0.5rem;
+}
+
+.unit-cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+    gap: 1.5rem;
+}
+
+
+
+.unit-card.drag-over {
+    border-color: var(--primary);
+    background: rgba(0, 122, 255, 0.1);
+    transform: scale(1.02);
+}
+
+.unit-card-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.unit-name-input {
+    background: transparent;
+    border: none;
+    color: white;
+    font-weight: 800;
+    font-size: 1.1rem;
+    width: 70%;
+}
+
+/* OFFICER TAGS (DRAGGABLE) */
+.officer-tag {
+    background: var(--bg-dark);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.6rem 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+    cursor: grab;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    color: white;
+}
+
+.pool-header {
+    color: white;
+}
+
+.officer-tag:active { cursor: grabbing; }
+
+/* UNASSIGNED POOL */
+.unassigned-pool-wrapper {
+    position: absolute;
+    bottom: 2rem;
+    left: 4rem;
+    right: 4rem;
+    background: rgba(10, 20, 30, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;
+    padding: 1rem;
+    z-index: 100;
+}
+
+.officer-pool {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding: 0.5rem;
+    min-height: 4rem;
+}
+
+/* --- JUICY NEW UNIT BUTTON --- */
+.btn-hire-premium.btn-add-unit {
+    background: linear-gradient(135deg, var(--primary) 0%, #0056b3 100%) !important;
+    border-radius: 0.6rem !important;
+    padding: 0.8rem 1.5rem !important;
+    font-size: 0.9rem !important;
+}
+
+/* KATEGORIEN-STYLING */
+.unit-category-section {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.unit-category-header {
+    color: #ffffff !important;
+    font-size: 1.1rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.15rem;
+    opacity: 1;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.unit-category-header::after {
+    content: ""; flex-grow: 1; height: 1px; background: rgba(0, 209, 255, 0.2);
+}
+
+/* UNIT CARDS */
+.unit-card {
+    background: rgba(10, 20, 30, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.3);
+}
+.unit-card {
+    position: relative;
+    pointer-events: auto !important; /* Sicherstellen, dass Events gefangen werden */
+    
+}
+
+.edit-unit-icon, .status-badge {
+    pointer-events: auto !important;
+    color: white;
+}
+
+/* POOL AM UNTEREN RAND */
+.unassigned-pool-wrapper {
+    background: linear-gradient(0deg, rgba(8, 15, 25, 1) 0%, rgba(8, 15, 25, 0.8) 100%);
+    backdrop-filter: blur(15px);
+    border-top: 2px solid var(--primary);
+    padding: 1.5rem 4rem;
+}
+
+/* --- STREIFENVERWALTUNG REINIGUNG --- */
+
+.unit-edit-input {
+    background: transparent;
+    border: none;
+    color: white;
+    font-weight: 800;
+    font-size: 1.1rem;
+    width: 60%;
+    outline: none;
+    border-bottom: 1px solid transparent;
+    transition: border 0.2s;
+}
+
+.unit-edit-input:focus {
+    border-bottom: 1px solid var(--primary);
+}
+
+.delete-unit-icon {
+    opacity: 0.3;
+    cursor: pointer;
+    transition: color 0.2s, opacity 0.2s;
+}
+
+.delete-unit-icon:hover {
+    color: #ff4d4d;
+    opacity: 1;
+}
+
+.drag-placeholder {
+    border: 2px dashed rgba(255, 255, 255, 0.05);
+    padding: 1rem;
+    text-align: center;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.2);
+    border-radius: 0.5rem;
+}
+
+.officer-tag-mini {
+    background: rgba(0, 122, 255, 0.1);
+    padding: 0.5rem 0.8rem;
+    border-radius: 0.4rem;
+    margin-bottom: 0.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    border: 1px solid rgba(0, 122, 255, 0.2);
+}
+
+.officer-tag-mini:hover {
+    background: rgba(255, 77, 77, 0.1);
+    border-color: #ff4d4d;
+}
+
+/* --- UNIT MANAGEMENT POLISH --- */
+.unit-name-input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid transparent;
+    color: white;
+    font-weight: 800;
+    transition: border 0.2s;
+    outline: none;
+    width: 60%;
+}
+
+.unit-name-input:focus {
+    border-bottom: 1px solid var(--primary);
+}
+
+.officer-tag-mini {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.5rem 0.8rem;
+    margin-bottom: 0.3rem;
+    border-radius: 0.4rem;
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+.officer-tag-mini:hover { background: rgba(255, 77, 77, 0.2); }
+
+/* --- EDIT & DRAG ENHANCEMENTS --- */
+
+/* Der Bearbeitungs-Stift */
+.edit-unit-icon {
+    font-size: 0.9rem;
+    margin-left: 0.8rem;
+    opacity: 0.4;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.edit-unit-icon:hover {
+    opacity: 1;
+    color: var(--primary);
+    transform: scale(1.2);
+}
+
+/* Visuelles Feedback beim Drag & Drop */
+.unit-card.drag-over {
+    border: 1.5px solid var(--primary) !important;
+    background: rgba(0, 122, 255, 0.1) !important;
+    box-shadow: 0 0 2rem var(--primary-glow);
+    transform: scale(1.01);
+}
+
+
+/* FIX: SCHWARZE SCHRIFT KILLER */
+.unit-category-header, 
+.unit-card-header strong, 
+.input-group label,
+#modal-unit-title {
+    color: #ffffff !important; /* Strahlendes Weiß erzwingen */
+    opacity: 1 !important;
+    text-shadow: 0 0 5px rgba(0,0,0,0.5); /* Bessere Lesbarkeit */
+}
+
+
+
+.officer-tag-mini {
+    pointer-events: auto !important; /* Nur die Tags selbst bleiben klickbar zum Entfernen */
+}
+
+/* --- ABSOLUTER FARB-KILLER --- */
+
+/* --- AGGRESSIVER FARB-FIX --- */
+
+/* Erzwingt Weiß für alle relevanten Texte in der Streifenverwaltung */
+.unit-category-header,
+.unit-card-header strong,
+.status-badge,
+.input-group label,
+#modal-unit-title,
+.drag-placeholder {
+    color: #ffffff !important;
+    opacity: 1 !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+
+
+/* Klickbare Elemente in der Karte wieder aktivieren */
+.edit-unit-icon, 
+.status-badge, 
+.officer-tag-mini {
+    pointer-events: auto !important;
+}
+
+/* Visueller Glow beim Drüberziehen */
+.unit-card.drag-over {
+    border: 1.5px solid var(--accent) !important;
+    background: rgba(0, 209, 255, 0.1) !important;
+    box-shadow: 0 0 2rem rgba(0, 209, 255, 0.2);
+    transform: scale(1.02);
+}
+
+/* --- FINALE SICHTBARKEIT --- */
+#units-page h2, 
+#units-page p, 
+.unit-category-header, 
+.unit-card-header strong,
+.status-badge,
+.drag-placeholder {
+    color: #ffffff !important;
+    opacity: 1 !important;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+}
+
+
+/* Klickbare Elemente wieder freigeben */
+.edit-unit-icon, .status-badge, .officer-tag-mini {
+    pointer-events: auto !important;
+}
+
+/* --- DRAG & DROP OPTIMIERUNG --- */
+.unit-card {
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 5;
+}
+
+
+/* Erlaubt Interaktion nur für die Buttons/Inputs IN der Karte */
+.edit-unit-icon, 
+.status-badge, 
+.officer-tag-mini, 
+.unit-edit-input {
+    pointer-events: auto !important;
+}
+
+/* Visueller Indikator, dass hier gedroppt werden darf */
+.unit-card.drag-over {
+    border: 2px solid var(--accent) !important;
+    background: rgba(0, 209, 255, 0.1) !important;
+    box-shadow: 0 0 20px var(--primary-glow);
+}
+
+/* --- DRAG-FOKUS OPTIMIERUNG --- */
+.unit-card {
+    pointer-events: auto !important;
+    user-select: none;
+}
+
+
+/* Nur klickbare Elemente wieder freischalten */
+.edit-unit-icon, 
+.status-badge, 
+.officer-tag-mini,
+.unit-name-input {
+    pointer-events: auto !important;
+}
+
+/* Visueller Effekt wenn aktiv geschwebt wird */
+.unit-card.drag-over {
+    border: 2px solid var(--accent) !important;
+    background: rgba(0, 209, 255, 0.1) !important;
+    box-shadow: 0 0 25px rgba(0, 209, 255, 0.4);
+}
+
+/* DATEI: html/style.css */
+
+/* OFFICER CHIPS IN DER VERWALTUNG */
+.officer-chip {
+    background: rgba(0, 122, 255, 0.15);
+    border: 1px solid var(--primary-glow);
+    color: white;
+    padding: 0.5rem 0.8rem;
+    border-radius: 2rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0.2rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.officer-chip i {
+    cursor: pointer;
+    color: #ff4d4d;
+    transition: transform 0.2s;
+}
+
+.officer-chip i:hover { transform: scale(1.2); }
+
+/* SIDEBAR RECHTS: STREIFEN-DISPLAY */
+.sidebar-unit-item {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 0.6rem;
+    padding: 1rem;
+    margin-bottom: 0.8rem;
+    border-left: 4px solid var(--primary);
+}
+
+.sidebar-unit-header {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 800;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.sidebar-unit-officers {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.sidebar-off-row {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* ADD BUTTON IN UNIT CARD */
+.btn-add-to-unit {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+    color: var(--text-muted);
+    padding: 0.6rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+}
+
+.btn-add-to-unit:hover {
+    background: rgba(0, 122, 255, 0.1);
+    color: white;
+    border-color: var(--primary);
+}
+
+/* DATEI: html/style.css */
+
+/* Sicherstellen, dass alles in der Karte klickbar ist */
+.unit-card, .unit-card * {
+    pointer-events: auto !important;
+}
+
+/* Der Button zum Hinzufügen braucht ein deutliches Feedback */
+.btn-add-to-unit {
+    pointer-events: auto !important;
+    cursor: pointer !important;
+    z-index: 10;
+}
+
+/* DATEI: html/style.css */
+
+/* REINIGUNG DER OFFICER-LISTE IN DER KARTE */
+.unit-officer-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.9rem;
+    animation: slideInLeft 0.3s ease forwards; /* Sanftes Einfliegen */
+}
+
+.unit-officer-row:last-child { border-bottom: none; }
+
+.remove-off-icon {
+    color: #ff4d4d;
+    cursor: pointer;
+    font-size: 0.8rem;
+    opacity: 0.5;
+    transition: opacity 0.2s, transform 0.2s;
+}
+.remove-off-icon:hover { opacity: 1; transform: scale(1.2); }
+
+/* DER GELBE "+" BUTTON */
+.btn-add-minimal {
+    width: 2rem;
+    height: 2rem;
+    background: #ffcc00; /* Knallgelb */
+    color: #000;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(255, 204, 0, 0.3);
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.btn-add-minimal:hover { transform: scale(1.15) rotate(90deg); box-shadow: 0 0 15px rgba(255, 204, 0, 0.6); }
+
+/* STANDORT ANZEIGE */
+.unit-location {
+    font-size: 0.75rem;
+    color: var(--accent);
+    margin-top: 0.8rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(0, 209, 255, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+
+
+/* CLEAN DROPDOWN STYLING */
+select {
+    appearance: none;
+    background: rgba(10, 20, 30, 0.9) !important;
+    border: 1px solid var(--primary) !important;
+    cursor: pointer;
+}
+
+/* DATEI: html/style.css */
+
+.premium-select {
+    width: 100%;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 204, 0, 0.3) !important;
+    border-radius: 0.8rem;
+    color: white !important;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.premium-select:focus {
+    border-color: #ffcc00 !important;
+    box-shadow: 0 0 15px rgba(255, 204, 0, 0.2);
+}
+
+.premium-select option {
+    background: #0a141e;
+    color: white;
+    padding: 1rem;
+}
+
+/* DATEI: html/style.css */
+
+.units-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    height: calc(100% - 15rem); /* Platz für Pool lassen */
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+.unit-cards-container {
+    display: grid;
+    /* Dies erzwingt, dass Karten nebeneinander stehen, sofern Platz ist */
+    grid-template-columns: repeat(auto-fill, minmax(22rem, 1fr)); 
+    gap: 1.5rem;
+    width: 100%;
+}
+
+.unit-card {
+    background: rgba(15, 25, 35, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+    min-height: 15rem;
+}
+
+.unit-card:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+}
+
+/* DATEI: html/style.css */
+
+/* Animation entfernt - Clean & Fast */
+.unit-officer-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0.8rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 0.4rem;
+    margin-bottom: 0.3rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.85rem;
+}
+
+/* Dynamische Farben für Streifen-Kategorien */
+.unit-card[data-cat="Airship"] { border-left: 4px solid #00d1ff; }
+.unit-card[data-cat="SWAT"] { border-left: 4px solid #ff4d4d; }
+.unit-card[data-cat="Streife"] { border-left: 4px solid #44ff44; }
+
+
+
+/* DATEI: html/style.css */
+
+
+
+/* CODE FARBEN */
+.select-code-1 { border-left: 3px solid #44ff44 !important; color: #44ff44 !important; }
+.select-code-2 { border-left: 3px solid #ffcc00 !important; color: #ffcc00 !important; }
+.select-code-3 { border-left: 3px solid #ff4d4d !important; color: #ff4d4d !important; }
+
+/* ICONS & BUTTONS */
+.edit-unit-icon {
+    color: white !important; /* Von schwarz auf weiß */
+    opacity: 0.5;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+.edit-unit-icon:hover { opacity: 1; color: var(--primary) !important; }
+
+.btn-add-minimal-inline {
+    width: 1.4rem;
+    height: 1.4rem;
+    background: rgba(255, 204, 0, 0.2);
+    border: 1px solid #ffcc00;
+    color: #ffcc00;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.6rem;
+    cursor: pointer;
+    margin: 0.8rem auto 0 auto; /* Dezent unter der Liste */
+    transition: all 0.2s;
+}
+.btn-add-minimal-inline:hover { background: #ffcc00; color: #000; transform: scale(1.1); }
+
+
+
+/* Dezentere "+" Positionierung */
+.btn-add-minimal-inline {
+    margin: 0.5rem auto 0 auto;
+    width: 1.5rem;
+    height: 1.5rem;
+    background: rgba(255, 204, 0, 0.15);
+    color: #ffcc00;
+    border: 1px solid rgba(255, 204, 0, 0.3);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 0.7rem;
+    transition: all 0.2s;
+}
+
+.btn-add-minimal-inline:hover {
+    background: #ffcc00;
+    color: #000;
+}
+
+/* DATEI: html/style.css */
+
+
+/* KOMPAKTER HEADER BUTTON (+) */
+.btn-add-minimal-header {
+    width: 1.6rem;
+    height: 1.6rem;
+    background: rgba(255, 204, 0, 0.1);
+    border: 1px solid #ffcc00;
+    color: #ffcc00;
+    border-radius: 0.4rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-add-minimal-header:hover {
+    background: #ffcc00;
+    color: #000;
+    transform: scale(1.05);
+}
+
+/* UNIT LOCATION REFINEMENT */
+.unit-location {
+    font-size: 0.7rem;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 0.6rem;
+    background: rgba(0, 209, 255, 0.05);
+    padding: 0.3rem 0.6rem;
+    border-radius: 0.3rem;
+    border-left: 2px solid var(--accent);
+}
+
+/* DATEI: html/style.css */
+
+/* CODE FARBEN IM DROPDOWN */
+.select-code-code1 { border-left: 3px solid #44ff44 !important; color: #44ff44 !important; }
+.select-code-code2 { border-left: 3px solid #ffcc00 !important; color: #ffcc00 !important; }
+.select-code-code3 { border-left: 3px solid #ff4d4d !important; color: #ff4d4d !important; }
+.select-code-code4 { border-left: 3px solid #00d1ff !important; color: #00d1ff !important; }
+
+/* HEADER "+" BUTTON POSITIONIERUNG */
+.btn-add-minimal-header {
+    width: 1.8rem;
+    height: 1.8rem;
+    background: rgba(255, 204, 0, 0.15);
+    border: 1px solid #ffcc00;
+    color: #ffcc00;
+    border-radius: 0.4rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-add-minimal-header:hover {
+    background: #ffcc00;
+    color: black;
+    box-shadow: 0 0 10px rgba(255, 204, 0, 0.3);
+}
+
+/* DATEI: html/style.css */
+/* KLASSE: Premium UI Elements */
+
+/* 1. DIE CLEANEN DROPDOWNS */
+.inline-select {
+    appearance: none;
+    background: rgba(255, 255, 255, 0.03) url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>') no-repeat right 0.8rem center !important;
+    background-size: 0.7rem !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 0.4rem;
+    color: white !important;
+    font-size: 0.7rem;
+    padding: 0.3rem 1.8rem 0.3rem 0.6rem;
+    cursor: pointer;
+    font-weight: 800;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+}
+
+.inline-select:hover {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    border-color: var(--primary) !important;
+}
+
+/* 2. OFFICER ROWS (JUICY LIST) */
+.unit-officer-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0.8rem;
+    background: rgba(0, 122, 255, 0.05); /* Leichter Blau-Schimmer */
+    border: 1px solid rgba(0, 122, 255, 0.1);
+    border-radius: 0.5rem;
+    margin-bottom: 0.4rem;
+    color: white;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+}
+
+/* Minimales Aufleuchten statt starker Animation */
+.unit-officer-row:hover {
+    background: rgba(0, 122, 255, 0.12);
+    border-color: var(--primary);
+    box-shadow: 0 0 10px rgba(0, 122, 255, 0.2);
+}
+
+.unit-officer-row i.fa-user-shield {
+    color: var(--accent);
+    margin-right: 0.6rem;
+    font-size: 0.8rem;
+    filter: drop-shadow(0 0 5px var(--accent));
+}
+
+/* 3. COMPACT FOOTER (VEHICLE + LOCATION) */
+.unit-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.footer-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.footer-item i {
+    color: var(--accent);
+    font-size: 0.75rem;
 }
