@@ -487,12 +487,6 @@ html, body {
     animation: cardAppear 0.4s ease-out;
 }
 
-.officer-card:hover {
-    background: rgba(255, 255, 255, 0.07);
-    transform: translateY(-0.3rem);
-    border-color: var(--primary);
-}
-
 .modal-overlay {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -1442,11 +1436,6 @@ select {
     min-height: 15rem;
 }
 
-.unit-card:hover {
-    border-color: var(--primary);
-    transform: translateY(-2px);
-}
-
 /* DATEI: html/style.css */
 
 /* Animation entfernt - Clean & Fast */
@@ -1601,21 +1590,7 @@ select {
 /* DATEI: html/style.css */
 /* KLASSE: Premium UI Elements */
 
-/* 1. DIE CLEANEN DROPDOWNS */
-.inline-select {
-    appearance: none;
-    background: rgba(255, 255, 255, 0.03) url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>') no-repeat right 0.8rem center !important;
-    background-size: 0.7rem !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    border-radius: 0.4rem;
-    color: white !important;
-    font-size: 0.7rem;
-    padding: 0.3rem 1.8rem 0.3rem 0.6rem;
-    cursor: pointer;
-    font-weight: 800;
-    text-transform: uppercase;
-    transition: all 0.2s ease;
-}
+
 
 .inline-select:hover {
     background-color: rgba(255, 255, 255, 0.08) !important;
@@ -1676,4 +1651,813 @@ select {
 .footer-item i {
     color: var(--accent);
     font-size: 0.75rem;
+}
+
+/* NUI LABS PREMIUM DROPDOWN */
+.inline-select {
+    appearance: none;
+    -webkit-appearance: none;
+    background: rgba(15, 25, 35, 0.8) url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="%2300d1ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>') no-repeat right 0.8rem center !important;
+    background-size: 0.8rem !important;
+    border: 1px solid rgba(0, 209, 255, 0.2) !important;
+    border-radius: 0.5rem;
+    color: #ffffff !important;
+    font-size: 0.75rem;
+    padding: 0.4rem 2rem 0.4rem 0.8rem;
+    cursor: pointer;
+    font-weight: 700;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.inline-select:hover {
+    border-color: var(--primary) !important;
+    background-color: rgba(20, 35, 50, 0.9) !important;
+    box-shadow: 0 0 10px rgba(0, 122, 255, 0.1);
+}
+
+/* Styling für die aufklappende Liste (Browser-abhängig, aber stabilisiert den Look) */
+.inline-select option {
+    background-color: #0a141e;
+    color: white;
+    padding: 10px;
+    font-weight: 600;
+}
+
+/* Fahrzeug-Dropdown spezifisch im Footer */
+.unit-card-footer .inline-select {
+    background-position: right 0.4rem center !important;
+    padding-right: 1.5rem;
+}
+
+/* Sidebar Extra Info Styles */
+.sidebar-extra-info {
+    margin-top: 0.8rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.sidebar-extra-info .info-row {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sidebar-extra-info .info-row i {
+    color: var(--accent);
+    width: 0.8rem;
+}
+
+.sidebar-code-badge {
+    background: rgba(0, 209, 255, 0.1);
+    color: var(--accent);
+    padding: 0.1rem 0.5rem;
+    border-radius: 0.3rem;
+    font-size: 0.65rem;
+}
+
+/* Map Blip for Vehicles */
+.vehicle-blip {
+    background: #e67e22 !important; /* Orange für Fahrzeuge zur besseren Unterscheidung */
+    border-color: #ffffff !important;
+}
+
+/* NUI LABS GPS BUTTON */
+.gps-btn {
+    background: rgba(0, 209, 255, 0.1) !important;
+    border-color: rgba(0, 209, 255, 0.4) !important;
+    color: #00d1ff !important;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.gps-btn:hover {
+    background: #00d1ff !important;
+    color: #000 !important;
+    box-shadow: 0 0 15px rgba(0, 209, 255, 0.5);
+    transform: scale(1.1) rotate(-15deg);
+}
+
+/* Sidebar Info Row Optimization */
+.sidebar-extra-info .info-row {
+    background: rgba(255, 255, 255, 0.02);
+    padding: 0.3rem 0.5rem;
+    border-radius: 0.3rem;
+    margin-top: 0.2rem;
+}
+
+/* NUI LABS MAP BLIPS */
+.custom-unit-blip {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.5));
+}
+
+.blip-icon-wrapper {
+    width: 2.2rem;
+    height: 2.2rem;
+    background: #005bb7; /* Klassisches LSPD Blau */
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+/* Fahrzeug-Icon bekommt eine andere Farbe für schnellere Erkennung */
+.vehicle-blip {
+    background: #060aeb !important; /* Premium Orange für Fahrzeuge */
+    border-radius: 0.5rem; /* Etwas eckiger für Fahrzeug-Look */
+}
+
+.blip-icon-wrapper i {
+    color: white;
+    font-size: 1rem;
+}
+
+/* NUI LABS PREMIUM TOOLTIP OVERRIDE */
+.leaflet-tooltip {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+.map-tooltip-custom {
+    background: rgba(10, 20, 30, 0.95);
+    border: 1px solid #00d1ff;
+    padding: 10px 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+    min-width: 120px;
+    backdrop-filter: blur(5px);
+    position: relative;
+    color: white;
+}
+
+/* Pfeil für das Tooltip */
+.map-tooltip-custom::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid #00d1ff;
+}
+
+.tooltip-header {
+    font-weight: 800;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    color: white;
+    margin-bottom: 4px;
+    border-bottom: 1px solid rgba(0, 209, 255, 0.3);
+    padding-bottom: 4px;
+}
+
+.tooltip-status {
+    color: #00d1ff;
+    font-weight: 700;
+    font-size: 0.75rem;
+}
+
+/* Einzelbeamter (nicht in Unit) bekommt einen dezenten grauen Rand */
+.individual-blip {
+    background: #2c3e50 !important;
+    border: 2px solid rgba(255, 255, 255, 0.4) !important;
+    transform: scale(0.85); /* Etwas kleiner als Unit-Marker */
+}
+
+/* Tooltip Fix (Kein weißer Rand) */
+.leaflet-tooltip-pane .nui-labs-tooltip, 
+.leaflet-tooltip {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* NUI LABS INDIVIDUAL OFFICER BLIP */
+.individual-blip {
+    background: #2c3e50 !important; /* Dunkles Anthrazit für Einzelbeamte */
+    border: 2px solid #00d1ff !important;
+    box-shadow: 0 0 10px rgba(0, 209, 255, 0.5);
+    transform: scale(0.9);
+}
+
+.individual-blip i {
+    color: #00d1ff !important;
+}
+
+/* Fix für Tooltips auf der Karte */
+.leaflet-tooltip-pane .nui-labs-tooltip {
+    background: transparent !important;
+    border: none !important;
+}
+
+.tooltip-members span {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.tooltip-members i {
+    color: var(--accent);
+    font-size: 0.6rem;
+}
+
+.tooltip-footer {
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-style: italic;
+}
+
+/* NUI LABS RANK TOOLTIP STYLES */
+.rank-tag-mini {
+    font-size: 0.65rem;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.1rem 0.4rem;
+    border-radius: 0.3rem;
+    margin-left: 0.5rem;
+    color: var(--accent);
+    vertical-align: middle;
+    font-weight: 400;
+}
+
+.rank-label-tooltip {
+    font-size: 0.6rem;
+    color: var(--accent);
+    opacity: 0.8;
+    margin-left: auto; /* Schiebt den Rang nach rechts */
+    padding-left: 1rem;
+    font-style: italic;
+}
+
+/* Anpassung für die Member-Rows, damit Rank rechts steht */
+.tooltip-members span {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+/* NUI LABS DELETE UNIT ICON */
+.delete-unit-icon {
+    font-size: 0.8rem;
+    margin-left: 0.5rem;
+    opacity: 0.3;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.delete-unit-icon:hover {
+    opacity: 1;
+    color: #ff4d4d; /* NUI LABS Danger Red */
+    transform: scale(1.2);
+    filter: drop-shadow(0 0 5px rgba(255, 77, 77, 0.5));
+}
+
+/* DIENSTANWEISUNG WIDGETS */
+.directives-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+}
+
+.directive-widget {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 1.5rem;
+}
+
+.hazard-container {
+    display: flex;
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.hazard-btn {
+    flex: 1;
+    padding: 1rem;
+    border-radius: 0.6rem;
+    text-align: center;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    opacity: 0.4;
+}
+
+.directive-card {
+    background: rgba(15, 30, 45, 0.6);
+    border-radius: 0.8rem;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    border-left: 4px solid var(--accent);
+    position: relative;
+}
+
+.dir-header { display: flex; justify-content: space-between; margin-bottom: 0.8rem; }
+.dir-title { font-weight: 800; font-size: 1.1rem; color: #fff; }
+.dir-author { font-size: 0.75rem; color: var(--accent); }
+.dir-content { font-size: 0.9rem; color: rgba(255,255,255,0.7); line-height: 1.4; }
+
+.delete-dir-btn {
+    position: absolute;
+    top: 1rem; right: 1rem;
+    color: #ff4d4d;
+    opacity: 0.3;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.delete-dir-btn:hover { opacity: 1; transform: scale(1.2); }
+
+/* NUI LABS HAZARD BUTTONS */
+.hazard-btn {
+    flex: 1;
+    padding: 1rem;
+    border-radius: 0.6rem;
+    text-align: center;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0.4;
+    color: #000 !important; /* Schwarze Schrift für besseren Kontrast auf hellen Farben */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hazard-btn.active {
+    opacity: 1;
+    box-shadow: 0 0 20px var(--glow-color);
+    border-color: #ffffff;
+    transform: translateY(-3px);
+}
+
+/* DIRECTIVE CARDS & ICONS */
+.directive-card {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 0.8rem;
+    padding: 1.5rem;
+    margin-bottom: 1.2rem;
+    border-left: 4px solid var(--accent);
+    transition: transform 0.2s ease;
+}
+
+.dir-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.dir-actions {
+    display: flex;
+    gap: 0.8rem;
+    color: white;
+}
+
+.dir-icon {
+    font-size: 0.9rem;
+    opacity: 0.4;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.dir-icon.edit:hover { opacity: 1; color: var(--accent); }
+.dir-icon.delete:hover { opacity: 1; color: #ff4d4d; }
+
+.dir-timestamp {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    letter-spacing: 0.05rem;
+    margin-top: 0.5rem;
+}
+
+.hazard-btn {
+    flex: 1;
+    padding: 1.2rem;
+    border-radius: 0.8rem;
+    text-align: center;
+    font-weight: 900;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    cursor: pointer;
+    border: 2px solid rgba(255,255,255,0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0.25; /* Deutlich blasser im inaktiven Zustand */
+    color: #000 !important;
+}
+
+.hazard-btn.active {
+    opacity: 1 !important;
+    border-color: #ffffff !important;
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px var(--glow-color) !important;
+    filter: brightness(1.2);
+}
+
+.hazard-info-text {
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    color: var(--accent);
+    font-style: italic;
+    text-align: center;
+}
+
+/* NUI LABS HAZARD BUTTONS - CLEAN WHITE VERSION */
+.hazard-btn {
+    flex: 1;
+    padding: 1.2rem;
+    border-radius: 0.8rem;
+    text-align: center;
+    font-weight: 900;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    cursor: pointer;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    opacity: 0.3;
+    color: #ffffff !important; /* SCHRIFT JETZT WEISS */
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hazard-btn:hover {
+    opacity: 0.6;
+    transform: translateY(-2px);
+}
+
+.hazard-btn.active {
+    opacity: 1 !important;
+    border-color: #ffffff !important;
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 10px 30px var(--glow-color) !important;
+    filter: brightness(1.1);
+}
+
+.hazard-btn span {
+    pointer-events: none; /* Verhindert Klick-Fehler auf dem Text */
+}
+
+/* NUI LABS PREMIUM HAZARD HIGHLIGHT */
+.hazard-btn.active {
+    opacity: 1 !important;
+    border: 2px solid #ffffff !important;
+    transform: translateY(-5px) scale(1.03);
+    box-shadow: 0 12px 35px var(--glow-color) !important;
+    filter: brightness(1.1);
+    z-index: 2;
+}
+
+/* Dezentere inaktive Buttons für mehr Fokus auf das Aktive */
+.hazard-btn:not(.active) {
+    opacity: 0.2;
+    filter: grayscale(0.5);
+}
+
+.hazard-btn:not(.active):hover {
+    opacity: 0.5;
+    filter: grayscale(0);
+}
+
+.dir-timestamp {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    margin-top: 1rem;
+    display: block;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    padding-top: 0.5rem;
+}
+
+.widget-title {
+    color: white;
+    font-weight: 800;
+}
+
+/* NUI LABS | Layout-Stabilität */
+.main-content {
+    flex: 1;
+    min-width: 0; /* Verhindert das Wegschieben der Sidebar */
+    position: relative;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.directive-card .dir-content {
+    word-break: break-word; /* Erzwingt Umbruch bei überlangen Wörtern */
+    overflow-wrap: break-word;
+    white-space: pre-wrap; /* Behält Zeilenumbrüche bei */
+}
+
+/* Tool-Bar für den Text-Editor */
+.editor-toolbar {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.8rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: none;
+    border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.editor-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    width: 2.2rem;
+    height: 2.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.3rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.editor-btn:hover {
+    background: var(--primary);
+    transform: scale(1.1);
+}
+
+/* Das editierbare Feld */
+#dir-editor {
+    width: 100%;
+    height: 15rem;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0 0 0.5rem 0.5rem;
+    color: white;
+    padding: 1rem;
+    overflow-y: auto;
+    outline: none;
+}
+
+#dir-editor:focus {
+    border-color: var(--primary);
+}
+
+/* NUI LABS | Sidebar-Schutz Fix */
+.main-content {
+    flex: 1;
+    min-width: 0; /* ESSENZIELL: Verhindert Layout-Bruch */
+    overflow-y: auto;
+}
+
+.directive-card .dir-content {
+    word-break: break-word; 
+    white-space: pre-wrap;
+    color: rgba(255,255,255,0.8);
+}
+
+/* RICH-TEXT EDITOR STYLES */
+.editor-toolbar {
+    display: flex; gap: 0.4rem; padding: 0.6rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1); border-bottom: none;
+    border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.editor-btn {
+    background: rgba(255, 255, 255, 0.1); border: none; color: white;
+    width: 2rem; height: 2rem; border-radius: 0.3rem; cursor: pointer;
+}
+
+.editor-btn:hover { background: var(--primary); }
+
+#dir-editor {
+    width: 100%; min-height: 12rem; max-height: 25rem;
+    background: rgba(0, 0, 0, 0.3); padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0 0 0.5rem 0.5rem;
+    color: white; overflow-y: auto; outline: none;
+}
+
+/* NUI LABS | Layout-Stabilität Fix */
+.main-content {
+    flex: 1;
+    min-width: 0; /* ESSENZIELL: Verhindert das Wegschieben der Sidebar */
+    position: relative;
+    overflow-y: auto;
+}
+
+.directive-card .dir-content {
+    word-break: break-word; /* Erzwingt Umbruch bei langen Texten */
+    white-space: pre-wrap;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+/* Editor Styling */
+.editor-toolbar {
+    display: flex; gap: 0.5rem; padding: 0.8rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.5rem 0.5rem 0 0;
+}
+
+#dir-editor {
+    width: 100%; min-height: 12rem; max-height: 25rem;
+    background: rgba(0, 0, 0, 0.3); padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0 0 0.5rem 0.5rem; color: white;
+    overflow-y: auto; outline: none;
+}
+
+/* NUI LABS | Sidebar-Schutz & Text-Umbruch */
+.main-content {
+    flex: 1;
+    min-width: 0; /* ESSENZIELL: Verhindert das Wegschieben der Sidebar */
+    overflow-y: auto;
+    position: relative;
+}
+
+.directive-card .dir-content {
+    word-break: break-word; /* Erzwingt Umbruch bei langen Texten */
+    white-space: pre-wrap;  /* Behält Formatierung bei */
+}
+
+#dir-editor {
+    width: 100%; 
+    min-height: 12rem; 
+    max-height: 25rem;
+    background: rgba(0, 0, 0, 0.3); 
+    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0 0 0.5rem 0.5rem; 
+    color: white;
+    overflow-y: auto; 
+    outline: none;
+}
+
+/* NUI LABS | Icon & Action Styles */
+.dir-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.dir-actions i {
+    color: white !important; /* Erzwingt Weiß statt Schwarz */
+    font-size: 0.9rem;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: all 0.2s ease;
+}
+
+.dir-actions .fa-edit:hover {
+    color: var(--accent) !important;
+    opacity: 1;
+    transform: scale(1.2);
+}
+
+.dir-actions .fa-trash-alt:hover {
+    color: #ff4d4d !important;
+    opacity: 1;
+    transform: scale(1.2);
+}
+
+/* NUI LABS | Premium Deletion UI */
+.confirm-box {
+    width: 28rem !important;
+    text-align: center;
+    padding: 2.5rem !important;
+    border: 1px solid rgba(255, 77, 77, 0.2) !important;
+}
+
+.confirm-icon {
+    font-size: 3.5rem;
+    color: #ff4d4d;
+    margin-bottom: 1.5rem;
+    filter: drop-shadow(0 0 10px rgba(255, 77, 77, 0.3));
+}
+
+.confirm-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.btn-confirm {
+    flex: 1;
+    padding: 1rem;
+    border-radius: 0.6rem;
+    border: none;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-confirm.danger { background: #ff4d4d; color: white; }
+.btn-confirm.danger:hover { background: #ff3333; transform: scale(1.02); }
+
+.btn-confirm.cancel { background: rgba(255, 255, 255, 0.05); color: white; }
+.btn-confirm.cancel:hover { background: rgba(255, 255, 255, 0.1); }
+
+/* Icons in den Karten (Fix für Schwarz-Problem) */
+.dir-actions i {
+    color: #ffffff !important; /* Zwingt Weiß */
+    opacity: 0.4;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: 0.2s;
+    margin-left: 0.8rem;
+}
+
+.dir-actions i:hover {
+    opacity: 1;
+    transform: scale(1.15);
+}
+
+.dir-actions .fa-edit:hover { color: var(--accent) !important; }
+.dir-actions .fa-trash-alt:hover { color: #ff4d4d !important; }
+
+/* NUI LABS | Scrollbar Cleanup */
+.main-content {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden !important; /* Äußeres Scrollen deaktivieren */
+    display: flex;
+    flex-direction: column;
+}
+
+.page-content {
+    height: 100%;
+    display: none;
+    flex-direction: column;
+    padding: 2rem;
+}
+
+.page-content.active {
+    display: flex;
+}
+
+/* Nur dieser Container darf scrollen */
+.directives-container {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+/* Premium Scrollbar Styling */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 10px;
+}
+
+/* NUI LABS | Modal Text Color Fix */
+.modal-body, 
+.modal-body label, 
+.modal-body input, 
+.modal-body select, 
+.modal-body textarea,
+#dir-editor {
+    color: #ffffff !important;
+}
+
+/* Ensure placeholder text is also readable */
+.modal-body input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+/* NUI LABS | Ultimate White Text Fix for ALL Modals */
+.modal-overlay h3, 
+.modal-overlay p, 
+.modal-overlay span, 
+.modal-overlay label,
+.confirm-box h3,
+.confirm-box p {
+    color: #ffffff !important;
+    opacity: 1 !important;
+}
+
+/* Fix for the confirm message specifically */
+#confirm-message {
+    color: rgba(255, 255, 255, 0.7) !important;
+    margin-bottom: 2rem;
+    display: block;
 }

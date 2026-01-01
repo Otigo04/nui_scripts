@@ -2,6 +2,18 @@ local uiOpen = false
 local QBCore = exports['qb-core']:GetCoreObject()
 local uiOpen = false
 
+-- Master Data Callback - REGISTER EARLY to prevent NUI Fetch Errors
+RegisterNUICallback('getDispatchData', function(data, cb)    
+    if QBCore and QBCore.Functions then
+        QBCore.Functions.TriggerCallback('nui_police:server:getDispatchData', function(res)
+            -- Always return a valid object to prevent JS from crashing
+            cb(res or { officers = {}, units = {}, config = {} })
+        end)
+    else
+        cb({ officers = {}, units = {}, config = {} })
+    end
+end)
+
 -- Function to toggle NUI visibility
 local function toggleUI(status)
     uiOpen = status
@@ -39,8 +51,6 @@ RegisterNetEvent('nui_police:client:syncUnits', function(units)
         units = units
     })
 end)
-
-
 
 -- Thread to hide NUI when Pause Menu (Esc) is opened
 CreateThread(function()
@@ -165,19 +175,74 @@ RegisterNUICallback('getStreetName', function(data, cb)
     cb(GetStreetNameFromHashKey(streetHash))
 end)
 
--- DATEI: client.lua
+-- Periodic location refresh callback
 RegisterNUICallback('refreshLocations', function(data, cb)
     TriggerServerEvent('nui_police:server:updateAllUnitLocations')
     cb('ok')
 end)
 
--- DATEI: client.lua
 
+-- Callback to get Config data for NUI
+RegisterNUICallback('getDispatchConfig', function(data, cb)
+    cb({
+        vehicles = Config.Vehicles,
+        statusCodes = Config.StatusCodes
+    })
+end)
+
+-- Ganz oben in der Datei nach QBCore Initialisierung:
+
+
+-- Updated: Request location and vehicle status
 RegisterNetEvent('nui_police:client:requestStreetUpdate', function(unitId)
-    local coords = GetEntityCoords(PlayerPedId())
+    local ped = PlayerPedId()
+    local coords = GetEntityCoords(ped)
+    local vehicle = GetVehiclePedIsIn(ped, false)
+    local inVehicle = (vehicle ~= 0)
+    
     local s1, s2 = GetStreetNameAtCoord(coords.x, coords.y, coords.z)
     local street = GetStreetNameFromHashKey(s1)
     if s2 ~= 0 then street = street .. " / " .. GetStreetNameFromHashKey(s2) end
     
-    TriggerServerEvent('nui_police:server:receiveStreetName', unitId, street)
+    -- Wir senden Coords, Straßennamen UND Fahrzeugstatus
+    TriggerServerEvent('nui_police:server:receiveStreetName', unitId, street, coords, inVehicle)
+end)
+
+-- NUI LABS | Directives Bridge
+RegisterNUICallback('getDirectivesData', function(data, cb)
+    QBCore.Functions.TriggerCallback('nui_police:server:getDirectivesData', function(res)
+        -- Wir stellen sicher, dass IMMER ein valides JSON-Objekt zurückkommt
+        cb(res or { directives = {}, hazardLevel = 1, canManage = false })
+    end)
+end)
+
+RegisterNUICallback('updateHazard', function(data, cb)
+    TriggerServerEvent('nui_police:server:updateHazard', data.level)
+    cb('ok')
+end)
+
+RegisterNUICallback('saveDirective', function(data, cb)
+    TriggerServerEvent('nui_police:server:saveDirective', data)
+    cb('ok')
+end)
+
+RegisterNUICallback('deleteDirective', function(data, cb)
+    TriggerServerEvent('nui_police:server:deleteDirective', data.id)
+    cb('ok')
+end)
+
+-- Event to force UI refresh for directives
+-- NUI LABS | Bridge Server-Sync to UI
+RegisterNetEvent('nui_police:client:refreshDirectives', function()
+    SendNUIMessage({
+        action = "refreshDirectives"
+    })
+end)
+
+-- NUI LABS | Missing Edit Bridge
+RegisterNUICallback('updateDirective', function(data, cb)
+    if data and data.id then
+        TriggerServerEvent('nui_police:server:updateDirective', data)
+    end
+    cb('ok')
 end)

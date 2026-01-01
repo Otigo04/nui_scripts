@@ -13,7 +13,7 @@
         <main class="dispatch-wrapper">
             
             <aside class="sidebar">
-                <div class="brand">NUI <span class="accent">POLICE V0.15</span></div>
+                <div class="brand">NUI <span class="accent">POLICE V0.27</span></div>
                 <nav class="menu-sections custom-scrollbar">
                     <div class="nav-group">
                         <div class="category">Leitstelle</div>
@@ -27,6 +27,7 @@
                     <div class="nav-group">
                         <div class="category">Verzeichnisse</div>
                         <ul>
+                            <li class="nav-item" data-page="person-page"><i class="fas fa-person"></i> Personen-Register</li>
                             <li class="nav-item" data-page="vehicle-page"><i class="fas fa-car"></i> KFZ-Register</li>
                             <li class="nav-item" data-page="jail-page"><i class="fas fa-clock"></i> Haftzeiten</li>
                             <li class="nav-item" data-page="warrants-page"><i class="fas fa-file-invoice"></i> Haftbefehle</li>
@@ -71,30 +72,37 @@
                     <div class="map-overlay-top">E-Karte</div>
                 </div>
                 
-                <div id="officers-page" class="page-content">
+                <div id="orders-page" class="page-content">
                     <div class="page-header">
-                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                            <div>
-                                <div style="display: flex; align-items: baseline; gap: 1.5rem;">
-                                    <h2>Beamtenverwaltung</h2>
-                                    <span id="officer-count" class="officer-stat-tag">0 / 0 Aktiv</span>
-                                </div>
-                                <p>Personalmanagement und Dienstnummer-Zuweisung.</p>
-                            </div>
-                            <button class="btn-primary btn-hire-premium" onclick="openHireModal()">
-                                <i class="fas fa-user-plus"></i> Beamten einstellen
-                            </button>
+                        <div>
+                            <h2>Dienstanweisungen</h2>
+                            <p>Interne Protokolle und aktuelle Sicherheitslage.</p>
+                        </div>
+                        <button id="add-directive-btn" class="btn-primary btn-hire-premium" style="display:none;" onclick="openDirectiveModal()">
+                            <i class="fas fa-feather-alt"></i> Neue Anweisung
+                        </button>
+                    </div>
+
+                    <div class="directive-widget hazard-widget">
+                        <div class="widget-title">Aktuelle Gefahrenstufe</div>
+                        <div id="hazard-selector" class="hazard-container"></div>
+                        <div id="hazard-description" class="hazard-info-text">Wähle eine Stufe aus...</div>
+                    </div>
+
+                    <div id="directives-list" class="directives-container custom-scrollbar" style="margin-top: 2rem;">
+                        </div>
+                </div>
+
+                <<div id="confirm-modal" class="modal-overlay" style="display: none; z-index: 5000;">
+                    <div class="modal-content confirm-box">
+                        <div class="confirm-icon"><i class="fas fa-trash-alt"></i></div>
+                        <h3>Eintrag löschen?</h3>
+                        <p id="confirm-message">Möchten Sie diese Dienstanweisung wirklich unwiderruflich entfernen?</p>
+                        <div class="confirm-actions">
+                            <button id="confirm-yes" class="btn-confirm danger">Ja, Löschen</button>
+                            <button id="confirm-no" class="btn-confirm cancel" onclick="closeConfirm()">Abbrechen</button>
                         </div>
                     </div>
-
-                    <div class="officer-table-legend">
-                        <div class="leg-col leg-name">Name / Beamter</div>
-                        <div class="leg-col leg-status">Status</div>
-                        <div class="leg-col leg-call">Dienstnummer</div>
-                        <div class="leg-col leg-actions">Aktionen</div>
-                    </div>
-
-                    <div id="officer-list" class="officer-grid custom-scrollbar"></div>
                 </div>
 
                 <div id="units-page" class="page-content">
@@ -121,6 +129,34 @@
                             </div>
                     </div>
                 </div>
+
+                <div id="officers-page" class="page-content">
+                    <div class="page-header">
+                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                            <div>
+                                <h2>Personalverwaltung</h2>
+                                <p>Übersicht aller Beamten und deren Dienststatus.</p>
+                            </div>
+                            <div class="officer-stat-tag">
+                                <i class="fas fa-users"></i> <span id="officer-count">0 / 0 Aktiv</span>
+                            </div>
+                            <button class="btn-primary btn-hire-premium" onclick="openHireModal()">
+                                <i class="fas fa-user-plus"></i> Beamten einstellen
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="officer-table-legend">
+                        <div class="leg-col leg-name">Name</div>
+                        <div class="leg-col leg-status">Status</div>
+                        <div class="leg-col leg-call">Callsign</div>
+                        <div class="leg-col leg-actions">Aktionen</div>
+                    </div>
+
+                    <div id="officer-list" class="officer-grid custom-scrollbar">
+                        </div>
+                </div>
+
                 <div id="person-notes-page" class="page-content">
                     <div class="page-header"><h2>Personen-Notizen</h2><p>Zentrale Datenbank für Akteneinträge.</p></div>
                 </div>
@@ -136,11 +172,23 @@
                 <div id="incidents-page" class="page-content">
                     <div class="page-header"><h2>Fallakten-Archiv</h2><p>Dokumentation von Straftaten.</p></div>
                 </div>
-                <div id="penal-page" class="page-content">
-                    <div class="page-header"><h2>Straftatenkatalog</h2><p>Gesetzestexte und Bußgelder.</p></div>
-                </div>
                 <div id="orders-page" class="page-content">
-                    <div class="page-header"><h2>Dienstanweisungen</h2><p>Interne Protokolle der Führungsebene.</p></div>
+                    <div class="page-header">
+                        <div>
+                            <h2>Dienstanweisungen</h2>
+                            <p>Interne Protokolle der Führungsebene.</p>
+                        </div>
+                        <button id="add-directive-btn" class="btn-primary" onclick="openDirectiveModal()">
+                            <i class="fas fa-plus"></i> Neue Anweisung
+                        </button>
+                    </div>
+
+                    <div class="hazard-widget-premium">
+                        <div class="widget-title">Gefahrenstufe</div>
+                        <div id="hazard-selector" class="hazard-grid"></div>
+                    </div>
+
+                    <div id="directives-list" class="directives-container custom-scrollbar"></div>
                 </div>
                 <div id="training-page" class="page-content">
                     <div class="page-header"><h2>Ausbildungs-Status</h2><p>Zertifizierungen für Sondereinheiten.</p></div>
@@ -272,6 +320,35 @@
                     </select>
                 </div>
                 <button id="unit-modal-submit" class="btn-primary btn-hire-premium" onclick="submitNewUnit()">Erstellen</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="directive-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="width: 40rem;">
+            <div class="modal-header">
+                <h3>Neue Dienstanweisung</h3>
+                <i class="fas fa-times close-modal" onclick="closeDirectiveModal()"></i>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label>Titel der Anweisung</label>
+                    <input type="text" id="dir-title" placeholder="Betreff..." oninput="autoSaveDraft()">
+                </div>
+                
+                <label style="display: block; color: var(--text-muted); margin-bottom: 0.5rem;">Inhalt</label>
+                <div class="editor-toolbar">
+                    <button class="editor-btn" onclick="formatDoc('bold')" title="Fett"><i class="fas fa-bold"></i></button>
+                    <button class="editor-btn" onclick="formatDoc('italic')" title="Kursiv"><i class="fas fa-italic"></i></button>
+                    <button class="editor-btn" onclick="formatDoc('underline')" title="Unterstrichen"><i class="fas fa-underline"></i></button>
+                    <button class="editor-btn" onclick="formatDoc('insertUnorderedList')" title="Liste"><i class="fas fa-list-ul"></i></button>
+                    <button class="editor-btn" onclick="formatDoc('removeFormat')" title="Formatierung löschen"><i class="fas fa-eraser"></i></button>
+                </div>
+                <div id="dir-editor" contenteditable="true" oninput="autoSaveDraft()"></div>
+
+                <button class="btn-primary btn-hire-premium" id="directive-submit-btn" style="width:100%; margin-top: 1.5rem;" onclick="submitDirective()">
+                    Veröffentlichen
+                </button>                 
             </div>
         </div>
     </div>

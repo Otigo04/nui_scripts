@@ -7,6 +7,12 @@ const center_x = 117.3;
 const center_y = 172.8;
 const scale_x = 0.02072;
 const scale_y = 0.0205;
+let currentLevel = null;
+
+window.allDirectives = [];
+
+// Global Storage for Config
+let dispatchConfig = { vehicles: [], statusCodes: [] };
 
 
 
@@ -49,36 +55,29 @@ function initMap() {
 // DATEI: html/script.js
 // KLASSE: Navigation Logic
 
+// NUI LABS | Unified Navigation Logic
+// NUI LABS | Unified Navigation Logic
 document.querySelectorAll('.nav-item').forEach(item => {
     item.addEventListener('click', () => {
-        const target = item.getAttribute('data-page');
+        const pageId = item.getAttribute('data-page');
         
-        // 1. Alle Nav-Buttons zurücksetzen und den geklickten aktivieren
         document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
         item.classList.add('active');
-        
-        // 2. Alle Inhalts-Seiten verstecken
         document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
         
-        // 3. Die Zielseite anhand der ID finden
-        const activePage = document.getElementById(target);
-        
-        // 4. Wenn die Seite existiert, anzeigen und Daten laden
+        const activePage = document.getElementById(pageId);
         if (activePage) {
             activePage.classList.add('active');
-            console.log("NUI LABS | Tab switch to: " + target); 
             
-            // Logik je nach gewählter Seite
-            if (target === 'officers-page') {
+            // Kontext-abhängiges Laden der Daten
+            if (pageId === 'units-page') {
+                loadUnitsTab(); // Die Funktion steht in Zeile 670 deiner Datei!
+            } else if (pageId === 'orders-page') {
+                loadDirectives(); // Lädt die Dienstanweisungen#
+            } else if (pageId === 'map-page' && map) {
+                setTimeout(() => { map.invalidateSize(); }, 200);
+            } else if (pageId === 'officers-page') {
                 loadOfficersPage();
-            } else if (target === 'units-page') {
-                // Lädt die Streifen-Übersicht und den Officer-Pool
-                loadUnitsTab();
-                // Aktualisiert die rechte Sidebar-Liste
-                renderUnitList(); 
-            } else if (target === 'map-page' && map) {
-                // Karte neu berechnen, falls sich die Container-Größe geändert hat
-                setTimeout(() => { map.invalidateSize(); }, 100);
             }
         }
     });
@@ -87,14 +86,17 @@ document.querySelectorAll('.nav-item').forEach(item => {
 
 // NUIPolice/html/script.js UPDATE
 
+// Korrektur der Officers-Page: Nutzt jetzt den Master-Fetch
 function loadOfficersPage() {
-    fetch(`https://${GetParentResourceName()}/getOfficers`, {
+    fetch(`https://${GetParentResourceName()}/getDispatchData`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json; charset=UTF-8' },
         body: JSON.stringify({})
     })
     .then(res => res.json())
-    .then(officers => {
+    .then(data => {
+        if (!data || !data.officers) return;
+        
         const list = document.getElementById('officer-list');
         const countTag = document.getElementById('officer-count');
         if (!list) return;
@@ -102,10 +104,11 @@ function loadOfficersPage() {
         list.innerHTML = ''; 
         let activeCount = 0;
 
-        officers.sort((a, b) => b.rank - a.rank);
+        // Sortierung nach Rang (Absteigend)
+        data.officers.sort((a, b) => b.rank - a.rank);
 
-        officers.forEach(off => {
-            if (off.onduty) activeCount++; // Zählt aktive Beamte
+        data.officers.forEach(off => {
+            if (off.onduty) activeCount++;
 
             const row = document.createElement('div');
             row.className = 'officer-row';
@@ -130,71 +133,128 @@ function loadOfficersPage() {
             list.appendChild(row);
         });
 
-        // Update der x/x Anzeige
         if (countTag) {
-            countTag.innerText = `${activeCount} / ${officers.length} Aktiv`;
+            countTag.innerText = `${activeCount} / ${data.officers.length} Aktiv`;
         }
-    });
+    }).catch(err => console.error("NUI LABS | Officers Load Error:", err));
 }
 
-// 2. UNIT UPDATES (MAP & SIDEBAR)
-function updateUnitMarkers(units) {
-    if (!map) return;
-    const currentUnitIds = units.map(u => u.source.toString());
+// NUI LABS | Global Officer & Unit Tracking
+// NUI LABS | Smart Unit & Officer Tracking Logic
+// NUI LABS | Refined Smart Map Tracking
+function updateUnitMarkers(units, officers) {
+    if (!map || !officers) return;
 
-    units.forEach(unit => {
-        const unitId = unit.source.toString();
-        const pos = [unit.coords.y, unit.coords.x];
+    const activeMarkerIds = new Set();
+    const processedUnits = new Set();
 
-        // Beamter mit Hut Icon (Clean Look)
-        const policeIcon = L.divIcon({
-            className: 'custom-unit-blip',
-            html: `<div class="blip-icon-wrapper"><i class="fas fa-user-tie"></i></div>`,
-            iconSize: [30, 30],
-            iconAnchor: [15, 15]
-        });
+    officers.forEach(off => {
+        if (!off.onduty || !off.coords) return;
 
-        const tooltipHTML = `
-            <div style="text-align: center;">
-                <span style="color: var(--primary); font-weight: 800;">${unit.callsign}</span><br>
-                <strong>${unit.name}</strong><br>
-                <small style="opacity: 0.7;">${unit.grade}</small>
-            </div>
-        `;
-
-        if (unitMarkers[unitId]) {
-            unitMarkers[unitId].setLatLng(pos);
-            unitMarkers[unitId].setTooltipContent(tooltipHTML);
+        // Finde die zugehörige Streife
+        const unit = Object.values(units).find(u => u.officers && u.officers.includes(off.citizenid));
+        
+        if (unit && off.inVehicle) {
+            // FALL: In Streife UND im Fahrzeug -> Ein Marker für die ganze Streife
+            if (!processedUnits.has(unit.id)) {
+                processedUnits.add(unit.id);
+                const markerId = `unit_${unit.id}`;
+                activeMarkerIds.add(markerId);
+                
+                const partners = officers.filter(o => unit.officers.includes(o.citizenid));
+                // Zeigt im Tooltip den Streifencode und alle Partner
+                renderSmartMarker(markerId, off.coords, unit.name, unit.code, partners, true, unit.location);
+            }
         } else {
-            unitMarkers[unitId] = L.marker(pos, { icon: policeIcon, zIndexOffset: 1000 })
-                .addTo(map)
-                .bindTooltip(tooltipHTML, { permanent: false, direction: 'top', className: 'map-tooltip', offset: [0, -10] });
+            // FALL: Zu Fuß ODER Einzeldienst
+            const markerId = `off_${off.citizenid}`;
+            activeMarkerIds.add(markerId);
+            
+            // Logik für den Status-Text: Zeigt Name + zugeordnete Streife
+            const statusText = unit ? `Zugeordnet: ${unit.name}` : "Einzeldienst";
+            renderSmartMarker(markerId, off.coords, off.name, statusText, [off], false, off.location);
         }
     });
 
-    for (let id in unitMarkers) {
-        if (!currentUnitIds.includes(id)) {
+    // Marker-Cleanup
+    Object.keys(unitMarkers).forEach(id => {
+        if (!activeMarkerIds.has(id)) {
             map.removeLayer(unitMarkers[id]);
             delete unitMarkers[id];
         }
+    });
+}
+
+// NUI LABS | Enhanced Marker Rendering
+// NUI LABS | Enhanced Marker Rendering with Ranks
+function renderSmartMarker(id, coords, title, status, memberList, inVehicle, location) {
+    const pos = [coords.y, coords.x];
+    
+    // Determine icon style based on status
+    const iconHtml = inVehicle 
+        ? `<div class="blip-icon-wrapper vehicle-blip"><i class="fas fa-car-side"></i></div>`
+        : `<div class="blip-icon-wrapper ${memberList.length === 1 && status === "Einzeldienst" ? 'individual-blip' : ''}"><i class="fas fa-user-shield"></i></div>`;
+
+    const customIcon = L.divIcon({
+        className: 'custom-unit-blip',
+        html: iconHtml,
+        iconSize: [38, 38],
+        iconAnchor: [19, 19]
+    });
+
+    // 1. DYNAMIC HEADER: Show rank if it's a single person
+    let displayTitle = title;
+    if (!inVehicle && memberList.length === 1) {
+        displayTitle = `${title} <span class="rank-tag-mini">${memberList[0].rankName}</span>`;
+    }
+
+    // 2. MEMBER LIST: Show rank for every person in the unit
+    let memberHtml = "";
+    if (memberList && memberList.length > 0) {
+        memberHtml = `<div class="tooltip-members">
+            ${memberList.map(m => `
+                <span>
+                    <i class="fas fa-id-badge"></i> 
+                    ${m.callsign} | ${m.name} 
+                    <small class="rank-label-tooltip">${m.rankName}</small>
+                </span>
+            `).join('')}
+        </div>`;
+    }
+
+    const tooltipHTML = `
+        <div class="map-tooltip-custom">
+            <div class="tooltip-header">${displayTitle}</div>
+            <div class="tooltip-status">${status}</div>
+            ${memberHtml}
+            <div class="tooltip-footer">
+                <i class="fas fa-map-marker-alt"></i> ${location || 'Auf Streife'}
+            </div>
+        </div>
+    `;
+
+    if (unitMarkers[id]) {
+        unitMarkers[id].setLatLng(pos);
+        unitMarkers[id].setIcon(customIcon);
+        unitMarkers[id].setTooltipContent(tooltipHTML);
+    } else {
+        unitMarkers[id] = L.marker(pos, { icon: customIcon, zIndexOffset: inVehicle ? 1000 : 500 })
+            .addTo(map)
+            .bindTooltip(tooltipHTML, { permanent: false, direction: 'top', offset: [0, -20] });
     }
 }
 
+// NUI LABS | Unified Sidebar Rendering
 function renderUnitList(units) {
-    const listElement = document.getElementById('unit-list');
-    if (!listElement) return;
-    listElement.innerHTML = '';
-    units.forEach(unit => {
-        const div = document.createElement('div');
-        div.className = 'unit-item';
-        div.innerHTML = `
-            <div class="unit-info">
-                <span class="callsign">${unit.callsign}</span>
-                <span class="name">${unit.name}</span>
-            </div>
-            <span class="badge">${unit.grade}</span>
-        `;
-        listElement.appendChild(div);
+    // Wir nutzen hier einfach unsere neue, detaillierte Funktion
+    // Da der Server-Sync (updateUnits) ein Array schickt, konvertieren wir es kurz
+    const unitsObj = Array.isArray(units) ? Object.assign({}, units) : units;
+    
+    // Wir holen uns die Officers via Master-Fetch oder nutzen das globale currentUnits
+    fetch(`https://${GetParentResourceName()}/getDispatchData`, { method: 'POST', body: '{}' })
+    .then(res => res.json())
+    .then(data => {
+        syncSidebarUnits(data.units, data.officers);
     });
 }
 
@@ -231,24 +291,42 @@ document.getElementById('save-officer').addEventListener('click', () => {
 // 5. NUI MESSAGE LISTENER
 window.addEventListener('message', function(event) {
     const data = event.data;
+
+    // In den Message-Listener einfügen:
+    if (data.action === "refreshDirectives") {
+        // Lädt die Liste neu, egal ob man gerade im Tab ist oder nicht
+        loadDirectives();
+    }
+    
     if (data.action === "updateUnitsList") {
-        // Wenn der Server neue Units schickt, laden wir die Seite neu
+        // Master-Daten neu laden
         loadUnitsTab();
+        // Icons auf der Karte aktualisieren
+        if (data.units) {
+            updateUnitMarkers(data.units);
+        }
     }
     if (data.action === "setVisible") {
         document.getElementById('app-container').style.display = data.status ? 'flex' : 'none';
         if (data.status) {
+            // Wir geben der UI 200ms Zeit zum Rendern, bevor wir die Map bewegen
             setTimeout(() => {
                 initMap();
+                loadUnitsTab(); // Lädt alle Master-Daten (Icons, Ränge etc.)
+                
+                // SMOOTH CENTERING FIX
                 if (data.coords) {
+                    // GTA Koordinaten (x,y) müssen für Leaflet zu [y, x] gedreht werden
                     const pos = [data.coords.y, data.coords.x];
-                    if (!playerBlip) {
-                        playerBlip = L.marker(pos, { icon: L.icon({ iconUrl: 'blips/1.png', iconSize: [24, 24] }) }).addTo(map);
-                    } else {
-                        playerBlip.setLatLng(pos);
-                    }
-                    map.panTo(pos);
+                    
+                    // setView zentriert die Karte mit Animation (1.5 Sekunden Dauer)
+                    // Die "4" ist das Zoom-Level – kannst du nach Wunsch anpassen (1-5)
+                    map.setView(pos, 3, {
+                        animate: true,
+                        pan: { duration: 1 }
+                    });
                 }
+                
                 map.invalidateSize();
             }, 200);
         }
@@ -464,24 +542,20 @@ function openUnitEdit(unitId) {
 
 // Location Update Loop (Alle 10 Sekunden)
 setInterval(() => {
-    if (document.getElementById('app-container').style.display !== 'none' && 
-        document.getElementById('units-page').classList.contains('active')) {
-        // Triggert die Standort-Abfrage auf dem Server
+    const isVisible = document.getElementById('app-container').style.display !== 'none';
+    const isMapActive = document.getElementById('map-page').classList.contains('active');
+    const isUnitsActive = document.getElementById('units-page').classList.contains('active');
+
+    // Wir aktualisieren nur, wenn das UI offen ist UND wir auf der Map oder im Streifen-Tab sind
+    if (isVisible && (isMapActive || isUnitsActive)) {
+        // Triggert die Standort-Abfrage auf dem Server für alle aktiven Einheiten
         fetch(`https://${GetParentResourceName()}/refreshLocations`, { method: 'POST', body: '{}' })
-        .then(() => loadUnitsTab());
+        .then(() => loadUnitsTab()); // Lädt danach alle Master-Daten (Icons, Ränge, Positionen)
     }
-}, 10000);
+}, 5000);
 
 // DATEI: html/script.js
 // KLASSE: Unit Management Core
-
-// Wir definieren die Fahrzeugliste global (sollte eigentlich aus Config kommen)
-const availableVehicles = [
-    { label: "Kein Fahrzeug", model: "none", plate: "N/A" },
-    { label: "Victoria Crown", model: "police", plate: "LSPD-01" },
-    { label: "Dodge Charger", model: "police2", plate: "LSPD-02" },
-    { label: "Ford Explorer", model: "police3", plate: "LSPD-03" }
-];
 
 // DATEI: html/script.js
 // KLASSE: Unit Management
@@ -505,10 +579,6 @@ window.renderUnitsPage = function(officers, units) {
         section.innerHTML = `<div class="unit-category-header">${cat}</div><div class="unit-cards-container"></div>`;
         const cardBox = section.querySelector('.unit-cards-container');
 
-        // 2. KORREKTUR: Innerhalb von window.renderUnitsPage -> unitsInCategory.forEach
-            // DATEI: html/script.js
-// FUNKTION: renderUnitsPage (Den gesamten Block in der Schleife ersetzen)
-
             unitsInCategory.forEach(unit => {
                 const card = document.createElement('div');
                 card.className = 'unit-card';
@@ -524,17 +594,22 @@ window.renderUnitsPage = function(officers, units) {
                     <div class="unit-card-header" style="align-items: center; display: flex; justify-content: space-between; gap: 0.8rem;">
                         <div style="display:flex; align-items:center; gap:0.5rem; flex-grow: 1;">
                             <strong style="color:white; font-size:0.9rem; white-space: nowrap; letter-spacing: 0.05rem;">${unit.name}</strong>
-                            <i class="fas fa-pencil-alt edit-unit-icon" onclick="openUnitEdit('${unit.id}')"></i>
+                            <i class="fas fa-pencil-alt edit-unit-icon" onclick="openUnitEdit('${unit.id}')" title="Bearbeiten"></i>
+                            <i class="fas fa-trash-alt delete-unit-icon" onclick="deleteUnit('${unit.id}')" title="Streife auflösen"></i>
                         </div>
                         <div style="display:flex; align-items:center; gap:0.4rem;">
-                            <div class="btn-add-minimal-header" onclick="openAddOfficerModal('${unit.id}')">
+                            <div class="btn-add-minimal-header gps-btn" onclick="focusUnitOnMap('${unit.id}')" title="GPS Ortung">
+                                <i class="fas fa-location-arrow"></i>
+                            </div>
+                            <div class="btn-add-minimal-header" onclick="openAddOfficerModal('${unit.id}')" title="Beamten hinzufügen">
                                 <i class="fas fa-plus"></i>
                             </div>
-                            <select class="inline-select ${codeClass}" onchange="updateUnitData('${unit.id}', 'code', this.value)">
-                                <option value="Code 1" ${unit.code === 'Code 1' ? 'selected' : ''}>CODE 1</option>
-                                <option value="Code 2" ${unit.code === 'Code 2' ? 'selected' : ''}>CODE 2</option>
-                                <option value="Code 3" ${unit.code === 'Code 3' ? 'selected' : ''}>CODE 3</option>
-                                <option value="Code 4" ${unit.code === 'Code 4' ? 'selected' : ''}>CODE 4</option>
+                            <select class="inline-select" onchange="updateUnitData('${unit.id}', 'code', this.value)">
+                                ${dispatchConfig.statusCodes.map(c => `
+                                    <option value="${c.value}" ${unit.code === c.value ? 'selected' : ''} style="color: ${c.color}">
+                                        ${c.label}
+                                    </option>
+                                `).join('')}
                             </select>
                         </div>
                     </div>
@@ -552,9 +627,9 @@ window.renderUnitsPage = function(officers, units) {
                     <div class="unit-card-footer">
                         <div class="footer-item" style="flex: 1;">
                             <i class="fas fa-car"></i>
-                            <select class="inline-select" style="width:100%; border:none; background:transparent !important; padding-left:0;" onchange="updateUnitData('${unit.id}', 'vehicle', JSON.parse(this.value))">
-                                <option value='{"label":"KEIN KFZ","plate":"N/A"}' ${!unit.vehicle ? 'selected' : ''}>KEIN KFZ</option>
-                                ${availableVehicles.map(v => `
+                            <select class="inline-select" style="width:60%; border:none; background:transparent !important;" onchange="updateUnitData('${unit.id}', 'vehicle', JSON.parse(this.value))">
+                                <option value='{"label":"KEIN KFZ","plate":"N/A"}' ${!unit.vehicle || unit.vehicle.plate === 'N/A' ? 'selected' : ''}>KEIN KFZ</option>
+                                ${dispatchConfig.vehicles.map(v => `
                                     <option value='${JSON.stringify(v)}' ${unit.vehicle && unit.vehicle.plate === v.plate ? 'selected' : ''}>
                                         ${v.plate}
                                     </option>
@@ -620,26 +695,96 @@ function cycleUnitStatus(id, current) {
     setTimeout(loadUnitsTab, 200); 
 }
 
+// NUI LABS | Reliable Unit Deletion
 function deleteUnit(id) {
-    showConfirm("Möchten Sie diese Streife wirklich auflösen?", () => {
+    showConfirm("Möchten Sie diese Streife wirklich auflösen? Alle Beamten werden automatisch in den Pool verschoben.", () => {
         fetch(`https://${GetParentResourceName()}/deleteUnit`, {
             method: 'POST',
+            headers: {
+                'Content-Type': 'application/json; charset=UTF-8'
+            },
             body: JSON.stringify({ id: id })
-        }).then(() => loadUnitsTab());
+        }).then(() => {
+            // Wir geben dem Server 200ms Zeit für den Sync, bevor wir lokal refreshen
+            setTimeout(loadUnitsTab, 200);
+        }).catch(err => console.error("NUI LABS | Deletion Fetch failed:", err));
     });
 }
 
-function loadUnitsTab() {
-    fetch(`https://${GetParentResourceName()}/getOfficers`, { method: 'POST', body: '{}' })
-    .then(res => res.json())
-    .then(officers => {
-        fetch(`https://${GetParentResourceName()}/getUnits`, { method: 'POST', body: '{}' })
-        .then(res => res.json())
-        .then(units => {
-            currentUnits = units;
-            renderUnitsPage(officers, units);
-        }).catch(e => console.error("Fehler bei getUnits:", e));
-    }).catch(e => console.error("Fehler bei getOfficers:", e));
+// Master loading function for NUI LABS
+// NUI LABS | Robust Master Loading with Retry-Logic
+let fetchRetries = 0;
+
+// NUI LABS | Robust Master Loading with Localized Retry-Logic
+function loadUnitsTab(retryCount = 0) {
+    const resourceName = GetParentResourceName();
+    
+    fetch(`https://${resourceName}/getDispatchData`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+        body: JSON.stringify({})
+    })
+    .then(res => {
+        if (!res.ok) throw new Error("Network response was not ok");
+        return res.json();
+    })
+    .then(data => {
+        if (!data) return;
+        
+        // Success: Sync data to UI components
+        dispatchConfig = data.config;
+        currentUnits = data.units;
+
+        renderUnitsPage(data.officers, data.units);
+        syncSidebarUnits(data.units, data.officers);
+        updateUnitMarkers(data.units, data.officers); 
+        updateOfficerManagementList(data.officers);
+        
+    })
+    .catch(err => {
+        // Silent retry logic to handle script restarts gracefully
+        if (retryCount < 3) {
+            const nextRetry = retryCount + 1;
+            // Wait 2.5 seconds before next attempt to give the client script time to register callbacks
+            setTimeout(() => loadUnitsTab(nextRetry), 2500);
+        } else {
+            // Only log after 3 failed attempts (total ~7.5 seconds)
+            console.error("NUI LABS | Connection to client lost. If you just restarted the script, wait a moment.");
+        }
+    });
+}
+
+// Hilfsfunktion für die Sidebar (ersetzt das alte renderUnitList ohne Fetch!)
+// NUI LABS | Enhanced Sidebar
+function syncSidebarUnits(units, officers) {
+    const listElement = document.getElementById('unit-list');
+    if (!listElement) return;
+    listElement.innerHTML = '';
+
+    Object.values(units).forEach(unit => {
+        const offInUnit = officers.filter(o => unit.officers && unit.officers.includes(o.citizenid));
+        if (offInUnit.length === 0) return;
+
+        const div = document.createElement('div');
+        div.className = 'sidebar-unit-item';
+        
+        const vehLabel = unit.vehicle ? `${unit.vehicle.label} [${unit.vehicle.plate}]` : "KEIN KFZ";
+        
+        div.innerHTML = `
+            <div class="sidebar-unit-header">
+                <span>${unit.name}</span>
+                <span class="sidebar-code-badge">${unit.code}</span>
+            </div>
+            <div class="sidebar-unit-officers">
+                ${offInUnit.map(o => `<span><i class="fas fa-user-shield"></i> ${o.callsign} | ${o.name}</span>`).join('')}
+            </div>
+            <div class="sidebar-extra-info">
+                <div class="info-row"><i class="fas fa-car"></i> ${vehLabel}</div>
+                <div class="info-row"><i class="fas fa-map-marker-alt"></i> ${unit.location || 'Suche...'}</div>
+            </div>
+        `;
+        listElement.appendChild(div);
+    });
 }
 
 // DATEI: html/script.js
@@ -828,4 +973,238 @@ window.openVehicleModal = function(unitId) {
     });
 
     document.getElementById('vehicle-selection-modal').style.display = 'flex';
+};
+
+// NUI LABS | Focus Map on Unit
+window.focusUnitOnMap = function(unitId) {
+    const unit = currentUnits[unitId];
+    if (unit && unit.currentCoords) {
+        const pos = [unit.currentCoords.y, unit.currentCoords.x];
+        
+        // Wechsel zum Map Tab
+        document.querySelector('[data-page="map-page"]').click();
+        
+        setTimeout(() => {
+            map.panTo(pos, { animate: true, duration: 1.0 });
+            if (unitMarkers[unitId]) {
+                unitMarkers[unitId].openTooltip();
+            }
+        }, 200);
+    }
+};
+
+// NUI LABS | Fix: Missing Function updateOfficerManagementList
+function updateOfficerManagementList(officers) {
+    const list = document.getElementById('officer-list');
+    const countTag = document.getElementById('officer-count');
+    if (!list) return;
+
+    list.innerHTML = '';
+    let activeCount = 0;
+
+    // Sortierung nach Rang
+    officers.sort((a, b) => b.rank - a.rank);
+
+    officers.forEach(off => {
+        if (off.onduty) activeCount++;
+
+        const row = document.createElement('div');
+        row.className = 'officer-row';
+        row.innerHTML = `
+            <div class="off-col name-col">
+                <i class="fas fa-id-badge" style="opacity: 0.5; margin-right: 1rem;"></i>
+                ${off.name}
+            </div>
+            <div class="off-col status-col">
+                <span class="status-badge ${off.onduty ? 'on-duty' : 'off-duty'}">
+                    ${off.onduty ? 'On Duty' : 'Off Duty'}
+                </span>
+            </div>
+            <div class="off-col callsign-col">
+                <span class="callsign-tag">${off.callsign}</span>
+            </div>
+            <div class="off-col actions-col">
+                <i class="fas fa-user-edit action-icon edit-btn" onclick="openEditModal('${off.citizenid}', '${off.name}', '${off.callsign}', ${off.rank})"></i>
+                <i class="fas fa-user-minus action-icon fire-btn" onclick="fireOfficer('${off.citizenid}', '${off.name}')"></i>
+            </div>
+        `;
+        list.appendChild(row);
+    });
+
+    if (countTag) {
+        countTag.innerText = `${activeCount} / ${officers.length} Aktiv`;
+    }
+}
+
+// ==========================================
+// NUI LABS | CONSOLIDATED DIRECTIVES LOGIC
+// ==========================================
+let editingDirectiveId = null;
+window.allDirectives = [];
+
+// 1. Daten vom Server laden
+function loadDirectives() {
+    fetch(`https://${GetParentResourceName()}/getDirectivesData`, { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+        body: JSON.stringify({}) 
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data && data.directives) {
+            window.allDirectives = data.directives; // Cache für Bearbeitung
+            renderDirectivesPage(data);
+        }
+    }).catch(err => console.error("NUI LABS | Directives Load Error:", err));
+}
+
+// 2. Die Seite rendern
+function renderDirectivesPage(data) {
+    const hazardContainer = document.getElementById('hazard-selector');
+    const list = document.getElementById('directives-list');
+    const addBtn = document.getElementById('add-directive-btn');
+    const descText = document.getElementById('hazard-description');
+
+    if (addBtn) addBtn.style.display = data.canManage ? 'flex' : 'none';
+
+    // Hazard Selector
+    if (hazardContainer && data.config && data.config.hazardLevels) {
+        hazardContainer.innerHTML = '';
+        const currentLevel = data.config.hazardLevels.find(l => l.id === parseInt(data.hazardLevel));
+        if (descText && currentLevel) descText.innerText = currentLevel.description;
+
+        data.config.hazardLevels.forEach(level => {
+            const btn = document.createElement('div');
+            const isActive = parseInt(data.hazardLevel) === level.id;
+            btn.className = `hazard-btn ${isActive ? 'active' : ''}`;
+            btn.style.backgroundColor = level.color;
+            btn.style.setProperty('--glow-color', level.color);
+            btn.innerHTML = `<span>${level.label}</span>`;
+            if (data.canManage) btn.onclick = () => updateHazardLevel(level.id);
+            hazardContainer.appendChild(btn);
+        });
+    }
+
+    // Liste rendern
+    if (list) {
+        list.innerHTML = '';
+        if (data.directives && data.directives.length > 0) {
+            data.directives.forEach(dir => {
+                const card = document.createElement('div');
+                card.className = 'directive-card';
+                
+                const date = new Date(dir.created_at);
+                const dateStr = date.toLocaleDateString('de-DE');
+                const timeStr = date.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+
+                card.innerHTML = `
+                    <div class="dir-header">
+                        <div>
+                            <div class="dir-title">${dir.title}</div>
+                            <div class="dir-author">${dir.author_rank} ${dir.author_name}</div>
+                        </div>
+                        ${data.canManage ? `
+                            <div class="dir-actions">
+                                <i class="fas fa-edit" onclick="prepareEditDirective(${dir.id})" title="Bearbeiten"></i>
+                                <i class="fas fa-trash-alt" onclick="deleteDirective(${dir.id})" title="Löschen"></i>
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div class="dir-content">${dir.content}</div>
+                    <div class="dir-timestamp">${dateStr} - ${timeStr} Uhr</div>
+                `;
+                list.appendChild(card);
+            });
+        } else {
+            list.innerHTML = '<div style="text-align:center; opacity:0.3; padding:2rem;">Keine Dienstanweisungen vorhanden.</div>';
+        }
+    }
+}
+
+// 3. Modal für Bearbeitung vorbereiten
+window.prepareEditDirective = function(id) {
+    const dir = window.allDirectives.find(d => d.id == id);
+    if (!dir) return;
+
+    editingDirectiveId = dir.id; // WICHTIG: ID setzen
+    
+    document.getElementById('dir-title').value = dir.title;
+    document.getElementById('dir-editor').innerHTML = dir.content;
+    document.querySelector('#directive-modal h3').innerText = "Anweisung bearbeiten";
+    document.getElementById('directive-submit-btn').innerText = "Änderungen speichern";
+    
+    document.getElementById('directive-modal').style.display = 'flex';
+};
+
+// 4. Modal für NEUE Anweisung öffnen
+window.openDirectiveModal = function() {
+    editingDirectiveId = null; // Reset
+    document.getElementById('dir-title').value = '';
+    document.getElementById('dir-editor').innerHTML = '';
+    document.querySelector('#directive-modal h3').innerText = "Neue Dienstanweisung";
+    document.getElementById('directive-submit-btn').innerText = "Veröffentlichen";
+    document.getElementById('directive-modal').style.display = 'flex';
+    loadDirectiveDraft();
+};
+
+// 5. Daten absenden (Save oder Update)
+window.submitDirective = function() {
+    const title = document.getElementById('dir-title').value;
+    const content = document.getElementById('dir-editor').innerHTML;
+
+    if (!title || content === "" || content === "<br>") return;
+
+    const endpoint = editingDirectiveId ? 'updateDirective' : 'saveDirective';
+    const payload = editingDirectiveId 
+        ? { id: editingDirectiveId, title: title, content: content } 
+        : { title: title, content: content };
+
+    fetch(`https://${GetParentResourceName()}/${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+        body: JSON.stringify(payload)
+    }).then(() => {
+        document.getElementById('directive-modal').style.display = 'none';
+        editingDirectiveId = null;
+        setTimeout(loadDirectives, 300);
+        clearDirectiveDraft();
+    });
+};
+
+window.closeDirectiveModal = () => { document.getElementById('directive-modal').style.display = 'none'; editingDirectiveId = null; };
+function deleteDirective(id) { showConfirm("Anweisung löschen?", () => { fetch(`https://${GetParentResourceName()}/deleteDirective`, { method: 'POST', body: JSON.stringify({ id: id }) }).then(() => setTimeout(loadDirectives, 300)); }); }
+window.updateHazardLevel = (l) => { fetch(`https://${GetParentResourceName()}/updateHazard`, { method: 'POST', body: JSON.stringify({ level: l }) }).then(() => setTimeout(loadDirectives, 200)); };
+
+
+// NUI LABS | Directive Draft Recovery System
+window.autoSaveDraft = function() {
+    const title = document.getElementById('dir-title').value;
+    const content = document.getElementById('dir-editor').innerHTML;
+    
+    const draft = {
+        title: title,
+        content: content,
+        timestamp: Date.now()
+    };
+    
+    // Wir speichern es lokal im Browser-Cache
+    localStorage.setItem('nui_police_dir_draft', JSON.stringify(draft));
+};
+
+// Hilfsfunktion zum Laden des Drafts (wird beim Öffnen des Modals gerufen)
+window.loadDirectiveDraft = function() {
+    const savedDraft = localStorage.getItem('nui_police_dir_draft');
+    if (savedDraft) {
+        const draft = JSON.parse(savedDraft);
+        // Wir füllen die Felder nur, wenn sie aktuell leer sind
+        if (document.getElementById('dir-title').value === "") {
+            document.getElementById('dir-title').value = draft.title;
+            document.getElementById('dir-editor').innerHTML = draft.content;
+        }
+    }
+};
+
+// Hilfsfunktion zum Löschen nach Erfolg
+window.clearDirectiveDraft = function() {
+    localStorage.removeItem('nui_police_dir_draft');
 };

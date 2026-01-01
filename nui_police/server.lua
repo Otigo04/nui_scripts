@@ -2,29 +2,18 @@ local QBCore = exports['qb-core']:GetCoreObject()
 local ActiveUnits = {}
 
 -- Zentrale Sync-Funktion
+-- NUI LABS | Proper Unit Sync Loop
 local function UpdateUnits()
-    ActiveUnits = {}
-    local players = QBCore.Functions.GetQBPlayers()
-    for _, v in pairs(players) do
-        if v.PlayerData.job.name == Config.JobName and v.PlayerData.job.onduty then
-            local ped = GetPlayerPed(v.PlayerData.source)
-            local coords = GetEntityCoords(ped)
-            table.insert(ActiveUnits, {
-                source = v.PlayerData.source,
-                name = v.PlayerData.charinfo.firstname .. " " .. v.PlayerData.charinfo.lastname,
-                callsign = v.PlayerData.metadata["callsign"] or "N/A",
-                grade = v.PlayerData.job.grade.name,
-                coords = { x = coords.x, y = coords.y }
-            })
-        end
-    end
-    TriggerClientEvent('nui_police:client:syncUnits', -1, ActiveUnits)
+    -- Wir schicken jetzt die echten CreatedUnits anstatt nur eine Spielerliste
+    TriggerClientEvent('nui_police:client:syncCreatedUnits', -1, CreatedUnits)
 end
 
+-- Wir erhöhen den Intervall auf 5 Sekunden für bessere Performance
 CreateThread(function()
     while true do
-        UpdateUnits()
-        Wait(3000)
+        Wait(5000)
+        -- Triggert bei allen Clients ein Standort-Update
+        TriggerEvent('nui_police:server:updateAllUnitLocations')
     end
 end)
 
@@ -151,12 +140,22 @@ QBCore.Functions.CreateCallback('nui_police:server:getUnits', function(source, c
     cb(CreatedUnits)
 end)
 
--- Streife löschen
+-- NUI LABS | Safe Unit Deletion Fix
 RegisterNetEvent('nui_police:server:deleteUnit', function(data)
-    if CreatedUnits[data.id] then
-        -- Erst Beamte befreien (optional, sie landen durch sync eh im Pool)
-        CreatedUnits[data.id] = nil
+    -- WICHTIG: Die ID muss von String zu Number konvertiert werden
+    local id = tonumber(data.id)
+    
+    if id and CreatedUnits[id] then
+        -- Streife aus der Tabelle entfernen
+        CreatedUnits[id] = nil
+        
+        -- Sofortiger Sync an alle Clients, damit die UI und Karte aktualisiert wird
         TriggerClientEvent('nui_police:client:syncCreatedUnits', -1, CreatedUnits)
+        
+        -- Optional: Debug Info
+        if Config.Debug then print("^2[NUI LABS]^7 Streife gelöscht: " .. id) end
+    else
+        print("^1[NUI LABS ERROR]^7 Versuch eine nicht existierende Streife zu löschen: " .. tostring(data.id))
     end
 end)
 
@@ -202,26 +201,26 @@ end
 RegisterNetEvent('nui_police:server:updateAllUnitLocations', function()
     for id, unit in pairs(CreatedUnits) do
         if unit.officers and #unit.officers > 0 then
+            -- Wir nehmen den ersten Beamten der Unit als GPS-Sender
             local firstOfficer = QBCore.Functions.GetPlayerByCitizenId(unit.officers[1])
             if firstOfficer then
-                -- Wir fragen den Standort beim Client ab
                 TriggerClientEvent('nui_police:client:requestStreetUpdate', firstOfficer.PlayerData.source, id)
             end
-        else
-            unit.location = "Außer Dienst"
         end
     end
+    -- Die Master-Daten (für Einzelbeamte) werden beim nächsten JS-Fetch automatisch frisch gezogen
 end)
 
 -- DATEI: server.lua
 
--- Empfange Straßennamen vom Client und speichere ihn permanent in der Unit
--- Standort-Event korrigieren
-RegisterNetEvent('nui_police:server:receiveStreetName', function(unitId, streetName)
-    local id = tonumber(unitId) -- SICHERSTELLEN, DASS ES EINE ZAHL IST
+-- Updated: Receive detailed unit status
+RegisterNetEvent('nui_police:server:receiveStreetName', function(unitId, streetName, coords, inVehicle)
+    local id = tonumber(unitId)
     if id and CreatedUnits[id] then
         CreatedUnits[id].location = streetName
-        -- Sync an alle Clients mit den NEUEN Daten
+        CreatedUnits[id].currentCoords = coords -- Speichere die echten Coords für die Map
+        CreatedUnits[id].inVehicle = inVehicle  -- Status für das Icon
+        
         TriggerClientEvent('nui_police:client:syncCreatedUnits', -1, CreatedUnits)
     end
 end)
@@ -234,5 +233,131 @@ RegisterNetEvent('nui_police:server:updateUnitData', function(data)
         CreatedUnits[id][data.field] = data.value
         -- Sync an alle für sofortiges Update
         TriggerClientEvent('nui_police:client:syncCreatedUnits', -1, CreatedUnits)
+    end
+end)
+
+-- NUI LABS | Master Data with Hazard Definitions
+QBCore.Functions.CreateCallback('nui_police:server:getDispatchData', function(source, cb)
+    local officers = {}
+    local players = QBCore.Functions.GetQBPlayers()
+    
+    for _, v in pairs(players) do
+        if v.PlayerData.job.name == Config.JobName then
+            local ped = GetPlayerPed(v.PlayerData.source)
+            local coords = GetEntityCoords(ped)
+            local vehicle = GetVehiclePedIsIn(ped, false)
+            
+            table.insert(officers, {
+                citizenid = v.PlayerData.citizenid,
+                name = v.PlayerData.charinfo.firstname .. " " .. v.PlayerData.charinfo.lastname,
+                callsign = v.PlayerData.metadata["callsign"] or "N/A",
+                rank = v.PlayerData.job.grade.level,
+                rankName = v.PlayerData.job.grade.name,
+                onduty = v.PlayerData.job.onduty,
+                coords = { x = coords.x, y = coords.y, z = coords.z },
+                inVehicle = (vehicle ~= 0)
+            })
+        end
+    end
+    
+        cb({
+            officers = officers or {},
+            units = CreatedUnits or {},
+            config = {
+                vehicles = Config.Vehicles or {},
+                statusCodes = Config.StatusCodes or {},
+                hazardLevels = Config.HazardLevels or {} -- NEU: Hier werden die Levels mitgeschickt
+            }
+        })
+end)
+
+-- NUI LABS | High-Priority Data Callback
+QBCore.Functions.CreateCallback('nui_police:server:getDirectivesData', function(source, cb)
+    local src = source
+    local player = QBCore.Functions.GetPlayer(src)
+    
+    -- Holen der Daten aus der DB
+    local directives = MySQL.query.await('SELECT * FROM police_directives ORDER BY created_at DESC')
+    local hazard = MySQL.query.await('SELECT setting_value FROM police_settings WHERE setting_key = ?', {'hazard_level'})
+    
+    -- Berechtigung: Wir prüfen gegen Config.DirectivesPermissions
+    local canManage = false
+    if player and player.PlayerData.job.grade.level >= Config.DirectivesPermissions then
+        canManage = true
+    end
+
+    cb({
+        directives = directives or {},
+        hazardLevel = tonumber(hazard[1] and hazard[1].setting_value) or 1,
+        canManage = canManage, -- Das steuert den "Hinzufügen"-Button
+        config = {
+            hazardLevels = Config.HazardLevels -- Wir senden die Config direkt mit
+        }
+    })
+end)
+
+
+-- NUI LABS | Real-time Directive Sync
+RegisterNetEvent('nui_police:server:saveDirective', function(data)
+    local src = source
+    local player = QBCore.Functions.GetPlayer(src)
+    
+    if player.PlayerData.job.grade.level >= Config.DirectivesPermissions then
+        MySQL.insert('INSERT INTO police_directives (title, content, author_name, author_rank) VALUES (?, ?, ?, ?)', {
+            data.title, 
+            data.content, 
+            player.PlayerData.charinfo.firstname .. " " .. player.PlayerData.charinfo.lastname,
+            player.PlayerData.job.grade.name
+        }, function(id)
+            if id then
+                -- TRIGGER AN ALLE: Aktualisiert die Liste bei jedem Beamten sofort
+                TriggerClientEvent('nui_police:client:refreshDirectives', -1)
+                TriggerClientEvent('QBCore:Notify', src, "Dienstanweisung veröffentlicht", "success")
+            end
+        end)
+    end
+end)
+
+RegisterNetEvent('nui_police:server:updateHazard', function(level)
+    local src = source
+    local player = QBCore.Functions.GetPlayer(src)
+    if player.PlayerData.job.grade.level >= Config.DirectivesPermissions then
+        MySQL.update('UPDATE police_settings SET setting_value = ? WHERE setting_key = ?', {tostring(level), 'hazard_level'}, function()
+            -- SYNC AN ALLE POLIZISTEN
+            TriggerClientEvent('nui_police:client:refreshDirectives', -1)
+            local label = Config.HazardLevels[level] and Config.HazardLevels[level].label or "Unbekannt"
+            TriggerClientEvent('QBCore:Notify', -1, "Gefahrenstufe geändert: " .. label, "primary")
+        end)
+    end
+end)
+
+RegisterNetEvent('nui_police:server:deleteDirective', function(id)
+    local src = source
+    local player = QBCore.Functions.GetPlayer(src)
+    if player.PlayerData.job.grade.level >= Config.DirectivesPermissions then
+        MySQL.query('DELETE FROM police_directives WHERE id = ?', {id}, function()
+            TriggerClientEvent('nui_police:client:refreshDirectives', -1)
+        end)
+    end
+end)
+
+-- NUI LABS | Unified Directive Update
+RegisterNetEvent('nui_police:server:updateDirective', function(data)
+    local src = source
+    local player = QBCore.Functions.GetPlayer(src)
+    
+    if player and player.PlayerData.job.grade.level >= Config.DirectivesPermissions then
+        if data.id and data.title and data.content then
+            MySQL.update('UPDATE police_directives SET title = ?, content = ? WHERE id = ?', {
+                data.title, 
+                data.content, 
+                data.id
+            }, function(rowsChanged)
+                if rowsChanged > 0 then
+                    TriggerClientEvent('nui_police:client:refreshDirectives', -1)
+                    TriggerClientEvent('QBCore:Notify', src, "Anweisung aktualisiert", "success")
+                end
+            end)
+        end
     end
 end)
