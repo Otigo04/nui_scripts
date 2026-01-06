@@ -361,3 +361,199 @@ RegisterNetEvent('nui_police:server:updateDirective', function(data)
         end
     end
 end)
+
+
+-- Class: Database Controller
+-- Purpose: Enhanced search for combined first and last names
+-- Class: Database Controller
+-- Purpose: Enhanced Person Data with Wanted Status and Entry Date
+-- Class: Database Controller
+-- Purpose: Enhanced Person Data with Wanted Status and Entry Date
+QBCore.Functions.CreateCallback('nui_police:server:searchPerson', function(source, cb, searchTerm)
+    
+    local players = {}
+    local term = string.lower(searchTerm):gsub("%s+", " ")
+    
+    MySQL.query('SELECT charinfo, metadata, job FROM players', {}, function(results)
+        if results then
+            for _, v in ipairs(results) do
+                local charinfo = json.decode(v.charinfo)
+                local metadata = json.decode(v.metadata)
+                local jobInfo = json.decode(v.job)
+                
+                local fname = string.lower(charinfo.firstname or "")
+                local lname = string.lower(charinfo.lastname or "")
+                local fullname = fname .. " " .. lname
+
+                if string.find(fname, term) or string.find(lname, term) or string.find(fullname, term) then
+                    table.insert(players, {
+                        firstname = charinfo.firstname,
+                        lastname = charinfo.lastname,
+                        dob = charinfo.birthdate,
+                        sex = charinfo.gender == 0 and "Male" or "Female",
+                        job = jobInfo.label or "Unemployed",
+                        -- Falls Einreisedatum nicht in DB, nutzen wir ein Fallback
+                        entryDate = metadata["entrydate"] or "01.01.2024", 
+                        wanted = metadata["iswanted"] or false,
+                        licenses = {
+                            driver = metadata["licences"] and metadata["licences"]["driver"] or false,
+                            weapon = metadata["licences"] and metadata["licences"]["weapon"] or false
+                        }
+                    })
+                end
+            end
+        end
+        cb(players)
+    end)
+end)
+
+-- NUI LABS | Database Controller: DMV Search
+QBCore.Functions.CreateCallback('nui_police:server:searchVehicle', function(source, cb, searchTerm)
+    local vehicles = {}
+    local term = string.upper(searchTerm) -- DMV sucht oft in Caps
+    
+    -- Wir suchen nach Kennzeichen ODER wir filtern später nach Namen
+    -- Ein Join erlaubt uns, den Besitzernamen direkt mit abzugreifen
+    local query = [[
+        SELECT pv.*, p.charinfo 
+        FROM player_vehicles pv 
+        LEFT JOIN players p ON pv.citizenid = p.citizenid 
+        WHERE pv.plate LIKE ?
+    ]]
+
+    MySQL.query(query, {'%'..term..'%'}, function(results)
+        if results then
+            for _, v in ipairs(results) do
+                local charinfo = json.decode(v.charinfo)
+                local policeData = v.police_data and json.decode(v.police_data) or { isWanted = false, notes = {} }
+                
+                -- Echte Farben aus den Mods extrahieren
+                local mods = json.decode(v.mods)
+                local color1 = mods and mods.color1 or 0 -- Primärfarbe ID
+                
+                table.insert(vehicles, {
+                    plate = v.plate,
+                    modelName = v.vehicle, -- Das ist der Modellname (z.B. 't20')
+                    ownerName = charinfo.firstname .. " " .. charinfo.lastname,
+                    citizenid = v.citizenid,
+                    colorId = color1, -- Wir schicken die ID zur Übersetzung an JS
+                    policeData = policeData,
+                    -- Das Feld 'category' lassen wir leer, JS berechnet das gleich
+                })
+            end
+        end
+        
+        -- Falls wir über Kennzeichen nichts gefunden haben, suchen wir über den Besitzernamen
+        if #vehicles == 0 then
+            -- Zweite Suche: Hier ziehen wir alle Spieler, deren Name passt
+            MySQL.query('SELECT citizenid, charinfo FROM players WHERE charinfo LIKE ?', {'%'..searchTerm..'%'}, function(players)
+                if players and #players > 0 then
+                    local cids = {}
+                    local ownerMap = {}
+                    for _, p in ipairs(players) do
+                        local ci = json.decode(p.charinfo)
+                        table.insert(cids, p.citizenid)
+                        ownerMap[p.citizenid] = ci.firstname .. " " .. ci.lastname
+                    end
+                    
+                    -- Jetzt alle Autos dieser CIDs holen
+                    MySQL.query('SELECT * FROM player_vehicles WHERE citizenid IN (?)', {cids}, function(vehResults)
+                        for _, v in ipairs(vehResults) do
+                            local pData = v.police_data and json.decode(v.police_data) or { isWanted = false, notes = {} }
+                            table.insert(vehicles, {
+                                plate = v.plate,
+                                modelName = v.vehicle,
+                                ownerName = ownerMap[v.citizenid],
+                                citizenid = v.citizenid,
+                                policeData = pData
+                            })
+                        end
+                        cb(vehicles)
+                    end)
+                else
+                    cb({})
+                end
+            end)
+        else
+            cb(vehicles)
+        end
+    end)
+end)
+
+-- NUI LABS | Synchronized Vehicle Wanted Status
+RegisterNetEvent('nui_police:server:toggleVehicleWanted', function(plate, wanted)
+    local src = source
+    local player = QBCore.Functions.GetPlayer(src)
+    
+    if player and player.PlayerData.job.name == Config.JobName then
+        MySQL.query('SELECT police_data FROM player_vehicles WHERE plate = ?', {plate}, function(result)
+            local data = { isWanted = wanted, notes = {} }
+            if result[1] and result[1].police_data then
+                data = json.decode(result[1].police_data)
+                data.isWanted = wanted
+            end
+            
+            MySQL.update('UPDATE player_vehicles SET police_data = ? WHERE plate = ?', {json.encode(data), plate}, function()
+                -- SYNC AN ALLE: Informiert alle Beamten über die Änderung am Kennzeichen
+                TriggerClientEvent('nui_police:client:syncVehicleUpdate', -1, plate)
+                TriggerClientEvent('QBCore:Notify', src, "Status aktualisiert: " .. (wanted and "GESUCHT" or "OK"), "primary")
+            end)
+        end)
+    end
+end)
+
+-- NUI LABS | Synchronized Vehicle Note Storage
+RegisterNetEvent('nui_police:server:saveVehicleNote', function(plate, noteContent)
+    local src = source
+    local player = QBCore.Functions.GetPlayer(src)
+    if not player or player.PlayerData.job.name ~= Config.JobName then return end
+
+    MySQL.query('SELECT police_data FROM player_vehicles WHERE plate = ?', {plate}, function(result)
+        local data = { isWanted = false, notes = {} }
+        if result[1] and result[1].police_data then
+            data = json.decode(result[1].police_data)
+            if not data.notes then data.notes = {} end
+        end
+
+        if #data.notes >= (Config.MaxVehicleNotes or 5) then return end
+
+        table.insert(data.notes, {
+            id = os.time(),
+            content = noteContent,
+            author = player.PlayerData.charinfo.firstname .. " " .. player.PlayerData.charinfo.lastname,
+            rank = player.PlayerData.job.grade.name,
+            date = os.date("%d.%m.%Y | %H:%M")
+        })
+
+        MySQL.update('UPDATE player_vehicles SET police_data = ? WHERE plate = ?', {json.encode(data), plate}, function()
+            -- SYNC AN ALLE
+            TriggerClientEvent('nui_police:client:syncVehicleUpdate', -1, plate)
+            TriggerClientEvent('QBCore:Notify', src, "Notiz archiviert.", "success")
+        end)
+    end)
+end)
+
+-- NUI LABS | Synchronized Vehicle Note Deletion
+RegisterNetEvent('nui_police:server:deleteVehicleNote', function(plate, noteId)
+    local src = source
+    local player = QBCore.Functions.GetPlayer(src)
+    if not player or player.PlayerData.job.name ~= Config.JobName then return end
+
+    MySQL.query('SELECT police_data FROM player_vehicles WHERE plate = ?', {plate}, function(result)
+        if result[1] and result[1].police_data then
+            local data = json.decode(result[1].police_data)
+            for i, note in ipairs(data.notes) do
+                if note.id == noteId then
+                    table.remove(data.notes, i)
+                    break
+                end
+            end
+
+            MySQL.update('UPDATE player_vehicles SET police_data = ? WHERE plate = ?', {json.encode(data), plate}, function()
+                -- SYNC AN ALLE
+                TriggerClientEvent('nui_police:client:syncVehicleUpdate', -1, plate)
+                TriggerClientEvent('QBCore:Notify', src, "Eintrag entfernt.", "primary")
+            end)
+        end
+    end)
+end)

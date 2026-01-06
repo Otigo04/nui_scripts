@@ -15,20 +15,32 @@ RegisterNUICallback('getDispatchData', function(data, cb)
 end)
 
 -- Function to toggle NUI visibility
+-- Class: UI Controller
+-- Purpose: Pass local player data to NUI on open
 local function toggleUI(status)
     uiOpen = status
     SetNuiFocus(status, status)
     
     local playerPed = PlayerPedId()
     local coords = GetEntityCoords(playerPed)
+    local playerInfo = { name = "Unknown", rank = "Officer" }
+
+    -- Wir holen die echten QBCore Daten
+    if status then
+        local pData = QBCore.Functions.GetPlayerData()
+        if pData and pData.charinfo then
+            playerInfo = {
+                name = pData.charinfo.firstname .. " " .. pData.charinfo.lastname,
+                rank = pData.job.grade.name
+            }
+        end
+    end
 
     SendNUIMessage({
         action = "setVisible",
         status = status,
-        coords = {
-            x = coords.x,
-            y = coords.y
-        }
+        coords = { x = coords.x, y = coords.y },
+        playerInfo = playerInfo -- HIER werden die Daten übergeben
     })
 end
 
@@ -245,4 +257,50 @@ RegisterNUICallback('updateDirective', function(data, cb)
         TriggerServerEvent('nui_police:server:updateDirective', data)
     end
     cb('ok')
+end)
+
+-- Class: NUI Callback Bridge
+-- Purpose: Routes NUI search requests to the server
+RegisterNUICallback('searchPerson', function(data, cb)
+    QBCore.Functions.TriggerCallback('nui_police:server:searchPerson', function(results)
+        cb(results)
+    end, data.name)
+end)
+
+-- NUI LABS | DMV Bridge: Search Vehicle
+RegisterNUICallback('searchVehicle', function(data, cb)
+    QBCore.Functions.TriggerCallback('nui_police:server:searchVehicle', function(results)
+        cb(results)
+    end, data.search)
+end)
+
+-- NUI LABS | DMV Bridge: Toggle Wanted Status
+RegisterNUICallback('toggleVehicleWanted', function(data, cb)
+    TriggerServerEvent('nui_police:server:toggleVehicleWanted', data.plate, data.wanted)
+    cb('ok')
+end)
+
+-- NUI LABS | DMV Bridge: Save Vehicle Note
+RegisterNUICallback('saveVehicleNote', function(data, cb)
+    if data.plate and data.content then
+        TriggerServerEvent('nui_police:server:saveVehicleNote', data.plate, data.content)
+    end
+    cb('ok')
+end)
+
+-- NUI LABS | DMV Bridge: Delete Vehicle Note
+RegisterNUICallback('deleteVehicleNote', function(data, cb)
+    if data.plate and data.id then
+        TriggerServerEvent('nui_police:server:deleteVehicleNote', data.plate, data.id)
+    end
+    cb('ok')
+end)
+
+-- NUI LABS | Real-Time Sync Bridge
+RegisterNetEvent('nui_police:client:syncVehicleUpdate', function(plate)
+    -- Leitet die Information an das JavaScript weiter
+    SendNUIMessage({
+        action = "refreshVehicle",
+        plate = plate
+    })
 end)

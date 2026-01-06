@@ -5,7 +5,7 @@ Config.Command = "dispatch" -- Befehl zum Öffnen
 Config.JobName = "police"   -- Welcher Job darf das Interface nutzen?
 
 Config.Colors = {
-    primary = "#005bb7",    -- Blau-Ton aus deinem Bild
+    primary = "#005bb7",    -- Blau-Ton
     secondary = "#0a1724",  -- Dunkler Hintergrund
     accent = "#00d1ff",
     danger = "#ff4d4d",
@@ -28,7 +28,9 @@ Config.Ranks = {
     [12] = "Chief of Police"
 }
 
-Config.DirectivesPermissions = 3 -- Mindest-Rang-Level (z.B. 8 = Lieutenant)
+Config.MaxVehicleNotes = 5 -- Maximale Anzahl an Notizen pro Fahrzeug
+
+Config.DirectivesPermissions = 3 -- Mindest-Rang-Level für Operatives (z.B. 8 = Lieutenant)
 
 Config.HazardLevels = {
     { id = 1, label = "Code Green", color = "#44ff44", description = "Normalbetrieb - Keine erhöhte Wachsamkeit." },

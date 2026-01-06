@@ -13,6 +13,22 @@ window.allDirectives = [];
 
 // Global Storage for Config
 let dispatchConfig = { vehicles: [], statusCodes: [] };
+let localPlayerInfo = { name: "Unknown", rank: "Officer" };
+let terminalPlayedThisSession = false; // Status-Flag für die Sitzung
+
+let activeIntervals = {};
+
+
+// NUI LABS | DMV Translation Tables
+const vehicleClasses = ["Compacts", "Sedans", "SUVs", "Coupes", "Muscle", "Sports Classics", "Sports", "Super", "Motorcycles", "Off-Road", "Industrial", "Utility", "Vans", "Cycles", "Boats", "Helicopters", "Planes", "Service", "Emergency", "Military", "Commercial", "Trains", "Open Wheel"];
+
+const vehicleColors = {
+    0: "Metallic Black", 1: "Metallic Graphite Black", 2: "Metallic Black Steel", 12: "Matte Black", 
+    27: "Metallic Red", 28: "Metallic Torino Red", 29: "Metallic Formula Red", 39: "Matte Red",
+    55: "Metallic Lime Green", 88: "Metallic Taxi Yellow", 89: "Metallic Race Yellow", 
+    111: "Metallic White", 112: "Metallic Frost White", 131: "Matte White"
+    // Dies sind Beispiele. GTA hat viele IDs, 0-160.
+};
 
 
 
@@ -55,29 +71,55 @@ function initMap() {
 // DATEI: html/script.js
 // KLASSE: Navigation Logic
 
-// NUI LABS | Unified Navigation Logic
-// NUI LABS | Unified Navigation Logic
+// NUI LABS | Robust Navigation Controller
 document.querySelectorAll('.nav-item').forEach(item => {
     item.addEventListener('click', () => {
         const pageId = item.getAttribute('data-page');
-        
+        if (!pageId) return;
+
+        // 1. Alle aktiven Klassen entfernen
         document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-        item.classList.add('active');
         document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
-        
+
+        // 2. Ziel-Tab aktivieren
+        item.classList.add('active');
         const activePage = document.getElementById(pageId);
+        
         if (activePage) {
             activePage.classList.add('active');
-            
-            // Kontext-abhängiges Laden der Daten
-            if (pageId === 'units-page') {
-                loadUnitsTab(); // Die Funktion steht in Zeile 670 deiner Datei!
-            } else if (pageId === 'orders-page') {
-                loadDirectives(); // Lädt die Dienstanweisungen#
-            } else if (pageId === 'map-page' && map) {
+
+            // 3. Kontext-Aktionen (Reset & Cleanup)
+            if (pageId === 'person-page') {
+                resetPersonRegister(); // Zurück zur Landingpage beim Öffnen
+            }
+
+            if (pageId !== 'person-page') {
+                const countBadge = document.getElementById('person-result-count');
+                if (countBadge) countBadge.classList.add('hidden'); // Badge verstecken
+                document.getElementById('person-results').innerHTML = ''; 
+            }
+
+            if (pageId !== 'vehicle-page') {
+                const vehStatus = document.getElementById('vehicle-search-status');
+                if (vehStatus) vehStatus.classList.add('hidden');
+            }
+            // NUI LABS | Navigation Extension for DMV
+            if (pageId === 'vehicle-page') {
+                resetVehicleRegister(); // Setzt die Suche beim Öffnen zurück
+            } else {
+                // Wenn wir den Personen-Tab verlassen: Matrix & Overlays hart stoppen
+                const matrix = document.getElementById('matrix-canvas');
+                const anim = document.getElementById('search-animation');
+                if (matrix) matrix.classList.add('hidden');
+                if (anim) anim.classList.add('hidden');
+            }
+
+            // Weitere Tab-Initialisierungen
+            if (pageId === 'units-page') loadUnitsTab();
+            if (pageId === 'orders-page') loadDirectives();
+            if (pageId === 'officers-page') loadOfficersPage();
+            if (pageId === 'map-page' && map) {
                 setTimeout(() => { map.invalidateSize(); }, 200);
-            } else if (pageId === 'officers-page') {
-                loadOfficersPage();
             }
         }
     });
@@ -297,6 +339,13 @@ window.addEventListener('message', function(event) {
         // Lädt die Liste neu, egal ob man gerade im Tab ist oder nicht
         loadDirectives();
     }
+
+    if (data.action === "refreshVehicle") {
+        // Ruft die bereits existierende Smooth-Update Funktion auf
+        if (typeof refreshVehicleCard === "function") {
+            refreshVehicleCard(data.plate);
+        }
+    }
     
     if (data.action === "updateUnitsList") {
         // Master-Daten neu laden
@@ -306,35 +355,34 @@ window.addEventListener('message', function(event) {
             updateUnitMarkers(data.units);
         }
     }
+    // NUI LABS | Logic Fix: Prevent animation looping
     if (data.action === "setVisible") {
-        document.getElementById('app-container').style.display = data.status ? 'flex' : 'none';
+        if (data.playerInfo) localPlayerInfo = data.playerInfo;
+        const container = document.getElementById('app-container');
+        container.style.display = data.status ? 'flex' : 'none';
+        
         if (data.status) {
-            // Wir geben der UI 200ms Zeit zum Rendern, bevor wir die Map bewegen
             setTimeout(() => {
                 initMap();
-                loadUnitsTab(); // Lädt alle Master-Daten (Icons, Ränge etc.)
-                
-                // SMOOTH CENTERING FIX
+                loadUnitsTab();
                 if (data.coords) {
-                    // GTA Koordinaten (x,y) müssen für Leaflet zu [y, x] gedreht werden
                     const pos = [data.coords.y, data.coords.x];
-                    
-                    // setView zentriert die Karte mit Animation (1.5 Sekunden Dauer)
-                    // Die "4" ist das Zoom-Level – kannst du nach Wunsch anpassen (1-5)
-                    map.setView(pos, 3, {
-                        animate: true,
-                        pan: { duration: 1 }
-                    });
+                    map.setView(pos, 3, { animate: true, pan: { duration: 1 } });
                 }
-                
                 map.invalidateSize();
             }, 200);
+        } else {
+            // WICHTIG: NUR hier wird alles für die nächste Sitzung scharf geschaltet
+            terminalPlayedThisSession = false; 
+            terminalStatus = { person: false, vehicle: false };
+            resetPersonRegister(); 
+            resetVehicleRegister();
         }
     } else if (data.action === "updateUnits") {
         renderUnitList(data.units);
-        updateUnitMarkers(data.units);
+        updateUnitMarkers(data.units, data.officers);
     }
-});
+}); // Ende des Listeners
 
 window.addEventListener('keydown', function(event) {
     if (event.key === "Escape") fetch(`https://${GetParentResourceName()}/closeUI`, { method: 'POST' });
@@ -1207,4 +1255,575 @@ window.loadDirectiveDraft = function() {
 // Hilfsfunktion zum Löschen nach Erfolg
 window.clearDirectiveDraft = function() {
     localStorage.removeItem('nui_police_dir_draft');
+};
+
+
+const searchSequences = [
+    ["> INITIALIZING DEEP SCAN...", "> BYPASSING FIREWALLS...", "> ACCESSING STATE ARCHIVES...", "> DECRYPTING BIOMETRIC DATA...", "> SUBJECT LOCATED."],
+    ["> CONNECTING TO HUB-01...", "> SCANNING NEURAL LINK...", "> RETRIEVING CITIZEN FILE...", "> CROSS-REFERENCING DNA...", "> ANALYSIS COMPLETE."],
+    ["> UPLOADING CREDENTIALS...", "> PINGING CENTRAL DATABASE...", "> FILTERING METADATA...", "> VALIDATING IDENTITY...", "> HANDSHAKE SUCCESSFUL."]
+];
+
+// NUI LABS | Ultra-Cinematic Terminal Bootstrapper with Layout-Fix
+function playAccessSequence(type) {
+    const screenId = type === 'person' ? 'terminal-access-screen' : 'vehicle-terminal-screen';
+    const contentId = type === 'person' ? 'terminal-content' : 'vehicle-terminal-content';
+    const hubId = type === 'person' ? 'registry-landing-hub' : 'vehicle-landing-hub';
+    
+    const screen = document.getElementById(screenId);
+    const body = document.getElementById(contentId);
+    const hub = document.getElementById(hubId);
+    
+    if (!screen || !body || activeIntervals[type]) return;
+
+    // Reset UI State
+    screen.classList.remove('hidden', 'terminal-exit-active');
+    screen.style.opacity = "1";
+    body.innerHTML = '';
+    if(hub) {
+        hub.classList.remove('hub-reveal-animation');
+        hub.style.opacity = "0";
+    }
+
+    // Erweiterte Befehlsliste für maximales Feeling
+    const lines = [
+        { t: `> BOOTING NUI_OS v0.50_BETA...`, d: 100 },
+        { t: `> LOADING KERNEL MODULES [OK]`, d: 50 },
+        { t: `> ESTABLISHING SECURE GATEWAY TO SAN ANDREAS DATA HUB...`, d: 400 },
+        { t: `> UPLOADING OPERATOR_CREDENTIALS: ${localPlayerInfo.name.toUpperCase()}`, d: 200 },
+        { t: `> RANK_CLEARANCE: ${localPlayerInfo.rank.toUpperCase()}`, d: 100 },
+        { t: `> BYPASSING STATE FIREWALL [#####-----] 50%`, d: 600 },
+        { t: `> BYPASSING STATE FIREWALL [##########] 100%`, d: 200 },
+        { t: `> HANDSHAKE WITH CENTRAL_DB... DONE.`, d: 300 },
+        { t: `> INJECTING AUTHENTICATION_TOKEN...`, d: 400 },
+        { t: `> DECRYPTING BIOMETRIC_RECORDS...`, d: 500 },
+        { t: `> ACCESS GRANTED. WELCOME BACK, OFFICER.`, d: 300 }
+    ];
+
+    let lineIndex = 0;
+
+    function printNextLine() {
+        if (lineIndex < lines.length) {
+            const line = lines[lineIndex];
+            const p = document.createElement('div');
+            p.innerHTML = line.t;
+            body.appendChild(p);
+            
+            screen.scrollTop = screen.scrollHeight;
+            
+            if(Math.random() > 0.85) {
+                screen.style.filter = "contrast(2) brightness(1.5) hue-rotate(20deg)";
+                setTimeout(() => screen.style.filter = "none", 50);
+            }
+
+            lineIndex++;
+            setTimeout(printNextLine, line.d); 
+        } else {
+            // SEQUENZ ENDE -> ÜBERGANG STARTEN
+            setTimeout(() => {
+                screen.classList.add('terminal-exit-active');
+                setTimeout(() => {
+                    screen.classList.add('hidden');
+                    
+                    if(hub) {
+                        // REVEAL LOGIC
+                        const page = document.getElementById(type === 'person' ? 'person-page' : 'vehicle-page');
+                        
+                        // Wir bleiben im Landing-Modus (Zentriert), bis eine Suche erfolgt
+                        hub.classList.add('hub-reveal-animation');
+                        hub.style.opacity = "1";
+                    }
+                    delete activeIntervals[type];
+                }, 800);
+            }, 1200);
+        }
+    }
+
+    activeIntervals[type] = true; 
+    printNextLine();
+}
+
+
+
+
+
+// NUI LABS | Sharp Cinematic Matrix Effect
+function startMatrixEffect(duration) {
+    const canvas = document.getElementById('matrix-canvas');
+    if (!canvas) return;
+    
+    canvas.classList.remove('hidden');
+    canvas.classList.add('visible');
+    const ctx = canvas.getContext('2d');
+    
+    canvas.width = canvas.parentElement.offsetWidth;
+    canvas.height = canvas.parentElement.offsetHeight;
+
+    const chars = "010182736459ABCDEF"; 
+    const fontSize = 18;
+    const columns = Math.floor(canvas.width / fontSize);
+    const drops = Array(columns).fill(1);
+
+    function draw() {
+        ctx.fillStyle = "rgba(10, 20, 30, 0.1)"; // Langsames Verblassen für Schweif-Effekt
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.font = `bold ${fontSize}px monospace`;
+        for (let i = 0; i < drops.length; i++) {
+            const text = chars[Math.floor(Math.random() * chars.length)];
+            
+            // Zufälliges Aufleuchten von Zeichen
+            ctx.fillStyle = (Math.random() > 0.98) ? "#ffffff" : "rgba(0, 209, 255, 0.4)"; 
+            
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+            drops[i]++;
+        }
+    }
+
+    const inst = setInterval(draw, 40);
+    setTimeout(() => { 
+        clearInterval(inst); 
+        canvas.classList.remove('visible');
+        setTimeout(() => canvas.classList.add('hidden'), 1000);
+    }, duration);
+}
+
+// NUI LABS | Tactical Terminal Controller - Search Execution
+document.getElementById('person-search-input').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        const val = this.value.trim();
+        if (val.length < 2) return;
+
+        const results = document.getElementById('person-results');
+        const statusBox = document.getElementById('search-status-display');
+        const anim = document.getElementById('search-animation');
+        const statusTxt = document.getElementById('scanning-message-text');
+        const progressBar = document.getElementById('scan-progress');
+
+        // 1. Initial UI Reset
+        results.innerHTML = '';
+        statusBox.classList.add('hidden');
+        anim.classList.remove('hidden');
+
+        // 2. START MATRIX EFFECT (Sync with 5s search time)
+        startMatrixEffect(5000); 
+
+        // 3. Progress Bar & Matrix Sync (5 Seconds)
+        progressBar.style.transition = 'none';
+        progressBar.style.width = '0%';
+        setTimeout(() => { 
+            progressBar.style.transition = 'width 5.0s linear'; 
+            progressBar.style.width = '100%'; 
+        }, 50);
+
+        // 4. Message Loop (Visual feedback)
+        const sequence = searchSequences[Math.floor(Math.random() * searchSequences.length)];
+        let msgIndex = 0;
+        statusTxt.innerText = sequence[0];
+        const msgInterval = setInterval(() => {
+            msgIndex++;
+            if (msgIndex < sequence.length) statusTxt.innerText = sequence[msgIndex];
+        }, 1000);
+
+        // 5. Database Fetch after 5s
+        setTimeout(() => {
+            clearInterval(msgInterval);
+            fetch(`https://${GetParentResourceName()}/searchPerson`, { method: 'POST', body: JSON.stringify({ name: val }) })
+            .then(res => res.json())
+            .then(data => {
+                anim.classList.add('hidden');
+                // WICHTIG: Landing-Klasse entfernen, damit der Content nach oben rückt
+                const page = document.getElementById('person-page');
+                page.classList.remove('person-page-landing'); 
+                page.classList.add('person-page-searching');
+                page.style.padding = "3rem 4rem"; // Normales Padding für Ergebnisse
+
+                const hasData = data && data.length > 0;
+                statusBox.innerHTML = hasData ? "SUCCESSFUL: SUBJECT(S) LOCATED" : "ERROR: NO DATABASE ENTRY";
+                statusBox.className = `status-box-premium ${hasData ? 'status-success' : 'status-error'}`;
+                statusBox.classList.remove('hidden');
+
+                setTimeout(() => {
+                    statusBox.classList.add('hidden');
+                    renderPersonResults(data);
+                }, 2000);
+            });
+        }, 5000);
+    }
+});
+
+
+// Die bereinigte Render-Funktion ohne Avatar
+function renderPersonResults(data) {
+    const container = document.getElementById('person-results');
+    const countBadge = document.getElementById('person-result-count');
+    
+    container.innerHTML = ''; // WICHTIG: Löscht alte Chips vor dem Neuzeichnen
+    
+    if (!data || data.length === 0) {
+        countBadge.classList.add('hidden');
+        container.innerHTML = `<div class="status-box-premium status-error">KEIN EINTRAG GEFUNDEN</div>`;
+        return;
+    }
+
+    countBadge.innerText = `${data.length} PERSONEN IM SYSTEM GEFUNDEN (BEREIT FÜR EINGABE...)`;
+    countBadge.classList.remove('hidden');
+
+    data.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'person-card';
+        card.innerHTML = `
+            <div class="name-header" style="font-size: 1.4rem; color: #fff; font-weight: 900; border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; margin-bottom: 1rem;">
+                ${p.firstname.toUpperCase()} ${p.lastname.toUpperCase()}
+            </div>
+
+            <div class="card-info-grid">
+                <div class="info-item"><span class="info-label">Geschlecht</span><span class="info-value">${p.sex}</span></div>
+                <div class="info-item"><span class="info-label">Geburtstag</span><span class="info-value">${p.dob}</span></div>
+                <div class="info-item"><span class="info-label">Einreise</span><span class="info-value">${p.entryDate || 'Unbekannt'}</span></div>
+                <div class="info-item"><span class="info-label">Job</span><span class="info-value">${p.job}</span></div>
+                <div class="info-item">
+                    <span class="info-label">Fahndung</span>
+                    <span class="info-value" style="color: ${p.wanted ? '#ff4d4d' : '#44ff44'}">${p.wanted ? 'GESUCHT' : 'NEIN'}</span>
+                </div>
+            
+
+                <div class="license-container" style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem;">
+                    <div class="license-badge ${p.licenses.driver ? 'license-valid' : 'license-invalid'}" style="flex:1; text-align:center; font-size:0.6rem; padding: 0.4rem;">FÜHRERSCHEIN</div>
+                    <div class="license-badge ${p.licenses.weapon ? 'license-valid' : 'license-invalid'}" style="flex:1; text-align:center; font-size:0.6rem; padding: 0.4rem;">WAFFENSCHEIN</div>
+                </div>
+            </div>
+
+            <button class="btn-small" onclick="openDossier('${p.citizenid}')">
+                <i class="fas fa-folder-open"></i> > AKTE ÖFFNEN
+            </button>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// NUI LABS | Unified Reset & Trigger Logic
+// NUI LABS | Clean Reset Logic
+function resetPersonRegister() {
+    const page = document.getElementById('person-page');
+    if (!page) return;
+
+    page.classList.add('person-page-landing');
+    page.classList.remove('person-page-searching');
+    page.style.padding = "0"; // Erzwingt Zentrierung durch CSS
+
+    if (!terminalStatus.person) {
+        playAccessSequence('person');
+        terminalStatus.person = true;
+    } else {
+        const hub = document.getElementById('registry-landing-hub');
+        if(hub) { hub.style.opacity = "1"; hub.classList.remove('hub-reveal-animation'); }
+    }
+}
+
+// NUI LABS | Fixed Vehicle Register Reset
+function resetVehicleRegister() {
+    const page = document.getElementById('vehicle-page');
+    const hub = document.getElementById('vehicle-landing-hub');
+    const results = document.getElementById('vehicle-results');
+    const staticHeader = document.getElementById('vehicle-header-static');
+
+    if (!page) return;
+
+    // 1. UI-Klassen zurücksetzen
+    page.classList.add('vehicle-page-landing');
+    page.classList.remove('vehicle-page-searching');
+    
+    // 2. Elemente ein/ausblenden
+    if (results) results.innerHTML = '';
+    if (staticHeader) staticHeader.style.display = 'none';
+    if (hub) {
+        hub.style.display = 'flex';
+        hub.style.opacity = "1";
+    }
+
+    // 3. Terminal Sequenz nur beim ersten Mal abspielen
+    if (!terminalStatus.vehicle) {
+        playAccessSequence('vehicle');
+        terminalStatus.vehicle = true;
+    } else {
+        if(hub) hub.classList.remove('hub-reveal-animation');
+    }
+}
+
+let terminalStatus = { person: false, vehicle: false };
+
+// NUI LABS | Dossier Logic
+// Diese Funktion behebt den ReferenceError
+function openDossier(citizenid) {
+    console.log("Öffne Dossier für CitizenID: " + citizenid);
+
+    // Hier wird die Anfrage an den FiveM-Client gesendet
+    fetch(`https://${GetParentResourceName()}/getPersonDossier`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: JSON.stringify({
+            citizenid: citizenid
+        })
+    }).then(resp => resp.json()).then(resp => {
+        if (resp && resp.data) {
+            // Hier kommt später die Logik zum Anzeigen der Akte hin
+            console.log("Dossier-Daten empfangen:", resp.data);
+        }
+    });
+}
+
+// ==========================================
+// NUI LABS | DMV VEHICLE SEARCH LOGIC
+// ==========================================
+
+const vehicleSearchSequences = [
+    ["> CONNECTING TO DMV CENTRAL...", "> SCANNING REGISTRY...", "> RETRIEVING VEHICLE DATA...", "> UPLOADING PLATE METADATA...", "> ACCESS GRANTED."],
+    ["> PINGING STATE DATABASE...", "> DECRYPTING OWNER INFO...", "> CHECKING REGISTRATION STATUS...", "> CROSS-REFERENCING VIN...", "> DATA RETRIEVED."]
+];
+
+document.getElementById('vehicle-search-input').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        const val = this.value.trim();
+        if (val.length < 2) return;
+
+        const results = document.getElementById('vehicle-results');
+        const statusBox = document.getElementById('vehicle-search-status');
+        const anim = document.getElementById('vehicle-search-animation');
+        const statusTxt = document.getElementById('vehicle-scanning-text');
+
+        // Reset UI
+        results.innerHTML = '';
+        statusBox.classList.add('hidden');
+        anim.classList.remove('hidden');
+
+        // Message Sequence (ca. 4 Sekunden für das DMV Feeling)
+        const sequence = vehicleSearchSequences[Math.floor(Math.random() * vehicleSearchSequences.length)];
+        let msgIndex = 0;
+        statusTxt.innerText = sequence[0];
+        
+        const msgInterval = setInterval(() => {
+            msgIndex++;
+            if (msgIndex < sequence.length) statusTxt.innerText = sequence[msgIndex];
+        }, 800);
+
+        // Server Request
+        // Server Request & Cinematic Transition
+        setTimeout(() => {
+            clearInterval(msgInterval);
+            fetch(`https://${GetParentResourceName()}/searchVehicle`, { 
+                method: 'POST', 
+                body: JSON.stringify({ search: val }) 
+            })
+            .then(res => res.json())
+            .then(data => {
+                anim.classList.add('hidden');
+                const page = document.getElementById('vehicle-page');
+                page.classList.remove('vehicle-page-landing');
+                page.classList.add('vehicle-page-searching');
+                page.style.padding = "3rem 4rem";
+                
+                if (data && data.length > 0) {
+                    statusBox.innerHTML = "DMV SEARCH SUCCESSFUL";
+                    statusBox.className = "status-box-premium status-success";
+                    statusBox.classList.remove('hidden');
+
+                    setTimeout(() => {
+                        statusBox.classList.add('hidden');
+                        
+                        // WICHTIG: Hier wird das Layout umgeschaltet
+                        const page = document.getElementById('vehicle-page');
+                        page.classList.remove('vehicle-page-landing');
+                        page.classList.add('vehicle-page-searching');
+                        
+                        // Header zeigen, Hub verstecken
+                        document.getElementById('vehicle-header-static').style.display = 'flex';
+                        document.getElementById('vehicle-landing-hub').style.display = "none"; 
+                        
+                        renderVehicleResults(data);
+                    }, 1500);
+                } else {
+                    statusBox.innerHTML = "CRITICAL ERROR: NO DATABASE RECORDS FOUND";
+                    statusBox.className = "status-box-premium status-error";
+                    statusBox.classList.remove('hidden');
+                    statusBox.style.opacity = "1";
+                }
+            });
+        }, 4000);
+    }
+});
+
+function renderVehicleResults(data) {
+    const container = document.getElementById('vehicle-results');
+    container.innerHTML = '';
+    container.style.opacity = "1";
+    container.style.display = "grid";
+
+    data.forEach(veh => {
+        const card = document.createElement('div');
+        card.className = 'vehicle-card';
+        card.setAttribute('data-plate', veh.plate);
+        
+        const isWanted = veh.policeData && veh.policeData.isWanted;
+        const notesCount = (veh.policeData && veh.policeData.notes) ? veh.policeData.notes.length : 0;
+        
+        const statusText = isWanted ? 'SYSTEM-WARNUNG: FAHNDUNG AKTIV' : 'STATUS: REGULÄR / OK';
+        const statusClass = isWanted ? 'status-wanted-yes' : 'status-wanted-no';
+        
+        const btnText = isWanted ? 'LÖSCHEN' : 'MELDEN';
+        const btnColor = isWanted ? '#44ff44' : '#ff4d4d';
+
+        card.innerHTML = `
+            <div class="model-title">${veh.modelName.toUpperCase()}</div>
+            <div class="card-info-grid">
+                <div class="info-item"><span class="info-label">KENNZEICHEN</span><span class="info-value" style="color: var(--accent); font-weight: 800;">${veh.plate}</span></div>
+                <div class="info-item"><span class="info-label">BESITZER</span><span class="info-value">${veh.ownerName}</span></div>
+            </div>
+            <div class="status-tag ${statusClass}">${statusText}</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-top: auto;">
+                <button class="btn-small" style="grid-column: span 2;" onclick="openDossier('${veh.citizenid}')"><i class="fas fa-id-card"></i> PERSONEN-AKTE</button>
+                
+                <div class="note-btn-wrapper">
+                    ${notesCount > 0 ? `<span class="note-badge">${notesCount}</span>` : ''}
+                    <button class="btn-small" style="width:100%" onclick="openVehicleNotes('${veh.plate}')">
+                        <i class="fas fa-clipboard-list"></i> NOTIZEN
+                    </button>
+                </div>
+
+                <button class="btn-small" style="border-color: ${btnColor}; color: ${btnColor};" onclick="toggleVehicleWanted('${veh.plate}', ${!isWanted})">
+                    <i class="fas ${isWanted ? 'fa-check-circle' : 'fa-exclamation-triangle'}"></i> ${btnText}
+                </button>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// NUI LABS | DMV Interaction: Toggle Wanted
+window.toggleVehicleWanted = function(plate, wantedStatus) {
+    fetch(`https://${GetParentResourceName()}/toggleVehicleWanted`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plate: plate, wanted: wantedStatus })
+    }).then(() => {
+        refreshVehicleCard(plate); // Instant Update statt Suche
+    });
+};
+
+// NUI LABS | Vehicle Intelligence Controller
+let currentVehiclePlate = null;
+
+// NUI LABS | Vehicle Intelligence: Open & Render Notes with Delete Option
+window.openVehicleNotes = function(plate) {
+    currentVehiclePlate = plate;
+    document.getElementById('notes-plate-display').innerText = plate;
+    
+    fetch(`https://${GetParentResourceName()}/searchVehicle`, { method: 'POST', body: JSON.stringify({ search: plate }) })
+    .then(res => res.json())
+    .then(data => {
+        const veh = data[0];
+        const list = document.getElementById('vehicle-notes-list');
+        list.innerHTML = '';
+
+        if (veh.policeData && veh.policeData.notes && veh.policeData.notes.length > 0) {
+            veh.policeData.notes.sort((a, b) => b.id - a.id).forEach(note => {
+                const item = document.createElement('div');
+                item.className = 'directive-card'; 
+                item.style.marginBottom = "0.8rem";
+                item.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div class="dir-content" style="font-size: 0.9rem; flex: 1;">${note.content}</div>
+                        <i class="fas fa-trash-alt note-delete-btn" onclick="deleteVehicleNote('${veh.plate}', ${note.id})"></i>
+                    </div>
+                    <div class="dir-timestamp" style="font-size: 0.65rem; margin-top: 0.8rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.4rem;">
+                        ${note.rank} ${note.author} | ${note.date}
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        } else {
+            list.innerHTML = '<div class="empty-notes-msg">KEINE DATENSÄTZE VORHANDEN</div>';
+        }
+        document.getElementById('vehicle-notes-modal').style.display = 'flex';
+    });
+};
+
+// NUI LABS | Delete Note Action
+window.deleteVehicleNote = function(plate, noteId) {
+    showConfirm("Eintrag entfernen?", () => {
+        fetch(`https://${GetParentResourceName()}/deleteVehicleNote`, {
+            method: 'POST',
+            body: JSON.stringify({ plate: plate, id: noteId })
+        }).then(() => {
+            openVehicleNotes(plate);
+            refreshVehicleCard(plate); // Badge auf der Karte refresh
+        });
+    });
+};
+
+window.saveVehicleNote = function() {
+    const content = document.getElementById('new-vehicle-note').value.trim();
+    if (!content || !currentVehiclePlate) return;
+
+    fetch(`https://${GetParentResourceName()}/saveVehicleNote`, {
+        method: 'POST',
+        body: JSON.stringify({ plate: currentVehiclePlate, content: content })
+    }).then(() => {
+        document.getElementById('new-vehicle-note').value = '';
+        openVehicleNotes(currentVehiclePlate); // Modal-Inhalt refresh
+        refreshVehicleCard(currentVehiclePlate); // Badge auf der Karte refresh
+    });
+};
+
+window.closeVehicleNotes = () => { document.getElementById('vehicle-notes-modal').style.display = 'none'; };
+
+// NUI LABS | Smooth UI Update for Single Vehicle Chip
+window.refreshVehicleCard = function(plate) {
+    fetch(`https://${GetParentResourceName()}/searchVehicle`, { 
+        method: 'POST', 
+        body: JSON.stringify({ search: plate }) 
+    })
+    .then(res => res.json())
+    .then(data => {
+        const veh = data.find(v => v.plate === plate);
+        if (!veh) return;
+
+        const card = document.querySelector(`.vehicle-card[data-plate="${plate}"]`);
+        if (!card) return;
+
+        // Wir berechnen nur die variablen Teile neu
+        const isWanted = veh.policeData && veh.policeData.isWanted;
+        const notesCount = (veh.policeData && veh.policeData.notes) ? veh.policeData.notes.length : 0;
+        
+        // 1. Status Tag aktualisieren
+        const statusTag = card.querySelector('.status-tag');
+        statusTag.className = `status-tag ${isWanted ? 'status-wanted-yes' : 'status-wanted-no'}`;
+        statusTag.innerText = isWanted ? 'SYSTEM-WARNUNG: FAHNDUNG AKTIV' : 'STATUS: REGULÄR / OK';
+
+        // 2. Notiz-Badge aktualisieren
+        const btnWrapper = card.querySelector('.note-btn-wrapper');
+        let badge = btnWrapper.querySelector('.note-badge');
+        
+        if (notesCount > 0) {
+            if (!badge) {
+                badge = document.createElement('span');
+                badge.className = 'note-badge';
+                btnWrapper.prepend(badge);
+            }
+            badge.innerText = notesCount;
+        } else if (badge) {
+            badge.remove();
+        }
+
+        // 3. Fahndungs-Button aktualisieren
+        const wantedBtn = card.querySelectorAll('.btn-small')[2]; // Der dritte Button
+        const btnColor = isWanted ? '#44ff44' : '#ff4d4d';
+        wantedBtn.style.borderColor = btnColor;
+        wantedBtn.style.color = btnColor;
+        wantedBtn.innerHTML = `<i class="fas ${isWanted ? 'fa-check-circle' : 'fa-exclamation-triangle'}"></i> ${isWanted ? 'LÖSCHEN' : 'MELDEN'}`;
+        wantedBtn.setAttribute('onclick', `toggleVehicleWanted('${veh.plate}', ${!isWanted})`);
+    });
 };

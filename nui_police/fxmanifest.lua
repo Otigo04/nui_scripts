@@ -3,7 +3,7 @@ game 'gta5'
 
 author 'NUI LABS'
 description 'Professional Police Dispatch System'
-version 'V0.15 Alpha'
+version 'V0.50 Beta'
 
 client_scripts {
     'config.lua',

@@ -14,3 +14,6 @@ CREATE TABLE IF NOT EXISTS `police_settings` (
 
 -- Standard Gefahrenstufe setzen
 INSERT IGNORE INTO `police_settings` (`setting_key`, `setting_value`) VALUES ('hazard_level', '1');
+
+-- NUI LABS | Vehicle Metadata Extension
+ALTER TABLE `player_vehicles` ADD COLUMN IF NOT EXISTS `police_data` LONGTEXT DEFAULT NULL;

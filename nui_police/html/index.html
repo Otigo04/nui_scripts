@@ -13,7 +13,7 @@
         <main class="dispatch-wrapper">
             
             <aside class="sidebar">
-                <div class="brand">NUI <span class="accent">POLICE V0.27</span></div>
+                <div class="brand">NUI <span class="accent">POLICE V0.50 BETA</span></div>
                 <nav class="menu-sections custom-scrollbar">
                     <div class="nav-group">
                         <div class="category">Leitstelle</div>
@@ -93,7 +93,7 @@
                         </div>
                 </div>
 
-                <<div id="confirm-modal" class="modal-overlay" style="display: none; z-index: 5000;">
+                <div id="confirm-modal" class="modal-overlay" style="display: none; z-index: 5000;">
                     <div class="modal-content confirm-box">
                         <div class="confirm-icon"><i class="fas fa-trash-alt"></i></div>
                         <h3>Eintrag löschen?</h3>
@@ -104,6 +104,8 @@
                         </div>
                     </div>
                 </div>
+
+                
 
                 <div id="units-page" class="page-content">
                     <div class="page-header">
@@ -128,6 +130,65 @@
                         <div id="unassigned-officers" class="officer-pool" ondrop="drop(event)" ondragover="allowDrop(event)">
                             </div>
                     </div>
+                </div>
+
+
+                <div id="person-page" class="page-content person-page-landing">
+                    <div id="terminal-access-screen" class="terminal-overlay hidden">
+                        <div class="terminal-wrapper">
+                            <div class="terminal-header">LSPD CENTRAL NETWORK - AUTHENTICATION</div>
+                            <div id="terminal-content" class="terminal-body"></div>
+                            <div class="terminal-cursor">_</div>
+                        </div>
+                    </div>
+
+                    <canvas id="matrix-canvas" class="hidden"></canvas>
+                    <div class="background-vignette"></div>
+
+                    <div class="page-header" id="person-header-static">
+                        <div class="header-icon-container">
+                            <i class="fas fa-fingerprint header-icon-animated"></i>
+                        </div>
+                        <div>
+                            <h2>GOVERNMENT CIVILIAN REGISTRY</h2>
+                            <p>State Security Administration - Central Data Hub</p>
+                        </div>
+                    </div>
+
+                    <div id="registry-landing-hub">
+                        <div id="person-result-count" class="result-count-badge hidden"></div>
+                        <div id="search-status-display" class="status-box-premium hidden"></div>
+                        <div class="security-meta-top">
+                            <span>CONNECTION: ENCRYPTED // AES-256 ACTIVE</span>
+                        </div>
+
+                        <div class="glitch-title">DATABASE ACCESS</div>
+                        <div class="sub-focal">READY FOR SUBJECT PARAMETERS</div>
+
+                        <div class="search-input-wrapper-premium">
+                            <input type="text" id="person-search-input" placeholder="PERSON EINGEBEN..." spellcheck="false">
+                        </div>
+
+                        <div class="peripheral-data">
+                            <div class="data-node">SYS: STABLE</div>
+                            <div class="data-node">UPLINK: ACTIVE</div>
+                            <div class="data-node">LOC: LOS SANTOS</div>
+                        </div>
+                        
+                        <div id="search-status-display" class="status-box-premium hidden"></div>
+                    </div>
+
+                    <div id="search-animation" class="search-overlay-fullscreen hidden">
+                        <div class="scan-visual-container">
+                            <i class="fas fa-fingerprint fingerprint-huge"></i>
+                            <div class="loading-bar-premium">
+                                <div id="scan-progress" class="progress-fill"></div>
+                            </div>
+                            <p id="scanning-message-text" class="scanning-text-premium"></p>
+                        </div>
+                    </div>
+
+                    <div id="person-results" class="results-grid custom-scrollbar"></div>
                 </div>
 
                 <div id="officers-page" class="page-content">
@@ -161,8 +222,54 @@
                     <div class="page-header"><h2>Personen-Notizen</h2><p>Zentrale Datenbank für Akteneinträge.</p></div>
                 </div>
                 <div id="vehicle-page" class="page-content">
-                    <div class="page-header"><h2>KFZ-Register</h2><p>Abfrage von Kennzeichen und Haltern.</p></div>
+                    <div id="vehicle-terminal-screen" class="terminal-overlay hidden">
+                        <div class="terminal-wrapper">
+                            <div class="terminal-header">LSPD DMV ACCESS - ENCRYPTED UPLINK</div>
+                            <div id="vehicle-terminal-content" class="terminal-body"></div>
+                            <div class="terminal-cursor">_</div>
+                        </div>
+                    </div>
+
+                    <div class="page-header" id="vehicle-header-static">
+                        <div class="header-icon-container">
+                            <i class="fas fa-car-side header-icon-animated"></i>
+                        </div>
+                        <div>
+                            <h2>DEPARTMENT OF MOTOR VEHICLES</h2>
+                            <p>National Vehicle Identification & Registration Database</p>
+                        </div>
+                    </div>
+
+                    <div id="vehicle-landing-hub">
+                        <div class="glitch-title">VEHICLE SEARCH</div>
+                        <div class="sub-focal">PLATE OR OWNER IDENTIFICATION REQUIRED</div>
+
+                        <div class="search-input-wrapper-premium">
+                            <input type="text" id="vehicle-search-input" placeholder="KENNZEICHEN ODER NAME..." spellcheck="false">
+                        </div>
+
+                        <div class="peripheral-data">
+                            <div class="data-node">DB: DMV_LIVE_01</div>
+                            <div class="data-node">STATUS: SECURE</div>
+                            <div class="data-node">REGION: SAN ANDREAS</div>
+                        </div>
+                        
+                        <div id="vehicle-search-status" class="status-box-premium hidden"></div>
+                    </div>
+
+                    <div id="vehicle-search-animation" class="search-overlay-fullscreen hidden">
+                        <div class="scan-visual-container">
+                            <div class="vehicle-loader-container">
+                                <div class="loader-scanner"></div>
+                                <i class="fas fa-search-location scanner-icon-main"></i>
+                            </div>
+                            <p id="vehicle-scanning-text" class="scanning-text-premium">> SCANNING DMV ARCHIVES...</p>
+                        </div>
+                    </div>
+
+                    <div id="vehicle-results" class="results-grid custom-scrollbar"></div>
                 </div>
+
                 <div id="jail-page" class="page-content">
                     <div class="page-header"><h2>Haftzeiten</h2><p>Übersicht inhaftierter Personen.</p></div>
                 </div>
@@ -172,24 +279,7 @@
                 <div id="incidents-page" class="page-content">
                     <div class="page-header"><h2>Fallakten-Archiv</h2><p>Dokumentation von Straftaten.</p></div>
                 </div>
-                <div id="orders-page" class="page-content">
-                    <div class="page-header">
-                        <div>
-                            <h2>Dienstanweisungen</h2>
-                            <p>Interne Protokolle der Führungsebene.</p>
-                        </div>
-                        <button id="add-directive-btn" class="btn-primary" onclick="openDirectiveModal()">
-                            <i class="fas fa-plus"></i> Neue Anweisung
-                        </button>
-                    </div>
-
-                    <div class="hazard-widget-premium">
-                        <div class="widget-title">Gefahrenstufe</div>
-                        <div id="hazard-selector" class="hazard-grid"></div>
-                    </div>
-
-                    <div id="directives-list" class="directives-container custom-scrollbar"></div>
-                </div>
+                
                 <div id="training-page" class="page-content">
                     <div class="page-header"><h2>Ausbildungs-Status</h2><p>Zertifizierungen für Sondereinheiten.</p></div>
                 </div>
@@ -383,6 +473,23 @@
                 </div>
                 <button id="confirm-vehicle" class="btn-primary" style="width: 100%; background: #ffcc00; color: black;">
                     Fahrzeug bestätigen
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="vehicle-notes-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="width: 45rem; max-height: 80vh; display: flex; flex-direction: column;">
+            <div class="modal-header">
+                <h3>Fahrzeugnotizen: <span id="notes-plate-display" style="color: var(--accent);"></span></h3>
+                <i class="fas fa-times close-modal" onclick="closeVehicleNotes()"></i>
+            </div>
+            <div id="vehicle-notes-list" class="custom-scrollbar" style="flex: 1; overflow-y: auto; margin: 1rem 0; padding-right: 0.5rem;">
+                </div>
+            <div class="modal-footer" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;">
+                <textarea id="new-vehicle-note" placeholder="Neue Information hinzufügen..." class="custom-scrollbar" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 1rem; border-radius: 0.5rem; height: 5rem; resize: none; margin-bottom: 1rem; outline: none;"></textarea>
+                <button class="btn-primary btn-hire-premium" style="width: 100%;" onclick="saveVehicleNote()">
+                    <i class="fas fa-save"></i> NOTIZ SPEICHERN
                 </button>
             </div>
         </div>
